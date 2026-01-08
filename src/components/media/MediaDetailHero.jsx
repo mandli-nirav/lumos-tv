@@ -13,9 +13,9 @@ export function MediaDetailHero({ media }) {
     offset: ['start start', 'end start'],
   });
 
-  const backdropY = useTransform(scrollYProgress, [0, 1], ['0%', '-12%']);
+  const backdropY = useTransform(scrollYProgress, [0, 1], ['0%', '-15%']);
   const backdropScale = useTransform(scrollYProgress, [0, 1], [1.12, 1.25]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '-25%']);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
   if (!media) return null;
@@ -48,7 +48,7 @@ export function MediaDetailHero({ media }) {
   return (
     <div
       ref={heroRef}
-      className='relative aspect-video w-full overflow-hidden font-sans md:aspect-auto md:h-150'
+      className='relative aspect-video w-full overflow-hidden font-sans md:aspect-auto md:h-135'
     >
       {/* Immersive Backdrop */}
       <motion.div
@@ -72,7 +72,7 @@ export function MediaDetailHero({ media }) {
       {/* Content Overlay */}
       <motion.div
         style={{ y: contentY }}
-        className='relative flex h-full max-w-3xl flex-col justify-end space-y-4 p-6 md:space-y-6 md:p-12'
+        className='relative flex h-full max-w-3xl flex-col justify-end space-y-4 px-6 pb-16 md:space-y-6 md:px-12 md:pb-20'
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}

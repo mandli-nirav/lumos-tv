@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <div className='space-y-12 pb-10'>
-      <HeroSlider data={trending.data} />
+      <HeroSlider data={trending.data} isLoading={trending.isLoading} />
 
       <div className='container mx-auto space-y-12 px-4 py-6 lg:px-8'>
         <MediaSlider

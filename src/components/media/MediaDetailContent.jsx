@@ -184,7 +184,7 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={`https://image.tmdb.org/t/p/h30${network.logo_path}`}
                         alt={network.name}
-                        className='max-h-5 object-contain opacity-80 brightness-0 invert'
+                        className='max-h-5 object-contain opacity-80 brightness-0 dark:invert'
                       />
                     ) : (
                       <span className='text-foreground/80 text-[10px] font-black tracking-tight'>

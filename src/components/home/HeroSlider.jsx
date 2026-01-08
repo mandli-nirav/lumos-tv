@@ -7,10 +7,11 @@ import Slider from 'react-slick';
 import { getImageUrl } from '@/api/tmdb';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGenres } from '@/hooks/useMedia';
 import { cn } from '@/lib/utils';
 
-export default function HeroSlider({ data }) {
+export default function HeroSlider({ data, isLoading }) {
   const [nav1, setNav1] = useState(null);
   const [nav2, setNav2] = useState(null);
   const { data: genreMap } = useGenres();
@@ -54,13 +55,65 @@ export default function HeroSlider({ data }) {
 
   const trendingItems = data?.results?.slice(0, 5) || [];
 
+  if (isLoading) {
+    return (
+      <div className='relative h-[90vh] w-full overflow-hidden bg-[#050505]'>
+        {/* Background Gradients to match real slider */}
+        <div className='absolute inset-0 z-10 bg-linear-to-r from-[#050505] via-[#050505]/60 to-transparent' />
+        <div className='absolute inset-0 z-10 bg-linear-to-t from-[#050505] via-transparent to-transparent' />
+
+        {/* Background Skeleton */}
+        <Skeleton className='absolute inset-0 h-full w-full rounded-none bg-zinc-900/20' />
+
+        {/* Content Skeleton */}
+        <div className='relative z-20 container mx-auto flex h-full flex-col justify-center px-4 md:px-12'>
+          <div className='max-w-2xl space-y-8'>
+            <div className='flex items-center gap-4'>
+              <Skeleton className='h-6 w-28 bg-zinc-800/40' />
+              <Skeleton className='h-5 w-20 bg-zinc-800/40' />
+            </div>
+            <Skeleton className='h-24 w-full bg-zinc-800/40 md:h-40' />
+            <div className='flex items-center gap-4'>
+              <Skeleton className='h-5 w-16 bg-zinc-800/40' />
+              <Skeleton className='h-5 w-40 bg-zinc-800/40' />
+              <Skeleton className='h-5 w-14 bg-zinc-800/40' />
+            </div>
+            <div className='space-y-3'>
+              <Skeleton className='h-4 w-full bg-zinc-800/20' />
+              <Skeleton className='h-4 w-5/6 bg-zinc-800/20' />
+              <Skeleton className='h-4 w-4/6 bg-zinc-800/20' />
+            </div>
+            <div className='flex items-center gap-5 pt-6'>
+              <Skeleton className='h-12 w-40 rounded-lg bg-zinc-800/40' />
+              <Skeleton className='h-12 w-12 rounded-lg bg-zinc-800/40' />
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnails Skeleton */}
+        <div className='absolute bottom-12 z-30 w-full'>
+          <div className='container mx-auto flex justify-end px-4'>
+            <div className='flex w-full max-w-sm gap-3 md:max-w-md lg:max-w-lg'>
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton
+                  key={i}
+                  className='aspect-video flex-1 rounded-xl bg-zinc-800/30'
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (trendingItems.length === 0) return null;
 
   return (
-    <div className='relative h-[85vh] w-full overflow-hidden font-sans'>
+    <div className='relative h-[90vh] w-full overflow-hidden font-sans'>
       <Slider {...settingsMain} className='hero-slider h-full w-full'>
         {trendingItems.map((item) => (
-          <div key={item.id} className='relative h-[85vh] w-full'>
+          <div key={item.id} className='relative h-[90vh] w-full'>
             {/* Background Backdrop */}
             <div className='absolute inset-0'>
               <img
@@ -94,7 +147,7 @@ export default function HeroSlider({ data }) {
                   </div>
                 </div>
 
-                <h1 className='text-foreground text-4xl leading-[0.9] font-black tracking-tighter md:text-6xl lg:text-8xl'>
+                <h1 className='text-foreground text-4xl leading-[0.9] font-bold md:text-6xl lg:text-8xl'>
                   {item.title || item.name}
                 </h1>
 
