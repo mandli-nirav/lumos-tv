@@ -14,11 +14,11 @@ import { MediaCard } from './MediaCard';
 export function MediaSlider({ title, items, isLoading }) {
   return (
     <div className='group/slider relative z-10 space-y-4 font-sans transition-all duration-300 hover:z-20'>
-      <div className='flex items-center justify-between px-2 md:px-0'>
+      <div className='relative z-0 flex items-center justify-between'>
         <h2 className='text-foreground/90 text-xl font-bold tracking-tight md:text-2xl'>
           {title}
         </h2>
-        <button className='text-muted-foreground hover:text-foreground flex items-center text-[12px] font-bold tracking-tight transition-colors'>
+        <button className='text-muted-foreground hover:text-foreground flex cursor-pointer items-center text-[12px] font-bold tracking-tight transition-colors'>
           View All <ChevronRight className='ml-1 h-3.5 w-3.5' />
         </button>
       </div>
@@ -27,11 +27,11 @@ export function MediaSlider({ title, items, isLoading }) {
         className='w-full'
         opts={{ align: 'start', loop: false, slidesToScroll: 'auto' }}
       >
-        <CarouselContent className='hide-scrollbar -my-32 -ml-2 items-start overflow-visible px-4 py-32 md:-ml-4'>
+        <CarouselContent className='hide-scrollbar -ml-2 items-start overflow-visible sm:-ml-4'>
           {items?.map((item) => (
             <CarouselItem
               key={item.id}
-              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-50 sm:basis-1/3 md:basis-1/4 md:pl-4 lg:basis-1/5 xl:basis-1/6'
+              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-[50] sm:basis-1/3 sm:pl-4 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
             >
               <MediaCard item={item} />
             </CarouselItem>

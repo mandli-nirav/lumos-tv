@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import { ModeToggle } from '@/components/mode-toggle';
@@ -17,9 +18,25 @@ import { useAppStore } from '@/store/useAppStore';
 export function Header() {
   const appName = useAppStore((state) => state.appName);
   const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className='border-border/40 bg-background/80 sticky top-0 z-40 w-full border-b font-sans backdrop-blur-xl'>
+    <header
+      className={cn(
+        'fixed top-0 z-40 w-full font-sans transition-all duration-300',
+        isScrolled
+          ? 'border-border/40 bg-background/80 border-b backdrop-blur-xl'
+          : 'border-transparent bg-linear-to-b from-black/80 via-black/40 to-transparent'
+      )}
+    >
       <div className='container mx-auto flex h-16 items-center px-4 md:px-8'>
         {/* Left: Logo */}
         <div className='flex flex-1 items-center justify-start'>
@@ -27,7 +44,10 @@ export function Header() {
             <img
               src='/assets/logos/lumos-dark.svg'
               alt='Lumos TV'
-              className='h-7 w-auto shrink-0 transition-transform group-hover:scale-105 lg:h-8 dark:hidden'
+              className={cn(
+                'h-7 w-auto shrink-0 transition-transform group-hover:scale-105 lg:h-8 dark:hidden',
+                !isScrolled && 'brightness-0 invert'
+              )}
             />
             <img
               src='/assets/logos/lumos-light.svg'
@@ -54,7 +74,9 @@ export function Header() {
                         'text-sm font-bold tracking-tight transition-all lg:px-2 xl:px-4',
                         isActive
                           ? 'text-primary bg-primary/10 hover:bg-primary/20 hover:text-primary'
-                          : 'text-muted-foreground hover:text-foreground bg-transparent'
+                          : isScrolled
+                            ? 'text-muted-foreground hover:text-foreground bg-transparent'
+                            : 'bg-transparent text-white/80 hover:text-white'
                       )}
                     >
                       <Link to={item.href}>{item.title}</Link>
@@ -72,17 +94,31 @@ export function Header() {
             variant='ghost'
             size='icon'
             asChild
-            className='text-muted-foreground hover:text-primary hover:bg-primary/10 h-10 w-10 transition-colors'
+            className={cn(
+              'h-10 w-10 transition-colors',
+              isScrolled
+                ? 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                : 'text-white/80 hover:bg-white/10 hover:text-white'
+            )}
           >
             <Link to='/search'>
               <Search className='h-5 w-5' />
               <span className='sr-only'>Search</span>
             </Link>
           </Button>
-          <div className='bg-border/60 mx-1 hidden h-6 w-px md:block' />
-          <div className='hidden md:block'>
-            <ModeToggle />
-          </div>
+          <div
+            className={cn(
+              'mx-1 h-6 w-px',
+              isScrolled ? 'bg-border/60' : 'bg-white/20'
+            )}
+          />
+          <ModeToggle
+            className={cn(
+              isScrolled
+                ? 'text-muted-foreground'
+                : 'text-white/80 hover:bg-white/10 hover:text-white'
+            )}
+          />
         </div>
       </div>
     </header>
