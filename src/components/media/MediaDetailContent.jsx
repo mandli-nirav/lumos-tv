@@ -26,6 +26,14 @@ export function MediaDetailContent({ media }) {
 
   const { ref, inView } = useInView();
 
+  const isTV = !!media?.seasons;
+  const [selectedSeason, setSelectedSeason] = useState(1);
+  const { data: seasonData, isLoading: isSeasonLoading } = useSeasonDetails(
+    id,
+    selectedSeason,
+    { enabled: isTV }
+  );
+
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -34,7 +42,6 @@ export function MediaDetailContent({ media }) {
 
   if (!media) return null;
 
-  const isTV = !!media.seasons;
   const cast = _.take(_.get(media, 'credits.cast', []), 20);
   const crew = _.filter(_.get(media, 'credits.crew', []), (c) =>
     _.includes(
@@ -62,8 +69,6 @@ export function MediaDetailContent({ media }) {
 
   return (
     <div className='space-y-12 px-6 py-8 font-sans md:px-12'>
-      {/* TV Episode Section */}
-      {isTV && <TVEpisodeSection media={media} />}
       {/* Overview & Main Meta */}
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>
@@ -200,12 +205,100 @@ export function MediaDetailContent({ media }) {
       </section>
 
       {/* Tabs Section */}
-      <Tabs defaultValue='more'>
+      <Tabs defaultValue={isTV ? 'episodes' : 'more'}>
         <TabsList>
+          {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
           <TabsTrigger value='more'>More Like This</TabsTrigger>
           <TabsTrigger value='trailers'>Trailers & More</TabsTrigger>
           <TabsTrigger value='photos'>Photos</TabsTrigger>
         </TabsList>
+
+        {isTV && (
+          <TabsContent value='episodes'>
+            <div className='space-y-6'>
+              <div className='relative'>
+                <ScrollArea className='w-full pb-2 whitespace-nowrap'>
+                  <Tabs
+                    defaultValue={selectedSeason.toString()}
+                    onValueChange={(value) =>
+                      setSelectedSeason(parseInt(value))
+                    }
+                  >
+                    <TabsList>
+                      {media.seasons
+                        ?.filter((s) => s.season_number > 0)
+                        .map((season) => (
+                          <TabsTrigger
+                            key={season.id}
+                            value={season.season_number.toString()}
+                          >
+                            Season {season.season_number}
+                          </TabsTrigger>
+                        ))}
+                    </TabsList>
+                  </Tabs>
+                </ScrollArea>
+              </div>
+
+              <AnimatePresence mode='wait'>
+                {isSeasonLoading ? (
+                  <div className='flex h-64 items-center justify-center'>
+                    <div className='border-primary/20 border-t-primary h-8 w-8 animate-spin rounded-full border-2' />
+                  </div>
+                ) : (
+                  <motion.div
+                    key={selectedSeason}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className='grid grid-cols-1 gap-4'
+                  >
+                    {seasonData?.episodes?.map((episode) => (
+                      <div
+                        key={episode.id}
+                        className='group hover:bg-muted/50 flex cursor-pointer gap-3 rounded-2xl p-2 transition-all md:gap-5 md:p-3'
+                      >
+                        <div className='bg-muted relative aspect-video h-20 shrink-0 overflow-hidden rounded-xl md:h-28'>
+                          <img
+                            src={getImageUrl(
+                              episode.still_path,
+                              'w300',
+                              'backdrop'
+                            )}
+                            alt={episode.name}
+                            className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
+                          />
+                          <div className='bg-background/20 absolute inset-0 flex items-center justify-center overflow-hidden rounded-xl opacity-0 backdrop-blur-xs transition-opacity group-hover:opacity-100'>
+                            <Play className='fill-foreground text-foreground h-7 w-7' />
+                          </div>
+                        </div>
+                        <div className='flex min-w-0 flex-1 flex-col justify-center'>
+                          <div className='mb-1.5 flex flex-wrap items-center gap-2'>
+                            <span className='text-primary text-[10px] font-black tracking-tighter uppercase'>
+                              Episode {episode.episode_number}
+                            </span>
+                            <h4 className='text-foreground/90 truncate text-sm font-bold md:text-base'>
+                              {episode.name}
+                            </h4>
+                          </div>
+                          <p className='text-muted-foreground line-clamp-2 text-xs leading-relaxed md:text-sm'>
+                            {episode.overview || 'No description available.'}
+                          </p>
+                          <div className='text-muted-foreground/60 mt-2 flex items-center gap-3 text-[10px] font-bold md:text-[11px]'>
+                            <span>{episode.air_date}</span>
+                            <span className='bg-muted-foreground/20 h-1 w-1 rounded-full' />
+                            <span>{episode.runtime || 0}m</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </TabsContent>
+        )}
 
         <TabsContent value='more' className='pt-8 outline-none'>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
@@ -293,95 +386,5 @@ export function MediaDetailContent({ media }) {
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
-
-function TVEpisodeSection({ media }) {
-  const [selectedSeason, setSelectedSeason] = useState(1);
-  const { data: seasonData, isLoading } = useSeasonDetails(
-    media.id,
-    selectedSeason
-  );
-
-  const seasons = media.seasons?.filter((s) => s.season_number > 0) || [];
-
-  return (
-    <section className='space-y-6'>
-      <div className='flex items-center justify-between'>
-        <h3 className='text-foreground text-xl font-bold'>Episodes</h3>
-        <div className='scrollbar-hide flex max-w-[70%] items-center gap-3 overflow-x-auto pb-2'>
-          {seasons.map((season) => (
-            <Button
-              key={season.id}
-              variant={
-                selectedSeason === season.season_number
-                  ? 'default'
-                  : 'secondary'
-              }
-              size='sm'
-              onClick={() => setSelectedSeason(season.season_number)}
-              className='h-9 rounded-full px-5 font-bold'
-            >
-              Season {season.season_number}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <ScrollArea className='h-112 w-full pr-4'>
-        <AnimatePresence mode='wait'>
-          {isLoading ? (
-            <div className='flex h-40 items-center justify-center'>
-              <div className='border-primary/20 border-t-primary h-6 w-6 animate-spin rounded-full border-2' />
-            </div>
-          ) : (
-            <motion.div
-              key={selectedSeason}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className='space-y-4'
-            >
-              {seasonData?.episodes?.map((episode) => (
-                <div
-                  key={episode.id}
-                  className='group hover:bg-muted/50 hover:border-border flex cursor-pointer gap-4 rounded-xl border border-transparent p-3 transition-colors'
-                >
-                  <div className='bg-muted relative h-20 w-36 shrink-0 overflow-hidden rounded-lg'>
-                    <img
-                      src={getImageUrl(episode.still_path, 'w185', 'backdrop')}
-                      alt={episode.name}
-                      className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-110'
-                    />
-                    <div className='bg-background/40 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100'>
-                      <Play className='fill-foreground text-foreground h-6 w-6' />
-                    </div>
-                  </div>
-                  <div className='flex min-w-0 flex-1 flex-col justify-center'>
-                    <div className='mb-1 flex items-center gap-2'>
-                      <Badge
-                        variant='outline'
-                        className='text-muted-foreground h-5 px-1.5 text-[10px] font-bold'
-                      >
-                        E{episode.episode_number}
-                      </Badge>
-                      <h4 className='text-foreground/90 truncate text-base font-bold'>
-                        {episode.name}
-                      </h4>
-                    </div>
-                    <p className='text-muted-foreground line-clamp-2 text-xs'>
-                      {episode.overview || 'No description available.'}
-                    </p>
-                    <div className='text-muted-foreground/50 mt-1 truncate text-[11px] font-medium'>
-                      {episode.air_date} • {episode.runtime || 0}m
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </ScrollArea>
-    </section>
   );
 }

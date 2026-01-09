@@ -39,9 +39,9 @@ export function Header() {
         </div>
 
         {/* Center: Navigation */}
-        <div className='flex flex-none items-center justify-center lg:flex-1'>
+        <div className='flex flex-none items-center justify-center'>
           <NavigationMenu className='hidden lg:flex'>
-            <NavigationMenuList className='gap-2'>
+            <NavigationMenuList className='gap-1 xl:gap-2'>
               {mainNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -51,7 +51,7 @@ export function Header() {
                       active={isActive}
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        'px-4 text-sm font-bold tracking-tight transition-all',
+                        'text-sm font-bold tracking-tight transition-all lg:px-2 xl:px-4',
                         isActive
                           ? 'text-primary bg-primary/10 hover:bg-primary/20 hover:text-primary'
                           : 'text-muted-foreground hover:text-foreground bg-transparent'
@@ -67,7 +67,7 @@ export function Header() {
         </div>
 
         {/* Right: Actions */}
-        <div className='flex flex-1 items-center justify-end gap-3'>
+        <div className='flex flex-1 items-center justify-end gap-1 md:gap-3'>
           <Button
             variant='ghost'
             size='icon'
@@ -79,8 +79,10 @@ export function Header() {
               <span className='sr-only'>Search</span>
             </Link>
           </Button>
-          <div className='bg-border/60 mx-1 h-6 w-px' />
-          <ModeToggle />
+          <div className='bg-border/60 mx-1 hidden h-6 w-px md:block' />
+          <div className='hidden md:block'>
+            <ModeToggle />
+          </div>
         </div>
       </div>
     </header>

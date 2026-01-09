@@ -156,3 +156,25 @@
     display: none; /* Chrome, Safari and Opera */
   }
 }
+
+/* Apple TV Style Dots */
+.slick-thumb-dots {
+  @apply bottom-8! z-30 flex items-center justify-center gap-2 md:hidden!;
+}
+
+.slick-thumb-dots li {
+  @apply m-0! h-auto! w-auto!;
+}
+
+.slick-thumb-dots li button {
+  @apply bg-primary/30 h-2! w-2! rounded-full p-0! transition-all duration-300 before:content-none!;
+}
+
+.slick-thumb-dots li.slick-active button {
+  @apply bg-primary w-8!;
+}
+
+/* Mobile Bottom Nav Refinement */
+nav {
+  -webkit-tap-highlight-color: transparent;
+}

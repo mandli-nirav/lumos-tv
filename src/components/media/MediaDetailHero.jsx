@@ -6,6 +6,9 @@ import { useRef } from 'react';
 import { getImageUrl } from '@/api/tmdb';
 import { Button } from '@/components/ui/button';
 
+import { AddToLibraryButton } from './AddToLibraryButton';
+import { WatchNowButton } from './WatchNowButton';
+
 export function MediaDetailHero({ media }) {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -48,7 +51,7 @@ export function MediaDetailHero({ media }) {
   return (
     <div
       ref={heroRef}
-      className='relative aspect-video w-full overflow-hidden font-sans md:aspect-auto md:h-135'
+      className='relative h-125 w-full overflow-hidden font-sans md:h-135'
     >
       {/* Immersive Backdrop */}
       <motion.div
@@ -62,47 +65,48 @@ export function MediaDetailHero({ media }) {
         <img
           src={getImageUrl(media.backdrop_path, 'original', 'backdrop')}
           alt={title}
-          className='h-full w-full object-cover object-top'
+          className='absolute inset-0 h-full w-full object-cover object-top'
         />
         {/* Gradients to blend with content */}
-        <div className='from-background via-background/40 absolute inset-0 bg-linear-to-t to-transparent' />
-        <div className='from-background via-background/20 absolute inset-0 bg-linear-to-r to-transparent' />
+        <div className='from-background via-background/60 absolute inset-0 bg-linear-to-t to-transparent' />
+        <div className='from-background/80 absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t via-transparent to-transparent md:hidden' />
+        <div className='from-background via-background/20 absolute inset-0 hidden bg-linear-to-r to-transparent md:block' />
       </motion.div>
 
       {/* Content Overlay */}
       <motion.div
         style={{ y: contentY }}
-        className='relative flex h-full max-w-3xl flex-col justify-end space-y-4 px-6 pb-16 md:space-y-6 md:px-12 md:pb-20'
+        className='relative flex h-full items-center justify-center p-6 pb-12 md:items-end md:justify-start md:px-12 md:pb-20'
       >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className='space-y-4'
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className='flex w-full max-w-3xl flex-col items-center space-y-4 text-center md:items-start md:space-y-6 md:text-left'
         >
           {/* Metadata Bar */}
-          <div className='text-foreground/90 flex items-center gap-3 text-[12px] font-bold md:text-sm'>
+          <div className='text-foreground/90 flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold md:justify-start md:gap-3 md:text-sm'>
             <span>{year}</span>
             <span className='text-foreground/30'>•</span>
             <span>{duration}</span>
             <span className='text-foreground/30'>•</span>
-            <div className='bg-foreground/10 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] tracking-wider uppercase'>
+            <div className='bg-primary/20 text-primary flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] tracking-wider uppercase'>
               {language}
             </div>
             <span className='text-foreground/30'>•</span>
             <div className='flex items-center gap-1 text-yellow-500'>
-              <Star className='h-4 w-4 fill-yellow-500' />
+              <Star className='h-3.5 w-3.5 fill-yellow-500' />
               <span>{rating}</span>
             </div>
           </div>
 
           {/* Title */}
-          <h1 className='text-foreground text-3xl leading-tight font-bold md:text-6xl'>
+          <h1 className='text-foreground text-4xl leading-[1.1] font-bold md:text-6xl'>
             {title}
           </h1>
 
           {/* Genres */}
-          <div className='text-muted-foreground/80 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold md:text-base'>
+          <div className='text-muted-foreground/80 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs font-bold md:justify-start md:text-base'>
             {_.map(_.take(_.get(media, 'genres', []), 3), (genre, i) => (
               <div key={genre.id} className='flex items-center gap-2'>
                 <span>{genre.name}</span>
@@ -114,14 +118,9 @@ export function MediaDetailHero({ media }) {
           </div>
 
           {/* Actions */}
-          <div className='flex items-center gap-4 pt-4'>
-            <Button>
-              <Play />
-              Watch Now
-            </Button>
-            <Button variant='secondary' size='icon'>
-              <Plus />
-            </Button>
+          <div className='flex items-center justify-center gap-4 pt-4 md:justify-start'>
+            <WatchNowButton />
+            <AddToLibraryButton isIcon className='h-11 w-11' />
           </div>
         </motion.div>
       </motion.div>

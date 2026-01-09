@@ -5,6 +5,8 @@ import { useState } from 'react';
 import Slider from 'react-slick';
 
 import { getImageUrl } from '@/api/tmdb';
+import { AddToLibraryButton } from '@/components/media/AddToLibraryButton';
+import { WatchNowButton } from '@/components/media/WatchNowButton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,6 +29,8 @@ export default function HeroSlider({ data, isLoading }) {
     infinite: true,
     slidesToShow: 1,
     slidesToScroll: 1,
+    dots: true,
+    dotsClass: 'slick-dots slick-thumb-dots',
   };
 
   const settingsThumb = {
@@ -122,19 +126,21 @@ export default function HeroSlider({ data, isLoading }) {
                 className='h-full w-full object-cover'
               />
               {/* Overlays */}
-              <div className='from-background via-background/60 absolute inset-0 bg-linear-to-r to-transparent' />
-              <div className='from-background absolute inset-0 bg-linear-to-t via-transparent to-transparent' />
+              <div className='from-background via-background/60 absolute inset-0 hidden bg-linear-to-r to-transparent md:block' />
+              <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t to-transparent' />
+              {/* Extra bottom protection for mobile content */}
+              <div className='from-background absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t via-transparent to-transparent md:hidden' />
             </div>
 
             {/* Content */}
-            <div className='relative z-10 container mx-auto flex h-full flex-col justify-center px-4 md:px-12'>
+            <div className='relative z-10 container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0'>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className='max-w-2xl space-y-6'
+                className='mx-auto max-w-2xl space-y-4 text-center md:mx-0 md:space-y-6 md:text-left'
               >
-                <div className='flex items-center gap-4'>
+                <div className='flex items-center justify-center gap-4 md:justify-start'>
                   <Badge
                     variant='secondary'
                     className='bg-primary/15 text-primary border-none px-3 py-1 text-[10px] font-bold tracking-widest uppercase'
@@ -147,11 +153,11 @@ export default function HeroSlider({ data, isLoading }) {
                   </div>
                 </div>
 
-                <h1 className='text-foreground text-4xl leading-[0.9] font-bold md:text-6xl lg:text-8xl'>
+                <h1 className='text-foreground text-4xl leading-[1.1] font-bold md:text-6xl lg:text-8xl'>
                   {item.title || item.name}
                 </h1>
 
-                <div className='text-muted-foreground flex items-center gap-3 text-sm font-bold tracking-wider uppercase'>
+                <div className='text-muted-foreground flex items-center justify-center gap-3 text-xs font-bold tracking-wider uppercase md:justify-start md:text-sm'>
                   <span>
                     {item.release_date || item.first_air_date
                       ? format(
@@ -176,18 +182,13 @@ export default function HeroSlider({ data, isLoading }) {
                   <span>{item.original_language?.toUpperCase()}</span>
                 </div>
 
-                <p className='text-muted-foreground line-clamp-3 max-w-xl text-lg leading-relaxed font-medium'>
+                <p className='text-muted-foreground mx-auto line-clamp-2 max-w-xl text-base leading-relaxed font-medium md:mx-0 md:line-clamp-3 md:text-lg'>
                   {item.overview}
                 </p>
 
-                <div className='flex items-center gap-4 pt-4'>
-                  <Button>
-                    <Play />
-                    Watch Now
-                  </Button>
-                  <Button size='icon' variant='outline'>
-                    <Plus />
-                  </Button>
+                <div className='flex flex-col items-center gap-3 pt-4 md:flex-row md:items-start md:gap-4'>
+                  <WatchNowButton className='w-full text-lg md:w-auto md:text-base' />
+                  <AddToLibraryButton />
                 </div>
               </motion.div>
             </div>
@@ -196,7 +197,7 @@ export default function HeroSlider({ data, isLoading }) {
       </Slider>
 
       {/* Thumbnail Navigation */}
-      <div className='absolute bottom-12 z-20 w-full'>
+      <div className='absolute bottom-12 z-20 hidden w-full md:block'>
         <div className='container mx-auto flex justify-end px-4'>
           <div className='w-full max-w-75 md:max-w-100 lg:max-w-125'>
             <Slider {...settingsThumb} className='thumbnail-slider'>
