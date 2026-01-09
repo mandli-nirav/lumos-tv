@@ -62,7 +62,7 @@ export function InstallPrompt() {
     <div className='fixed right-4 bottom-20 left-4 z-50 md:right-4 md:left-auto md:w-96'>
       <div className='rounded-lg border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur-md'>
         <div className='flex items-start gap-3'>
-          <div className='flex-shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-2'>
+          <div className='shrink-0 rounded-full bg-linear-to-br from-purple-500 to-blue-500 p-2'>
             <Download className='h-5 w-5 text-white' />
           </div>
           <div className='flex-1'>
@@ -92,7 +92,7 @@ export function InstallPrompt() {
           </div>
           <button
             onClick={handleDismiss}
-            className='flex-shrink-0 rounded-full p-1 text-white/40 hover:bg-white/10 hover:text-white'
+            className='shrink-0 rounded-full p-1 text-white/40 hover:bg-white/10 hover:text-white'
           >
             <X className='h-4 w-4' />
           </button>

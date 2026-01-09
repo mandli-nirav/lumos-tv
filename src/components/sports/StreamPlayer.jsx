@@ -180,7 +180,7 @@ export function StreamPlayer({ match, sources }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className='pointer-events-none absolute inset-x-0 bottom-0 z-50 bg-gradient-to-t from-black/80 to-transparent p-6'
+              className='pointer-events-none absolute inset-x-0 bottom-0 z-50 bg-linear-to-t from-black/80 to-transparent p-6'
             >
               <div className='pointer-events-auto flex justify-end'>
                 <div className='flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/50 backdrop-blur-md'>

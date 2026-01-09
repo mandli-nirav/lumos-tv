@@ -243,13 +243,13 @@ export function MediaDetailContent({ media }) {
                     <Button
                       variant='outline'
                       role='combobox'
-                      className='w-[200px] justify-between'
+                      className='w-50 justify-between'
                     >
                       Season {selectedSeason}
                       <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className='w-[200px] p-0'>
+                  <PopoverContent className='w-50 p-0'>
                     <Command>
                       <CommandInput placeholder='Search season...' />
                       <CommandList>

@@ -59,7 +59,7 @@ export default function Watch() {
   }
 
   return (
-    <div className='fixed inset-0 z-[100] h-screen w-full overflow-hidden bg-black'>
+    <div className='fixed inset-0 z-100 h-screen w-full overflow-hidden bg-black'>
       <VideoPlayer
         type={type}
         id={id}

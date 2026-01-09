@@ -50,9 +50,7 @@ export function MediaCard({ item, explicitType }) {
   };
 
   return (
-    <div
-      className={`relative w-full font-sans ${isHovered ? 'z-[50]' : 'z-[10]'}`}
-    >
+    <div className={`relative w-full font-sans ${isHovered ? 'z-50' : 'z-10'}`}>
       {/* Static Placeholder to maintain layout and prevent shifting */}
       <div className='aspect-2/3 w-full' />
 

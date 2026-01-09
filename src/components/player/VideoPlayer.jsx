@@ -38,6 +38,37 @@ const SERVERS = [
     url: 'https://vidsrc.pro/embed',
   },
   { id: '2embed', name: 'Server 4 (2Embed)', url: 'https://www.2embed.cc' },
+  // 🔹 Additional servers
+  {
+    id: 'embed-su',
+    name: 'Server 5 (Embed.su)',
+    url: 'https://embed.su/embed',
+  },
+  {
+    id: 'multiembed',
+    name: 'Server 6 (MultiEmbed)',
+    url: 'https://multiembed.mov',
+  },
+  {
+    id: 'moviesapi',
+    name: 'Server 7 (MoviesAPI)',
+    url: 'https://moviesapi.club/embed',
+  },
+  {
+    id: 'vidlink',
+    name: 'Server 8 (VidLink)',
+    url: 'https://vidlink.pro/movie',
+  },
+  {
+    id: 'smashystream',
+    name: 'Server 9 (SmashyStream)',
+    url: 'https://embed.smashystream.com',
+  },
+  {
+    id: 'autoembed',
+    name: 'Server 10 (AutoEmbed)',
+    url: 'https://autoembed.to/embed/movie',
+  },
 ];
 
 export function VideoPlayer({
@@ -85,6 +116,24 @@ export function VideoPlayer({
       if (server.id === '2embed') {
         return `${server.url}/embed/${id}`;
       }
+      if (server.id === 'embed-su') {
+        return `${server.url}/movie/${id}`;
+      }
+      if (server.id === 'multiembed') {
+        return `${server.url}/?video_id=${id}&tmdb=1`;
+      }
+      if (server.id === 'moviesapi') {
+        return `${server.url}/movie/${id}`;
+      }
+      if (server.id === 'vidlink') {
+        return `${server.url}/${id}`;
+      }
+      if (server.id === 'smashystream') {
+        return `${server.url}/movie?tmdb=${id}`;
+      }
+      if (server.id === 'autoembed') {
+        return `${server.url}/${id}`;
+      }
     } else {
       // TV Show URL patterns
       if (server.id === 'vidsrc-cc') {
@@ -98,6 +147,24 @@ export function VideoPlayer({
       }
       if (server.id === '2embed') {
         return `${server.url}/embedtv/${id}&s=${season}&e=${episode}`;
+      }
+      if (server.id === 'embed-su') {
+        return `${server.url}/tv/${id}/${season}/${episode}`;
+      }
+      if (server.id === 'multiembed') {
+        return `${server.url}/?video_id=${id}&tmdb=1&s=${season}&e=${episode}`;
+      }
+      if (server.id === 'moviesapi') {
+        return `${server.url}/tv/${id}/${season}/${episode}`;
+      }
+      if (server.id === 'vidlink') {
+        return `https://vidlink.pro/tv/${id}/${season}/${episode}`;
+      }
+      if (server.id === 'smashystream') {
+        return `${server.url}/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+      }
+      if (server.id === 'autoembed') {
+        return `https://autoembed.to/embed/tv/${id}/${season}/${episode}`;
       }
     }
 
@@ -185,10 +252,22 @@ export function VideoPlayer({
       >
         {/* The Player Iframe */}
         <iframe
+          key={selectedServer.id}
           src={constructUrl(selectedServer)}
           className='h-full w-full border-0'
+          sandbox='allow-scripts allow-same-origin allow-presentation'
           allowFullScreen
           onLoad={() => setIsReady(true)}
+          onError={() => {
+            // Try next server on error
+            const currentIndex = SERVERS.findIndex(
+              (s) => s.id === selectedServer.id
+            );
+            if (currentIndex < SERVERS.length - 1) {
+              setIsReady(false);
+              setSelectedServer(SERVERS[currentIndex + 1]);
+            }
+          }}
           title={title}
         />
 
@@ -199,7 +278,7 @@ export function VideoPlayer({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className='pointer-events-none absolute inset-x-0 bottom-0 z-50 bg-gradient-to-t from-black/80 to-transparent p-6'
+              className='pointer-events-none absolute inset-x-0 bottom-0 z-50 bg-linear-to-t from-black/80 to-transparent p-6'
             >
               <div className='pointer-events-auto flex justify-end'>
                 <div className='flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/50 backdrop-blur-md'>

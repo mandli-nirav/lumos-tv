@@ -54,7 +54,7 @@ export default function Sports() {
                 ? [...Array(6)].map((_, i) => (
                     <div
                       key={i}
-                      className='bg-muted h-28 w-28 flex-shrink-0 animate-pulse rounded-xl'
+                      className='bg-muted h-28 w-28 shrink-0 animate-pulse rounded-xl'
                     />
                   ))
                 : sports?.map((sport) => (

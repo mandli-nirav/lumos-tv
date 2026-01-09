@@ -31,7 +31,7 @@ export function MediaSlider({ title, items, isLoading }) {
           {items?.map((item) => (
             <CarouselItem
               key={item.id}
-              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-[50] sm:basis-1/3 sm:pl-4 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
+              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-50 sm:basis-1/3 sm:pl-4 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
             >
               <MediaCard item={item} />
             </CarouselItem>
