@@ -152,7 +152,7 @@ export const useInfiniteSimilarMedia = (type, id) => {
 /**
  * Fetch details for a specific season of a TV show.
  */
-export const useSeasonDetails = (tvId, seasonNumber) => {
+export const useSeasonDetails = (tvId, seasonNumber, options = {}) => {
   return useQuery({
     queryKey: ['tv', tvId, 'season', seasonNumber],
     queryFn: async () => {
@@ -161,7 +161,8 @@ export const useSeasonDetails = (tvId, seasonNumber) => {
       });
       return response.data;
     },
-    enabled: !!tvId && seasonNumber !== undefined,
+    enabled: !!tvId && seasonNumber !== undefined && options.enabled !== false,
+    ...options,
   });
 };
 
