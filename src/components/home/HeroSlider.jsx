@@ -133,12 +133,12 @@ export default function HeroSlider({ data, isLoading }) {
             </div>
 
             {/* Content */}
-            <div className='relative z-10 container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0'>
+            <div className='relative container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0'>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className='mx-auto max-w-2xl space-y-4 text-center md:mx-0 md:space-y-6 md:text-left'
+                className='mx-auto max-w-3xl space-y-4 text-center md:mx-0 md:space-y-6 md:text-left'
               >
                 <div className='flex items-center justify-center gap-4 md:justify-start'>
                   <Badge
@@ -153,7 +153,7 @@ export default function HeroSlider({ data, isLoading }) {
                   </div>
                 </div>
 
-                <h1 className='text-foreground text-4xl leading-[1.1] font-bold md:text-6xl lg:text-8xl'>
+                <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl lg:text-6xl'>
                   {item.title || item.name}
                 </h1>
 
@@ -200,7 +200,7 @@ export default function HeroSlider({ data, isLoading }) {
       </Slider>
 
       {/* Thumbnail Navigation */}
-      <div className='absolute bottom-12 z-20 hidden w-full md:block'>
+      <div className='absolute bottom-12 z-10 hidden w-full md:block'>
         <div className='container mx-auto flex justify-end px-4'>
           <div className='w-full max-w-75 md:max-w-100 lg:max-w-125'>
             <Slider {...settingsThumb} className='thumbnail-slider'>

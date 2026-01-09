@@ -76,7 +76,7 @@ export function MediaDetailHero({ media }) {
       {/* Content Overlay */}
       <motion.div
         style={{ y: contentY }}
-        className='relative flex h-full items-center justify-center p-6 pb-12 md:items-end md:justify-start md:px-12 md:pb-20'
+        className='relative z-30 flex h-full items-center justify-center p-6 pb-12 md:items-end md:justify-start md:px-12 md:pb-20'
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -101,7 +101,7 @@ export function MediaDetailHero({ media }) {
           </div>
 
           {/* Title */}
-          <h1 className='text-foreground text-4xl leading-[1.1] font-bold md:text-6xl'>
+          <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl'>
             {title}
           </h1>
 
@@ -118,7 +118,7 @@ export function MediaDetailHero({ media }) {
           </div>
 
           {/* Actions */}
-          <div className='flex items-center justify-center gap-4 pt-4 md:justify-start'>
+          <div className='relative z-50 flex items-center justify-center gap-4 pt-4 md:justify-start'>
             <WatchNowButton item={media} />
             <AddToLibraryButton />
           </div>
