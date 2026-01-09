@@ -36,6 +36,28 @@ export const usePopularMovies = (page = 1) => {
 };
 
 /**
+ * Fetch infinite popular movies.
+ */
+export const useInfinitePopularMovies = () => {
+  return useInfiniteQuery({
+    queryKey: ['movies', 'popular', 'infinite'],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await tmdb.get('/movie/popular', {
+        params: { page: pageParam },
+      });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+  });
+};
+
+/**
  * Fetch popular TV shows.
  */
 export const usePopularTV = (page = 1) => {
@@ -47,6 +69,28 @@ export const usePopularTV = (page = 1) => {
       });
       return response.data;
     },
+  });
+};
+
+/**
+ * Fetch infinite popular TV shows.
+ */
+export const useInfinitePopularTV = () => {
+  return useInfiniteQuery({
+    queryKey: ['tv', 'popular', 'infinite'],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await tmdb.get('/tv/popular', {
+        params: { page: pageParam },
+      });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
