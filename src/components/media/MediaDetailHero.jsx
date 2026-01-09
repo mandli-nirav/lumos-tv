@@ -119,8 +119,8 @@ export function MediaDetailHero({ media }) {
 
           {/* Actions */}
           <div className='flex items-center justify-center gap-4 pt-4 md:justify-start'>
-            <WatchNowButton />
-            <AddToLibraryButton isIcon className='h-11 w-11' />
+            <WatchNowButton item={media} />
+            <AddToLibraryButton />
           </div>
         </motion.div>
       </motion.div>

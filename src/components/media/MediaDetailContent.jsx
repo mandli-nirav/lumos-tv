@@ -1,22 +1,37 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import _ from 'lodash';
-import { Play } from 'lucide-react';
+import { Check, ChevronsUpDown, Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import { getImageUrl } from '@/api/tmdb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
+import { cn } from '@/lib/utils';
 
 import { MediaCard } from './MediaCard';
 
 export function MediaDetailContent({ media }) {
   const { type, id } = useParams();
+  const navigate = useNavigate();
   const {
     data: similarData,
     fetchNextPage,
@@ -206,38 +221,66 @@ export function MediaDetailContent({ media }) {
 
       {/* Tabs Section */}
       <Tabs defaultValue={isTV ? 'episodes' : 'more'}>
-        <TabsList>
-          {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
-          <TabsTrigger value='more'>More Like This</TabsTrigger>
-          <TabsTrigger value='trailers'>Trailers & More</TabsTrigger>
-          <TabsTrigger value='photos'>Photos</TabsTrigger>
-        </TabsList>
+        <ScrollArea className='w-full'>
+          <TabsList>
+            {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
+            <TabsTrigger value='more'>More Like This</TabsTrigger>
+            <TabsTrigger value='trailers'>Trailers & More</TabsTrigger>
+            <TabsTrigger value='photos'>Photos</TabsTrigger>
+          </TabsList>
+          <ScrollBar orientation='horizontal' />
+        </ScrollArea>
 
         {isTV && (
           <TabsContent value='episodes'>
             <div className='space-y-6'>
-              <div className='relative'>
-                <ScrollArea className='w-full pb-2 whitespace-nowrap'>
-                  <Tabs
-                    defaultValue={selectedSeason.toString()}
-                    onValueChange={(value) =>
-                      setSelectedSeason(parseInt(value))
-                    }
-                  >
-                    <TabsList>
-                      {media.seasons
-                        ?.filter((s) => s.season_number > 0)
-                        .map((season) => (
-                          <TabsTrigger
-                            key={season.id}
-                            value={season.season_number.toString()}
-                          >
-                            Season {season.season_number}
-                          </TabsTrigger>
-                        ))}
-                    </TabsList>
-                  </Tabs>
-                </ScrollArea>
+              <div className='flex items-center gap-4'>
+                <label className='text-foreground text-sm font-semibold'>
+                  Select Season:
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant='outline'
+                      role='combobox'
+                      className='w-[200px] justify-between'
+                    >
+                      Season {selectedSeason}
+                      <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-[200px] p-0'>
+                    <Command>
+                      <CommandInput placeholder='Search season...' />
+                      <CommandList>
+                        <CommandEmpty>No season found.</CommandEmpty>
+                        <CommandGroup>
+                          {media.seasons
+                            ?.filter((s) => s.season_number > 0)
+                            .map((season) => (
+                              <CommandItem
+                                key={season.id}
+                                value={season.season_number.toString()}
+                                onSelect={() => {
+                                  setSelectedSeason(season.season_number);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    selectedSeason === season.season_number
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                                Season {season.season_number}
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <AnimatePresence mode='wait'>
@@ -258,6 +301,11 @@ export function MediaDetailContent({ media }) {
                       <div
                         key={episode.id}
                         className='group hover:bg-muted/50 flex cursor-pointer gap-3 rounded-2xl p-2 transition-all md:gap-5 md:p-3'
+                        onClick={() =>
+                          navigate(
+                            `/watch/tv/${id}/${selectedSeason}/${episode.episode_number}`
+                          )
+                        }
                       >
                         <div className='bg-muted relative aspect-video h-20 shrink-0 overflow-hidden rounded-xl md:h-28'>
                           <img

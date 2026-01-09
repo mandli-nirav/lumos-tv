@@ -8,7 +8,7 @@ export function AddToLibraryButton({ isIcon = false, className, ...props }) {
     <Button
       variant='secondary'
       size={isIcon ? 'icon' : 'default'}
-      className={cn('w-full sm:w-auto', className)}
+      className={cn(className)}
       {...props}
     >
       <Plus />

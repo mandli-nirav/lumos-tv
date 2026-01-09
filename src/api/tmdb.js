@@ -6,9 +6,6 @@ const tmdb = axios.create({
     accept: 'application/json',
     Authorization: `Bearer ${import.meta.env.VITE_TMDB_READ_ACCESS_TOKEN}`,
   },
-  params: {
-    append_to_response: 'videos,images',
-  },
 });
 
 // Helper for image URLs

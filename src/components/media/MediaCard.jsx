@@ -6,13 +6,23 @@ import { useLocation, useNavigate } from 'react-router';
 import { getImageUrl } from '@/api/tmdb';
 import { Button } from '@/components/ui/button';
 
-export function MediaCard({ item }) {
+export function MediaCard({ item, explicitType }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef(null);
+  if (!item) return;
+
+  const id = item.id;
   const title = item.title || item.name;
-  const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
+  const isMovie = !!(
+    item.title ||
+    item.original_title ||
+    (item.release_date && !item.first_air_date) ||
+    item.video
+  );
+  const mediaType =
+    explicitType || item.media_type || (isMovie ? 'movie' : 'tv');
   const releaseDate = item.release_date || item.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
   const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
@@ -122,8 +132,18 @@ export function MediaCard({ item }) {
             >
               {/* Buttons Row */}
               <div className='mb-4 flex gap-2'>
-                <Button className='flex-1'>
-                  <Play />
+                <Button
+                  className='flex-1'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (mediaType === 'movie') {
+                      navigate(`/watch/movie/${item.id}`);
+                    } else {
+                      navigate(`/watch/tv/${item.id}/1/1`);
+                    }
+                  }}
+                >
+                  <Play className='mr-2 h-4 w-4 fill-current' />
                   Watch Now
                 </Button>
                 <Button size='icon' variant='outline'>

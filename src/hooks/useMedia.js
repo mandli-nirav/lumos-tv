@@ -12,7 +12,9 @@ export const useTrending = (type = 'all', timeWindow = 'day') => {
   return useQuery({
     queryKey: ['trending', type, timeWindow],
     queryFn: async () => {
-      const response = await tmdb.get(`/trending/${type}/${timeWindow}`);
+      const response = await tmdb.get(`/trending/${type}/${timeWindow}`, {
+        params: { append_to_response: 'videos,images,external_ids' },
+      });
       return response.data;
     },
   });
@@ -25,7 +27,9 @@ export const usePopularMovies = (page = 1) => {
   return useQuery({
     queryKey: ['movies', 'popular', page],
     queryFn: async () => {
-      const response = await tmdb.get('/movie/popular', { params: { page } });
+      const response = await tmdb.get('/movie/popular', {
+        params: { page },
+      });
       return response.data;
     },
   });
@@ -38,7 +42,9 @@ export const usePopularTV = (page = 1) => {
   return useQuery({
     queryKey: ['tv', 'popular', page],
     queryFn: async () => {
-      const response = await tmdb.get('/tv/popular', { params: { page } });
+      const response = await tmdb.get('/tv/popular', {
+        params: { page },
+      });
       return response.data;
     },
   });
@@ -67,7 +73,7 @@ export const useMediaDetails = (type, id) => {
     queryFn: async () => {
       const response = await tmdb.get(`/${type}/${id}`, {
         params: {
-          append_to_response: 'videos,images,credits,similar',
+          append_to_response: 'videos,images,credits,similar,external_ids',
         },
       });
       return response.data;
@@ -106,7 +112,9 @@ export const useSeasonDetails = (tvId, seasonNumber) => {
   return useQuery({
     queryKey: ['tv', tvId, 'season', seasonNumber],
     queryFn: async () => {
-      const response = await tmdb.get(`/tv/${tvId}/season/${seasonNumber}`);
+      const response = await tmdb.get(`/tv/${tvId}/season/${seasonNumber}`, {
+        params: { append_to_response: 'videos,images,external_ids' },
+      });
       return response.data;
     },
     enabled: !!tvId && seasonNumber !== undefined,

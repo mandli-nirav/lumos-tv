@@ -187,7 +187,10 @@ export default function HeroSlider({ data, isLoading }) {
                 </p>
 
                 <div className='flex flex-col items-center gap-3 pt-4 md:flex-row md:items-start md:gap-4'>
-                  <WatchNowButton className='w-full text-lg md:w-auto md:text-base' />
+                  <WatchNowButton
+                    item={item}
+                    className='w-full text-lg md:w-auto md:text-base'
+                  />
                   <AddToLibraryButton />
                 </div>
               </motion.div>
