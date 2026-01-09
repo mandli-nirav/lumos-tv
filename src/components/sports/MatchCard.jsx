@@ -1,16 +1,29 @@
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Radio } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+const now = Date.now();
+
 export function MatchCard({ match }) {
   const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(now);
+
+  // Update current time periodically to keep "live" status accurate
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Format date
   const matchDate = new Date(match.date);
-  const isLive = matchDate.getTime() <= Date.now();
+  const isLive = matchDate.getTime() <= currentTime;
   const timeString = matchDate.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, Eye, Info, Radio, Server, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { Badge } from '@/components/ui/badge';
@@ -17,10 +17,23 @@ import { cn } from '@/lib/utils';
 
 export function StreamPlayer({ match, sources }) {
   const navigate = useNavigate();
-  const [selectedStream, setSelectedStream] = useState(null);
+
+  // Get the default stream (HD if available, otherwise first stream)
+  const defaultStream = useMemo(() => {
+    if (!sources || sources.length === 0) return null;
+    const hdStream = sources.find((s) => s.hd);
+    return hdStream || sources[0];
+  }, [sources]);
+
+  const [selectedStream, setSelectedStream] = useState(defaultStream);
   const [showControls, setShowControls] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [showSourceDialog, setShowSourceDialog] = useState(false);
+
+  // Update selected stream when sources change (e.g., when navigating to a new match)
+  useEffect(() => {
+    setSelectedStream(defaultStream);
+  }, [defaultStream]);
 
   // Group sources by provider
   const groupedSources = sources?.reduce((acc, source) => {
@@ -30,14 +43,6 @@ export function StreamPlayer({ match, sources }) {
     acc[source.source].push(source);
     return acc;
   }, {});
-
-  useEffect(() => {
-    if (sources && sources.length > 0) {
-      // Select the first HD stream if available, otherwise first stream
-      const hdStream = sources.find((s) => s.hd);
-      setSelectedStream(hdStream || sources[0]);
-    }
-  }, [sources]);
 
   // Auto-hide controls after 3 seconds
   useEffect(() => {

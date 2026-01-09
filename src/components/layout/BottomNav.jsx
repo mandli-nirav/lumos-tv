@@ -1,13 +1,13 @@
-import { Compass, Film, Home, Layers, Plus, Tv } from 'lucide-react';
+import { Film, Home, Layers, Trophy, Tv } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { title: 'Home', href: '/', icon: Home },
+  { title: 'Sports', href: '/sports', icon: Trophy },
   { title: 'Movies', href: '/movies', icon: Film },
   { title: 'TV Shows', href: '/tv-shows', icon: Tv },
-  { title: 'New', href: '/new-and-popular', icon: Compass },
   { title: 'Library', href: '/collections', icon: Layers },
 ];
 
