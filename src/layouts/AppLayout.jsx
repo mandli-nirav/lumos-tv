@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { MediaDialog } from '@/components/media/MediaDialog';
 
 export default function AppLayout() {
   return (
@@ -13,6 +14,7 @@ export default function AppLayout() {
       </main>
       <Footer />
       <BottomNav />
+      <MediaDialog />
     </div>
   );
 }

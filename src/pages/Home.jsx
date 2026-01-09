@@ -1,5 +1,4 @@
 import HeroSlider from '@/components/home/HeroSlider';
-import { MediaDialog } from '@/components/media/MediaDialog';
 import { MediaSlider } from '@/components/media/MediaSlider';
 import {
   useInfinitePopularMovies,
@@ -28,6 +27,7 @@ export default function Home() {
           fetchNextPage={popularMovies.fetchNextPage}
           hasNextPage={popularMovies.hasNextPage}
           isFetchingNextPage={popularMovies.isFetchingNextPage}
+          viewAllPath='/movies'
         />
 
         <MediaSlider
@@ -37,9 +37,9 @@ export default function Home() {
           fetchNextPage={popularTV.fetchNextPage}
           hasNextPage={popularTV.hasNextPage}
           isFetchingNextPage={popularTV.isFetchingNextPage}
+          viewAllPath='/tv'
         />
       </div>
-      <MediaDialog />
     </div>
   );
 }

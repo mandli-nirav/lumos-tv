@@ -188,3 +188,26 @@ export const useGenres = () => {
     staleTime: 24 * 60 * 60 * 1000, // Genres rarely change, cache for 24h
   });
 };
+
+/**
+ * Multi-search for movies, TV shows, and people.
+ */
+export const useSearchMedia = (query) => {
+  return useInfiniteQuery({
+    queryKey: ['search', 'multi', query],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await tmdb.get('/search/multi', {
+        params: { query, page: pageParam },
+      });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!query,
+  });
+};
