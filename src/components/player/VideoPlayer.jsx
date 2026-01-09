@@ -38,36 +38,20 @@ const SERVERS = [
     url: 'https://vidsrc.pro/embed',
   },
   { id: '2embed', name: 'Server 4 (2Embed)', url: 'https://www.2embed.cc' },
-  // 🔹 Additional servers
-  {
-    id: 'embed-su',
-    name: 'Server 5 (Embed.su)',
-    url: 'https://embed.su/embed',
-  },
-  {
-    id: 'multiembed',
-    name: 'Server 6 (MultiEmbed)',
-    url: 'https://multiembed.mov',
-  },
-  {
-    id: 'moviesapi',
-    name: 'Server 7 (MoviesAPI)',
-    url: 'https://moviesapi.club/embed',
-  },
-  {
-    id: 'vidlink',
-    name: 'Server 8 (VidLink)',
-    url: 'https://vidlink.pro/movie',
-  },
-  {
-    id: 'smashystream',
-    name: 'Server 9 (SmashyStream)',
-    url: 'https://embed.smashystream.com',
-  },
   {
     id: 'autoembed',
-    name: 'Server 10 (AutoEmbed)',
-    url: 'https://autoembed.to/embed/movie',
+    name: 'Server 5 (AutoEmbed 1)',
+    url: 'https://player.autoembed.cc/embed',
+  },
+  {
+    id: 'autoembed-2',
+    name: 'Server 6 (AutoEmbed 2)',
+    url: 'https://player.autoembed.cc/embed',
+  },
+  {
+    id: 'autoembed-3',
+    name: 'Server 7 (AutoEmbed 3)',
+    url: 'https://player.autoembed.cc/embed',
   },
 ];
 
@@ -116,23 +100,14 @@ export function VideoPlayer({
       if (server.id === '2embed') {
         return `${server.url}/embed/${id}`;
       }
-      if (server.id === 'embed-su') {
-        return `${server.url}/movie/${id}`;
-      }
-      if (server.id === 'multiembed') {
-        return `${server.url}/?video_id=${id}&tmdb=1`;
-      }
-      if (server.id === 'moviesapi') {
-        return `${server.url}/movie/${id}`;
-      }
-      if (server.id === 'vidlink') {
-        return `${server.url}/${id}`;
-      }
-      if (server.id === 'smashystream') {
-        return `${server.url}/movie?tmdb=${id}`;
-      }
       if (server.id === 'autoembed') {
-        return `${server.url}/${id}`;
+        return `${server.url}/movie/${id}`;
+      }
+      if (server.id === 'autoembed-2') {
+        return `${server.url}/movie/${id}?server=2`;
+      }
+      if (server.id === 'autoembed-3') {
+        return `${server.url}/movie/${id}?server=3`;
       }
     } else {
       // TV Show URL patterns
@@ -164,7 +139,13 @@ export function VideoPlayer({
         return `${server.url}/tv?tmdb=${id}&season=${season}&episode=${episode}`;
       }
       if (server.id === 'autoembed') {
-        return `https://autoembed.to/embed/tv/${id}/${season}/${episode}`;
+        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
+      }
+      if (server.id === 'autoembed-2') {
+        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}?server=2`;
+      }
+      if (server.id === 'autoembed-3') {
+        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}?server=3`;
       }
     }
 
@@ -250,6 +231,16 @@ export function VideoPlayer({
         className='group/player relative flex-1 overflow-hidden'
         onMouseMove={handleMouseMove}
       >
+        {/* Ad-Blocking Click Trap - Helps catch initial popup-generating clicks */}
+        <div
+          className='absolute inset-0 z-30'
+          onClick={(e) => {
+            // This is a subtle trick: we trap the first click which usually triggers popups
+            // on some bad servers. Then we remove the trap.
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+
         {/* The Player Iframe */}
         <iframe
           key={selectedServer.id}
