@@ -351,18 +351,7 @@ export function MediaDetailContent({ media }) {
         <TabsContent value='more' className='pt-8 outline-none'>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
             {similarItems.map((item) => (
-              <div key={item.id} className='group relative'>
-                <div className='bg-muted border-border aspect-2/3 overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]'>
-                  <img
-                    src={getImageUrl(item.poster_path, 'w342', 'poster')}
-                    alt={item.title || item.name}
-                    className='h-full w-full object-cover'
-                  />
-                </div>
-                <p className='text-foreground/80 mt-2 line-clamp-1 text-[11px] font-bold'>
-                  {item.title || item.name}
-                </p>
-              </div>
+              <MediaCard key={item.id} item={item} explicitType={type} />
             ))}
           </div>
 
