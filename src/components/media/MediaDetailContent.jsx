@@ -83,7 +83,7 @@ export function MediaDetailContent({ media }) {
   const photos = _.take(_.get(media, 'images.backdrops', []), 12);
 
   return (
-    <div className='space-y-12 px-6 py-8 font-sans md:px-12'>
+    <div className='-mt-20 space-y-12 px-6 pb-8 font-sans md:px-12'>
       {/* Overview & Main Meta */}
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>
@@ -249,35 +249,40 @@ export function MediaDetailContent({ media }) {
                       <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className='w-50 p-0'>
+                  <PopoverContent
+                    className='w-50 p-0'
+                    onWheel={(e) => e.stopPropagation()}
+                  >
                     <Command>
                       <CommandInput placeholder='Search season...' />
-                      <CommandList>
-                        <CommandEmpty>No season found.</CommandEmpty>
-                        <CommandGroup>
-                          {media.seasons
-                            ?.filter((s) => s.season_number > 0)
-                            .map((season) => (
-                              <CommandItem
-                                key={season.id}
-                                value={season.season_number.toString()}
-                                onSelect={() => {
-                                  setSelectedSeason(season.season_number);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2 h-4 w-4',
-                                    selectedSeason === season.season_number
-                                      ? 'opacity-100'
-                                      : 'opacity-0'
-                                  )}
-                                />
-                                Season {season.season_number}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
+                      <ScrollArea className='h-75'>
+                        <CommandList>
+                          <CommandEmpty>No season found.</CommandEmpty>
+                          <CommandGroup>
+                            {media.seasons
+                              ?.filter((s) => s.season_number > 0)
+                              .map((season) => (
+                                <CommandItem
+                                  key={season.id}
+                                  value={season.season_number.toString()}
+                                  onSelect={() => {
+                                    setSelectedSeason(season.season_number);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      selectedSeason === season.season_number
+                                        ? 'opacity-100'
+                                        : 'opacity-0'
+                                    )}
+                                  />
+                                  Season {season.season_number}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </ScrollArea>
                     </Command>
                   </PopoverContent>
                 </Popover>

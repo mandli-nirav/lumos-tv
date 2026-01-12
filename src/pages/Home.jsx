@@ -12,21 +12,25 @@ export default function Home() {
   const initialData = useLoaderData();
 
   const trending = useTrending('all', 'day', {
-    initialData: initialData.trending,
+    initialData: initialData?.trending,
   });
 
   const popularMovies = useInfinitePopularMovies({
-    initialData: {
-      pages: [initialData.popularMovies],
-      pageParams: [1],
-    },
+    initialData: initialData?.popularMovies
+      ? {
+          pages: [initialData.popularMovies],
+          pageParams: [1],
+        }
+      : undefined,
   });
 
   const popularTV = useInfinitePopularTV({
-    initialData: {
-      pages: [initialData.popularTV],
-      pageParams: [1],
-    },
+    initialData: initialData?.popularTV
+      ? {
+          pages: [initialData.popularTV],
+          pageParams: [1],
+        }
+      : undefined,
   });
 
   // Helper to flatten infinite query data

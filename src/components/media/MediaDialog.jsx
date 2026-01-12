@@ -48,7 +48,7 @@ export function MediaDialog() {
           </div>
         ) : media ? (
           <>
-            <ScrollArea className='h-full min-h-0 w-full flex-1'>
+            <ScrollArea key={id} className='h-full min-h-0 w-full flex-1'>
               <div className='relative pb-12'>
                 <MediaDetailHero media={media} />
                 <MediaDetailContent media={media} />

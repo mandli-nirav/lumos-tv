@@ -42,7 +42,7 @@ export function MediaSlider({
   }, [api, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
-    <div className='group/slider relative z-10 space-y-4 font-sans transition-all duration-300 hover:z-20'>
+    <div className='group/slider relative z-10 space-y-4 font-sans transition-all duration-300 hover:z-50'>
       <div className='relative z-0 flex items-center justify-between'>
         <h2 className='text-foreground/90 text-xl font-bold tracking-tight md:text-2xl'>
           {title}

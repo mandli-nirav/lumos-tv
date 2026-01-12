@@ -1,6 +1,9 @@
+import 'react-lazy-load-image-component/src/effects/blur.css';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { Play, Plus, Star } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useLocation, useNavigate } from 'react-router';
 
 import { getImageUrl } from '@/api/tmdb';
@@ -122,20 +125,21 @@ export function MediaCard({ item, explicitType }) {
             }}
             transition={{ duration: 0.3 }}
           >
-            <motion.img
+            <LazyLoadImage
               src={
                 isHovered
                   ? getImageUrl(item.backdrop_path, 'w780', 'backdrop')
                   : getImageUrl(item.poster_path, 'w500', 'poster')
               }
               alt={title}
+              effect='blur'
               className='h-full w-full object-cover'
-              initial={false}
+              wrapperClassName='h-full w-full !block'
             />
           </motion.div>
 
-          {/* Title gradient - visible on both poster and backdrop */}
-          <div className='from-background via-background/60 absolute inset-x-0 bottom-0 bg-linear-to-t to-transparent p-3 pt-12'>
+          {/* Title gradient - smooth multi-stop for seamless blending */}
+          <div className='from-background via-background/80 absolute inset-x-0 bottom-0 bg-linear-to-t via-30% to-transparent to-70% p-3 pt-12'>
             <h3 className='text-foreground mb-0.5 line-clamp-1 text-[11px] font-bold'>
               {title}
             </h3>

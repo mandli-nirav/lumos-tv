@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import _ from 'lodash';
-import { Play, Plus, Star, Volume2 } from 'lucide-react';
+import { Star, Volume2 } from 'lucide-react';
 import { useRef } from 'react';
 
 import { getImageUrl } from '@/api/tmdb';
@@ -67,10 +67,18 @@ export function MediaDetailHero({ media }) {
           alt={title}
           className='absolute inset-0 h-full w-full object-cover object-top'
         />
-        {/* Gradients to blend with content */}
-        <div className='from-background via-background/60 absolute inset-0 bg-linear-to-t to-transparent' />
-        <div className='from-background/80 absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t via-transparent to-transparent md:hidden' />
-        <div className='from-background via-background/20 absolute inset-0 hidden bg-linear-to-r to-transparent md:block' />
+        {/* Smooth multi-layer gradients for seamless blending */}
+        {/* Base gradient - bottom to top */}
+        <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t via-30% to-transparent to-60%' />
+
+        {/* Additional smoothing layer for bottom edge */}
+        <div className='from-background via-background/50 absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t via-20% to-transparent to-50%' />
+
+        {/* Side gradient for desktop - left to right */}
+        <div className='from-background/90 via-background/40 absolute inset-0 hidden bg-linear-to-r via-35% to-transparent to-70% md:block' />
+
+        {/* Extra smoothing for mobile */}
+        <div className='from-background absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t to-transparent md:hidden' />
       </motion.div>
 
       {/* Content Overlay */}

@@ -1,7 +1,10 @@
+import 'react-lazy-load-image-component/src/effects/blur.css';
+
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Play, Plus, Star } from 'lucide-react';
 import { useState } from 'react';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import Slider from 'react-slick';
 
 import { getImageUrl } from '@/api/tmdb';
@@ -120,10 +123,12 @@ export default function HeroSlider({ data, isLoading }) {
           <div key={item.id} className='relative h-[90vh] w-full'>
             {/* Background Backdrop */}
             <div className='absolute inset-0'>
-              <img
+              <LazyLoadImage
                 src={getImageUrl(item.backdrop_path, 'original')}
                 alt={item.title || item.name}
+                effect='blur'
                 className='h-full w-full object-cover'
+                wrapperClassName='h-full w-full !block'
               />
               {/* Overlays */}
               <div className='from-background via-background/60 absolute inset-0 hidden bg-linear-to-r to-transparent md:block' />
@@ -213,10 +218,12 @@ export default function HeroSlider({ data, isLoading }) {
                       'border-transparent'
                     )}
                   >
-                    <img
+                    <LazyLoadImage
                       src={getImageUrl(item.backdrop_path, 'w300')}
                       alt={item.title || item.name}
+                      effect='blur'
                       className='h-full w-full object-cover'
+                      wrapperClassName='h-full w-full !block'
                     />
                     <div className='absolute inset-0 bg-black/40' />
                   </div>

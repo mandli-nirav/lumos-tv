@@ -1,29 +1,112 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 
 import { exploreLoader, homeLoader, searchLoader } from '@/api/loaders';
+import PageLoader from '@/components/PageLoader';
+import { Spinner } from '@/components/ui/spinner';
 import AppLayout from '@/layouts/AppLayout';
-import Explore from '@/pages/Explore';
-import Home from '@/pages/Home';
-import NotFound from '@/pages/NotFound';
-import Search from '@/pages/Search';
-import Sports from '@/pages/sports/Sports';
-import WatchSport from '@/pages/sports/WatchSport';
-import Watch from '@/pages/Watch';
+
+const Home = lazy(() => import('@/pages/Home'));
+const Explore = lazy(() => import('@/pages/Explore'));
+const Search = lazy(() => import('@/pages/Search'));
+const Sports = lazy(() => import('@/pages/sports/Sports'));
+const Watch = lazy(() => import('@/pages/Watch'));
+const WatchSport = lazy(() => import('@/pages/sports/WatchSport'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
+    HydrateFallback: PageLoader,
     children: [
-      { path: '/', element: <Home />, loader: homeLoader },
-      { path: '/search', element: <Search />, loader: searchLoader },
-      { path: '/sports', element: <Sports /> },
-      { path: '/movies', element: <Explore />, loader: exploreLoader },
-      { path: '/tv-shows', element: <Explore />, loader: exploreLoader },
-      { path: '/:type/:id', element: <Home /> },
-      { path: '*', element: <NotFound /> },
+      {
+        path: '/',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Home />
+          </Suspense>
+        ),
+        loader: homeLoader,
+      },
+      {
+        path: '/search',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Search />
+          </Suspense>
+        ),
+        loader: searchLoader,
+      },
+      {
+        path: '/sports',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Sports />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/movies',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Explore />
+          </Suspense>
+        ),
+        loader: exploreLoader,
+      },
+      {
+        path: '/tv-shows',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Explore />
+          </Suspense>
+        ),
+        loader: exploreLoader,
+      },
+      {
+        path: '/:type/:id',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Home />
+          </Suspense>
+        ),
+        loader: homeLoader,
+      },
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <NotFound />
+          </Suspense>
+        ),
+      },
     ],
   },
-  { path: '/watch/:type/:id', element: <Watch /> },
-  { path: '/watch/:type/:id/:season/:episode', element: <Watch /> },
-  { path: '/sports/watch/:matchId', element: <WatchSport /> },
+  {
+    path: '/watch/:type/:id',
+    HydrateFallback: PageLoader,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Watch />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/watch/:type/:id/:season/:episode',
+    HydrateFallback: PageLoader,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Watch />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/sports/watch/:matchId',
+    HydrateFallback: PageLoader,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <WatchSport />
+      </Suspense>
+    ),
+  },
 ]);
