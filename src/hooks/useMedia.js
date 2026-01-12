@@ -8,7 +8,7 @@ import tmdb from '@/api/tmdb';
  * @param {string} type - 'all', 'movie', 'tv', 'person'
  * @param {string} timeWindow - 'day', 'week'
  */
-export const useTrending = (type = 'all', timeWindow = 'day') => {
+export const useTrending = (type = 'all', timeWindow = 'day', options = {}) => {
   return useQuery({
     queryKey: ['trending', type, timeWindow],
     queryFn: async () => {
@@ -17,6 +17,7 @@ export const useTrending = (type = 'all', timeWindow = 'day') => {
       });
       return response.data;
     },
+    ...options,
   });
 };
 
@@ -36,13 +37,13 @@ export const usePopularMovies = (page = 1) => {
 };
 
 /**
- * Fetch infinite popular movies.
+ * Fetch infinite popular media.
  */
-export const useInfinitePopularMovies = () => {
+export const useInfinitePopularMedia = (type, options = {}) => {
   return useInfiniteQuery({
-    queryKey: ['movies', 'popular', 'infinite'],
+    queryKey: [type === 'movie' ? 'movies' : type, 'popular', 'infinite'],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await tmdb.get('/movie/popular', {
+      const response = await tmdb.get(`/${type}/popular`, {
         params: { page: pageParam },
       });
       return response.data;
@@ -54,7 +55,15 @@ export const useInfinitePopularMovies = () => {
       return undefined;
     },
     initialPageParam: 1,
+    ...options,
   });
+};
+
+/**
+ * Fetch infinite popular movies.
+ */
+export const useInfinitePopularMovies = (options = {}) => {
+  return useInfinitePopularMedia('movie', options);
 };
 
 /**
@@ -75,23 +84,8 @@ export const usePopularTV = (page = 1) => {
 /**
  * Fetch infinite popular TV shows.
  */
-export const useInfinitePopularTV = () => {
-  return useInfiniteQuery({
-    queryKey: ['tv', 'popular', 'infinite'],
-    queryFn: async ({ pageParam = 1 }) => {
-      const response = await tmdb.get('/tv/popular', {
-        params: { page: pageParam },
-      });
-      return response.data;
-    },
-    getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.total_pages) {
-        return lastPage.page + 1;
-      }
-      return undefined;
-    },
-    initialPageParam: 1,
-  });
+export const useInfinitePopularTV = (options = {}) => {
+  return useInfinitePopularMedia('tv', options);
 };
 
 /**
@@ -192,7 +186,7 @@ export const useGenres = () => {
 /**
  * Multi-search for movies, TV shows, and people.
  */
-export const useSearchMedia = (query) => {
+export const useSearchMedia = (query, options = {}) => {
   return useInfiniteQuery({
     queryKey: ['search', 'multi', query],
     queryFn: async ({ pageParam = 1 }) => {
@@ -209,5 +203,6 @@ export const useSearchMedia = (query) => {
     },
     initialPageParam: 1,
     enabled: !!query,
+    ...options,
   });
 };

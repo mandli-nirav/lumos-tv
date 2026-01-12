@@ -1,18 +1,21 @@
 import { ChevronLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
-import {
-  useInfinitePopularMovies,
-  useInfinitePopularTV,
-} from '@/hooks/useMedia';
+import { useInfinitePopularMedia } from '@/hooks/useMedia';
 import NotFound from '@/pages/NotFound';
 
 export default function Explore() {
+  const initialData = useLoaderData();
   const { type: paramType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -28,11 +31,17 @@ export default function Explore() {
 
   const isMovie = type === 'movie' || type === 'movies';
   const isTV = type === 'tv' || type === 'series' || type === 'tv-shows';
-  const hook = isMovie ? useInfinitePopularMovies : useInfinitePopularTV;
   const canonicalType = isMovie ? 'movie' : 'tv';
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    hook();
+    useInfinitePopularMedia(canonicalType, {
+      initialData: initialData
+        ? {
+            pages: [initialData],
+            pageParams: [1],
+          }
+        : undefined,
+    });
 
   const items = data?.pages.flatMap((page) => page.results) || [];
 

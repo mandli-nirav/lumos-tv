@@ -1,3 +1,5 @@
+import { useLoaderData } from 'react-router';
+
 import HeroSlider from '@/components/home/HeroSlider';
 import { MediaSlider } from '@/components/media/MediaSlider';
 import {
@@ -7,9 +9,25 @@ import {
 } from '@/hooks/useMedia';
 
 export default function Home() {
-  const trending = useTrending('all', 'day');
-  const popularMovies = useInfinitePopularMovies();
-  const popularTV = useInfinitePopularTV();
+  const initialData = useLoaderData();
+
+  const trending = useTrending('all', 'day', {
+    initialData: initialData.trending,
+  });
+
+  const popularMovies = useInfinitePopularMovies({
+    initialData: {
+      pages: [initialData.popularMovies],
+      pageParams: [1],
+    },
+  });
+
+  const popularTV = useInfinitePopularTV({
+    initialData: {
+      pages: [initialData.popularTV],
+      pageParams: [1],
+    },
+  });
 
   // Helper to flatten infinite query data
   const flattenData = (data) =>
@@ -37,7 +55,7 @@ export default function Home() {
           fetchNextPage={popularTV.fetchNextPage}
           hasNextPage={popularTV.hasNextPage}
           isFetchingNextPage={popularTV.isFetchingNextPage}
-          viewAllPath='/tv'
+          viewAllPath='/tv-shows'
         />
       </div>
     </div>

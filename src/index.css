@@ -3,6 +3,7 @@
 @import 'tw-animate-css';
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
+@import 'nprogress/nprogress.css';
 @import './styles/adblock.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -178,4 +179,22 @@
 /* Mobile Bottom Nav Refinement */
 nav {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* NProgress Customization */
+#nprogress .bar {
+  background: var(--primary) !important;
+  height: 3px !important;
+  box-shadow: 0 0 15px var(--primary);
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--primary),
+    0 0 5px var(--primary) !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: var(--primary) !important;
+  border-left-color: var(--primary) !important;
 }

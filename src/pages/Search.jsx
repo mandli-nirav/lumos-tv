@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Search as SearchIcon, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useLoaderData, useSearchParams } from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,10 @@ import { Spinner } from '@/components/ui/spinner';
 import { useSearchMedia } from '@/hooks/useMedia';
 
 export default function Search() {
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const initialData = useLoaderData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useState(initialData?.q || '');
+  const [debouncedQuery, setDebouncedQuery] = useState(initialData?.q || '');
   const { ref, inView } = useInView();
 
   // Handle debounce
@@ -22,10 +25,23 @@ export default function Search() {
 
   useEffect(() => {
     updateDebouncedQuery(query);
-  }, [query, updateDebouncedQuery]);
+    if (query) {
+      setSearchParams({ q: query }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }, [query, updateDebouncedQuery, setSearchParams]);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSearchMedia(debouncedQuery);
+    useSearchMedia(debouncedQuery, {
+      initialData:
+        initialData?.results && debouncedQuery === initialData.q
+          ? {
+              pages: [initialData.results],
+              pageParams: [1],
+            }
+          : undefined,
+    });
 
   const results = data?.pages.flatMap((page) => page.results) || [];
   // Filter only movies and TV shows (exclude people for this view)

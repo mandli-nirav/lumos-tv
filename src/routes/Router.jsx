@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 
+import { exploreLoader, homeLoader, searchLoader } from '@/api/loaders';
 import AppLayout from '@/layouts/AppLayout';
 import Explore from '@/pages/Explore';
 import Home from '@/pages/Home';
@@ -13,13 +14,11 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      { path: '/', element: <Home /> },
-      { path: '/search', element: <Search /> },
+      { path: '/', element: <Home />, loader: homeLoader },
+      { path: '/search', element: <Search />, loader: searchLoader },
       { path: '/sports', element: <Sports /> },
-      { path: '/movies', element: <Explore /> },
-      { path: '/tv', element: <Explore /> },
-      { path: '/tv-shows', element: <Explore /> },
-      { path: '/series', element: <Explore /> },
+      { path: '/movies', element: <Explore />, loader: exploreLoader },
+      { path: '/tv-shows', element: <Explore />, loader: exploreLoader },
       { path: '/:type/:id', element: <Home /> },
       { path: '*', element: <NotFound /> },
     ],

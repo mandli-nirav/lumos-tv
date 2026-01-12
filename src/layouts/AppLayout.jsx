@@ -1,4 +1,6 @@
-import { Outlet } from 'react-router';
+import nprogress from 'nprogress';
+import { useEffect } from 'react';
+import { Outlet, useNavigation } from 'react-router';
 
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
@@ -6,6 +8,16 @@ import { Header } from '@/components/layout/Header';
 import { MediaDialog } from '@/components/media/MediaDialog';
 
 export default function AppLayout() {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (navigation.state === 'loading') {
+      nprogress.start();
+    } else {
+      nprogress.done();
+    }
+  }, [navigation.state]);
+
   return (
     <div className='relative flex min-h-screen flex-col overflow-x-clip'>
       <Header />

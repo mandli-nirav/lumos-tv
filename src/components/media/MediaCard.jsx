@@ -11,6 +11,9 @@ export function MediaCard({ item, explicitType }) {
   const location = useLocation();
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef(null);
+  const cardRef = useRef(null);
+  const [origin, setOrigin] = useState('center'); // 'left', 'right', 'center'
+
   if (!item) return;
 
   const id = item.id;
@@ -35,6 +38,20 @@ export function MediaCard({ item, explicitType }) {
   };
 
   const handleMouseEnter = () => {
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const windowWidth = window.innerWidth;
+      const threshold = 100; // Distance from edge to trigger edge-case popout
+
+      if (rect.left < threshold) {
+        setOrigin('left');
+      } else if (windowWidth - rect.right < threshold) {
+        setOrigin('right');
+      } else {
+        setOrigin('center');
+      }
+    }
+
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(true);
@@ -49,8 +66,33 @@ export function MediaCard({ item, explicitType }) {
     setIsHovered(false);
   };
 
+  const getAnimateProps = () => {
+    if (!isHovered) {
+      return {
+        scale: 1,
+        width: '100%',
+        x: '-50%',
+        y: '-50%',
+        left: '50%',
+        top: '50%',
+      };
+    }
+
+    return {
+      scale: 1.35,
+      width: '145%',
+      y: '-50%',
+      top: '50%',
+      x: origin === 'left' ? '0%' : origin === 'right' ? '-100%' : '-50%',
+      left: origin === 'left' ? '0%' : origin === 'right' ? '100%' : '50%',
+    };
+  };
+
   return (
-    <div className={`relative w-full font-sans ${isHovered ? 'z-50' : 'z-10'}`}>
+    <div
+      ref={cardRef}
+      className={`relative w-full font-sans ${isHovered ? 'z-50' : 'z-10'}`}
+    >
       {/* Static Placeholder to maintain layout and prevent shifting */}
       <div className='aspect-2/3 w-full' />
 
@@ -60,21 +102,7 @@ export function MediaCard({ item, explicitType }) {
         onMouseLeave={handleMouseLeave}
         onClick={handleCardClick}
         initial={false}
-        animate={
-          isHovered
-            ? {
-                scale: 1.35,
-                width: '145%',
-                x: '-50%',
-                y: '-50%',
-              }
-            : {
-                scale: 1,
-                width: '100%',
-                x: '-50%',
-                y: '-50%',
-              }
-        }
+        animate={getAnimateProps()}
         transition={{
           type: 'spring',
           stiffness: 350,
@@ -82,7 +110,7 @@ export function MediaCard({ item, explicitType }) {
           width: { duration: 0.25 },
           scale: { duration: 0.25 },
         }}
-        className='group bg-card ring-border/50 absolute top-1/2 left-1/2 cursor-pointer overflow-hidden rounded-xl shadow-2xl ring-1'
+        className='group bg-card ring-border/50 absolute cursor-pointer overflow-hidden rounded-xl shadow-2xl ring-1'
       >
         {/* Media Content */}
         <div className='relative w-full overflow-hidden'>
