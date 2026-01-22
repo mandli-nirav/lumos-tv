@@ -127,7 +127,7 @@ export function MediaDetailHero({ media }) {
             <img
               src={getImageUrl(logo.file_path, 'w500')}
               alt={title}
-              className='h-auto w-full max-w-[180px] md:max-w-[240px]'
+              className='h-auto w-full max-w-45 md:max-w-60'
               style={{ aspectRatio: logo.aspect_ratio }}
             />
           ) : (
