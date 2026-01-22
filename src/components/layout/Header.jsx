@@ -31,10 +31,10 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 z-40 w-full font-sans transition-all duration-300',
+        'fixed top-0 z-[100] w-full border-none font-sans transition-all duration-300',
         isScrolled
-          ? 'border-border/40 bg-background/80 border-b backdrop-blur-xl'
-          : 'border-transparent bg-linear-to-b from-black/80 via-black/40 to-transparent'
+          ? 'bg-background/80 backdrop-blur-xl'
+          : 'from-background/95 via-background/60 border-transparent bg-linear-to-b to-transparent dark:from-black/80 dark:via-black/40'
       )}
     >
       <div className='container mx-auto flex h-16 items-center px-4 md:px-8'>
@@ -44,15 +44,12 @@ export function Header() {
             <img
               src='/assets/logos/lumos-dark.svg'
               alt='Lumos TV'
-              className={cn(
-                'h-7 w-auto shrink-0 transition-transform group-hover:scale-105 lg:h-8 dark:hidden',
-                !isScrolled && 'brightness-0 invert'
-              )}
+              className={cn('h-7 w-auto shrink-0 lg:h-8 dark:hidden')}
             />
             <img
               src='/assets/logos/lumos-light.svg'
               alt='Lumos TV'
-              className='hidden h-7 w-auto shrink-0 transition-transform group-hover:scale-105 lg:h-8 dark:block'
+              className='hidden h-7 w-auto shrink-0 lg:h-8 dark:block'
             />
             <span className='sr-only'>{appName}</span>
           </Link>
@@ -76,7 +73,7 @@ export function Header() {
                           ? 'text-primary bg-primary/10 hover:bg-primary/20 hover:text-primary'
                           : isScrolled
                             ? 'text-muted-foreground hover:text-foreground bg-transparent'
-                            : 'bg-transparent text-white/80 hover:text-white'
+                            : 'text-foreground/80 hover:text-foreground bg-transparent dark:text-white/80 dark:hover:text-white'
                       )}
                     >
                       <Link to={item.href}>{item.title}</Link>
@@ -98,7 +95,7 @@ export function Header() {
               'h-10 w-10 transition-colors',
               isScrolled
                 ? 'text-muted-foreground hover:text-primary hover:bg-primary/10'
-                : 'text-white/80 hover:bg-white/10 hover:text-white'
+                : 'text-foreground/80 hover:bg-foreground/10 hover:text-foreground dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white'
             )}
           >
             <Link to='/search'>
@@ -109,14 +106,14 @@ export function Header() {
           <div
             className={cn(
               'mx-1 h-6 w-px',
-              isScrolled ? 'bg-border/60' : 'bg-white/20'
+              isScrolled ? 'bg-border/60' : 'bg-foreground/20 dark:bg-white/20'
             )}
           />
           <ModeToggle
             className={cn(
               isScrolled
                 ? 'text-muted-foreground'
-                : 'text-white/80 hover:bg-white/10 hover:text-white'
+                : 'text-foreground/80 hover:bg-foreground/10 hover:text-foreground dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white'
             )}
           />
         </div>

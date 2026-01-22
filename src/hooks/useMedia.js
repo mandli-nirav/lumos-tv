@@ -3,6 +3,8 @@ import _ from 'lodash';
 
 import tmdb from '@/api/tmdb';
 
+const append_to_response = 'videos,images,external_ids,watch/providers,reviews';
+const include_image_language = 'en-US';
 /**
  * Fetch trending media.
  * @param {string} type - 'all', 'movie', 'tv', 'person'
@@ -13,7 +15,7 @@ export const useTrending = (type = 'all', timeWindow = 'day', options = {}) => {
     queryKey: ['trending', type, timeWindow],
     queryFn: async () => {
       const response = await tmdb.get(`/trending/${type}/${timeWindow}`, {
-        params: { append_to_response: 'videos,images,external_ids' },
+        params: { append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -29,7 +31,7 @@ export const usePopularMovies = (page = 1) => {
     queryKey: ['movies', 'popular', page],
     queryFn: async () => {
       const response = await tmdb.get('/movie/popular', {
-        params: { page },
+        params: { page, append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -44,7 +46,7 @@ export const useInfinitePopularMedia = (type, options = {}) => {
     queryKey: [type === 'movie' ? 'movies' : type, 'popular', 'infinite'],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await tmdb.get(`/${type}/popular`, {
-        params: { page: pageParam },
+        params: { page: pageParam, append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -74,7 +76,7 @@ export const usePopularTV = (page = 1) => {
     queryKey: ['tv', 'popular', page],
     queryFn: async () => {
       const response = await tmdb.get('/tv/popular', {
-        params: { page },
+        params: { page, append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -95,7 +97,9 @@ export const useTopRatedMovies = (page = 1) => {
   return useQuery({
     queryKey: ['movies', 'top_rated', page],
     queryFn: async () => {
-      const response = await tmdb.get('/movie/top_rated', { params: { page } });
+      const response = await tmdb.get('/movie/top_rated', {
+        params: { page, append_to_response, include_image_language },
+      });
       return response.data;
     },
   });
@@ -110,9 +114,7 @@ export const useMediaDetails = (type, id) => {
     queryKey: ['media', type, id],
     queryFn: async () => {
       const response = await tmdb.get(`/${type}/${id}`, {
-        params: {
-          append_to_response: 'videos,images,credits,similar,external_ids',
-        },
+        params: { append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -128,7 +130,7 @@ export const useInfiniteSimilarMedia = (type, id) => {
     queryKey: ['media', type, id, 'similar'],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await tmdb.get(`/${type}/${id}/similar`, {
-        params: { page: pageParam },
+        params: { page: pageParam, append_to_response, include_image_language },
       });
       return response.data;
     },
@@ -151,7 +153,7 @@ export const useSeasonDetails = (tvId, seasonNumber, options = {}) => {
     queryKey: ['tv', tvId, 'season', seasonNumber],
     queryFn: async () => {
       const response = await tmdb.get(`/tv/${tvId}/season/${seasonNumber}`, {
-        params: { append_to_response: 'videos,images,external_ids' },
+        params: { append_to_response, include_image_language },
       });
       return response.data;
     },

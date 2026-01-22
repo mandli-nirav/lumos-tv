@@ -3,7 +3,6 @@ import { createBrowserRouter } from 'react-router';
 
 import { exploreLoader, homeLoader, searchLoader } from '@/api/loaders';
 import PageLoader from '@/components/PageLoader';
-import { Spinner } from '@/components/ui/spinner';
 import AppLayout from '@/layouts/AppLayout';
 
 const Home = lazy(() => import('@/pages/Home'));

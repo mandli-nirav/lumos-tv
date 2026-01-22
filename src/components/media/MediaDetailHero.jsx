@@ -48,10 +48,24 @@ export function MediaDetailHero({ media }) {
     ' • '
   );
 
+  // Get the best logo (prefer English, then original language, then first available)
+  const logos = _.get(media, 'images.logos', []);
+  const logo = _.head(
+    _.orderBy(
+      logos,
+      [
+        (l) => l.iso_639_1 === 'en',
+        (l) => l.iso_639_1 === media.original_language,
+        'vote_average',
+      ],
+      ['desc', 'desc', 'desc']
+    )
+  );
+
   return (
     <div
       ref={heroRef}
-      className='relative h-125 w-full overflow-hidden font-sans md:h-135'
+      className='relative h-140 w-full overflow-hidden font-sans md:h-160'
     >
       {/* Immersive Backdrop */}
       <motion.div
@@ -108,10 +122,19 @@ export function MediaDetailHero({ media }) {
             </div>
           </div>
 
-          {/* Title */}
-          <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl'>
-            {title}
-          </h1>
+          {/* Title / Logo */}
+          {logo ? (
+            <img
+              src={getImageUrl(logo.file_path, 'w500')}
+              alt={title}
+              className='h-auto w-full max-w-[180px] md:max-w-[240px]'
+              style={{ aspectRatio: logo.aspect_ratio }}
+            />
+          ) : (
+            <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl'>
+              {title}
+            </h1>
+          )}
 
           {/* Genres */}
           <div className='text-muted-foreground/80 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs font-bold md:justify-start md:text-base'>

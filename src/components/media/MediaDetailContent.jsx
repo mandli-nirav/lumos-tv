@@ -83,7 +83,7 @@ export function MediaDetailContent({ media }) {
   const photos = _.take(_.get(media, 'images.backdrops', []), 12);
 
   return (
-    <div className='-mt-20 space-y-12 px-6 pb-8 font-sans md:px-12'>
+    <div className='mt-8 space-y-12 px-6 pb-8 font-sans md:px-12'>
       {/* Overview & Main Meta */}
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>

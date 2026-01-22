@@ -97,6 +97,7 @@ export default defineConfig({
       },
     }),
   ],
+  server: { open: true, host: true },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
