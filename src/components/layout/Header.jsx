@@ -37,7 +37,7 @@ export function Header() {
           : 'from-background/95 via-background/60 border-transparent bg-linear-to-b to-transparent dark:from-black/80 dark:via-black/40'
       )}
     >
-      <div className='container mx-auto flex h-16 items-center px-4 md:px-8'>
+      <div className='flex h-16 w-full items-center px-4 md:px-12 lg:px-16'>
         {/* Left: Logo */}
         <div className='flex flex-1 items-center justify-start'>
           <Link to='/' className='group flex shrink-0 items-center gap-2'>

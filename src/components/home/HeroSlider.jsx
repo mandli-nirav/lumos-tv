@@ -2,7 +2,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Play, Plus, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import Slider from 'react-slick';
@@ -11,7 +11,6 @@ import { getImageUrl } from '@/api/tmdb';
 import { AddToLibraryButton } from '@/components/media/AddToLibraryButton';
 import { WatchNowButton } from '@/components/media/WatchNowButton';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGenres } from '@/hooks/useMedia';
 import { cn } from '@/lib/utils';
@@ -73,7 +72,7 @@ export default function HeroSlider({ data, isLoading }) {
         <Skeleton className='absolute inset-0 h-full w-full rounded-none bg-zinc-900/20' />
 
         {/* Content Skeleton */}
-        <div className='relative z-20 container mx-auto flex h-full flex-col justify-center px-4 md:px-12'>
+        <div className='relative z-20 flex h-full w-full flex-col justify-center px-4 md:px-12 lg:px-16'>
           <div className='max-w-2xl space-y-8'>
             <div className='flex items-center gap-4'>
               <Skeleton className='h-6 w-28 bg-zinc-800/40' />
@@ -99,7 +98,7 @@ export default function HeroSlider({ data, isLoading }) {
 
         {/* Thumbnails Skeleton */}
         <div className='absolute bottom-12 z-30 w-full'>
-          <div className='container mx-auto flex justify-end px-4'>
+          <div className='flex w-full justify-end px-4 md:px-12 lg:px-16'>
             <div className='flex w-full max-w-sm gap-3 md:max-w-md lg:max-w-lg'>
               {[1, 2, 3, 4].map((i) => (
                 <Skeleton
@@ -138,7 +137,7 @@ export default function HeroSlider({ data, isLoading }) {
             </div>
 
             {/* Content */}
-            <div className='relative container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0'>
+            <div className='relative flex h-full w-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0 lg:px-16'>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -206,8 +205,8 @@ export default function HeroSlider({ data, isLoading }) {
 
       {/* Thumbnail Navigation */}
       <div className='absolute bottom-12 z-10 hidden w-full md:block'>
-        <div className='container mx-auto flex justify-end px-4'>
-          <div className='w-full max-w-75 md:max-w-100 lg:max-w-125'>
+        <div className='flex w-full justify-end px-4 md:px-12 lg:px-16'>
+          <div className='w-full max-w-75 md:max-w-100 lg:max-w-150'>
             <Slider {...settingsThumb} className='thumbnail-slider'>
               {trendingItems.map((item, index) => (
                 <div key={item.id} className='px-1 outline-none'>

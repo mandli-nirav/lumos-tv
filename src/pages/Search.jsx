@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import { Search as SearchIcon, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useLoaderData, useSearchParams } from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { useSearchMedia } from '@/hooks/useMedia';
 
@@ -56,7 +55,7 @@ export default function Search() {
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className='container mx-auto px-4 pt-24 pb-8 lg:px-8'>
+    <div className='w-full px-4 pt-24 pb-8 md:px-12 lg:px-16'>
       {/* Search Header */}
       <div className='mx-auto mb-12 max-w-2xl'>
         <div className='group relative'>

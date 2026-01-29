@@ -142,7 +142,7 @@ export function MediaDetailHero({ media }) {
         style={{ y: contentY }}
         className='relative z-30 flex h-full items-center justify-center pb-12 md:items-end md:pb-20'
       >
-        <div className='container mx-auto px-6 md:px-12'>
+        <div className='w-full px-6 md:px-12 lg:px-16'>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -201,7 +201,7 @@ export function MediaDetailHero({ media }) {
       </motion.div>
 
       {/* Corner Controls */}
-      <div className='pointer-events-none absolute inset-x-0 bottom-12 z-40 container mx-auto hidden px-6 md:block md:px-12'>
+      <div className='pointer-events-none absolute inset-x-0 bottom-12 z-40 hidden w-full px-6 md:block md:px-12 lg:px-16'>
         <div className='pointer-events-auto flex justify-end'>
           <AnimatePresence>
             {showVideo && trailer && (

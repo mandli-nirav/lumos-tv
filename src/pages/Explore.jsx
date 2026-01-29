@@ -9,7 +9,6 @@ import {
 } from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { useInfinitePopularMedia } from '@/hooks/useMedia';
 import NotFound from '@/pages/NotFound';
@@ -56,7 +55,7 @@ export default function Explore() {
   }
 
   return (
-    <div className='container mx-auto px-4 pt-24 pb-8 lg:px-8'>
+    <div className='w-full px-4 pt-24 pb-8 md:px-12 lg:px-16'>
       {/* Header */}
       <div className='mb-8 flex items-center gap-4'>
         <button

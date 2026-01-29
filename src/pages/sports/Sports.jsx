@@ -26,7 +26,7 @@ export default function Sports() {
     <div className='bg-background min-h-screen pt-16'>
       {/* Header */}
       <div className='border-border bg-card/50 border-b backdrop-blur-sm'>
-        <div className='container mx-auto px-4 py-8'>
+        <div className='w-full px-4 py-8 md:px-12 lg:px-16'>
           <h1 className='text-foreground text-4xl font-bold'>Live Sports</h1>
           <p className='text-muted-foreground mt-2'>
             Watch live sports from around the world
@@ -36,7 +36,7 @@ export default function Sports() {
 
       {/* Sport Categories */}
       <div className='border-border bg-card/30 border-b'>
-        <div className='container mx-auto px-4 py-6'>
+        <div className='w-full px-4 py-6 md:px-12 lg:px-16'>
           <h2 className='text-muted-foreground mb-4 text-sm font-bold tracking-wider uppercase'>
             Select Sport
           </h2>
@@ -72,7 +72,7 @@ export default function Sports() {
       </div>
 
       {/* Matches Tabs */}
-      <div className='container mx-auto px-4 py-8'>
+      <div className='w-full px-4 py-8 md:px-12 lg:px-16'>
         <Tabs defaultValue='live' className='w-full'>
           <TabsList className='mb-6'>
             <TabsTrigger value='live'>Live Now</TabsTrigger>
