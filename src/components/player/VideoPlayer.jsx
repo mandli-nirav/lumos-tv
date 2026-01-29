@@ -95,7 +95,7 @@ export function VideoPlayer({
     if (isMovie) {
       // Movie URL patterns
       if (server.id === 'vidking') {
-        return `${server.url}/movie/${id}`;
+        return `${server.url}/movie/${id}?color=ff4d00`;
       }
       if (server.id === 'vidsrc-cc') {
         return `${server.url}/movie/${id}`;
@@ -121,7 +121,7 @@ export function VideoPlayer({
     } else {
       // TV Show URL patterns
       if (server.id === 'vidking') {
-        return `${server.url}/tv/${id}/${season}/${episode}`;
+        return `${server.url}/tv/${id}/${season}/${episode}?color=ff4d00&nextEpisode=true&episodeSelector=true`;
       }
       if (server.id === 'vidsrc-cc') {
         return `${server.url}/tv/${id}/${season}/${episode}`;
