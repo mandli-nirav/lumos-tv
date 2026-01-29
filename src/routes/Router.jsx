@@ -11,6 +11,7 @@ const Search = lazy(() => import('@/pages/Search'));
 const Sports = lazy(() => import('@/pages/sports/Sports'));
 const Watch = lazy(() => import('@/pages/Watch'));
 const WatchSport = lazy(() => import('@/pages/sports/WatchSport'));
+const MediaDetails = lazy(() => import('@/pages/MediaDetails'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export const router = createBrowserRouter([
@@ -66,7 +67,7 @@ export const router = createBrowserRouter([
         path: '/:type/:id',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <Home />
+            <MediaDetails />
           </Suspense>
         ),
         loader: homeLoader,

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import _ from 'lodash';
-import { Check, ChevronsUpDown, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router';
@@ -8,20 +8,7 @@ import { useNavigate, useParams } from 'react-router';
 import { getImageUrl } from '@/api/tmdb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
@@ -43,6 +30,7 @@ export function MediaDetailContent({ media }) {
 
   const isTV = !!media?.seasons;
   const [selectedSeason, setSelectedSeason] = useState(1);
+  const [playingVideo, setPlayingVideo] = useState(null);
   const { data: seasonData, isLoading: isSeasonLoading } = useSeasonDetails(
     id,
     selectedSeason,
@@ -72,8 +60,11 @@ export function MediaDetailContent({ media }) {
       c.job
     )
   );
-  const similarItems = _.flatMap(_.get(similarData, 'pages', []), (page) =>
-    _.get(page, 'results', [])
+  const similarItems = _.uniqBy(
+    _.flatMap(_.get(similarData, 'pages', []), (page) =>
+      _.get(page, 'results', [])
+    ),
+    'id'
   );
   const videos = _.orderBy(
     _.get(media, 'videos.results', []),
@@ -83,7 +74,7 @@ export function MediaDetailContent({ media }) {
   const photos = _.take(_.get(media, 'images.backdrops', []), 12);
 
   return (
-    <div className='mt-8 space-y-12 px-6 pb-8 font-sans md:px-12'>
+    <div className='container mx-auto mt-8 space-y-12 px-6 pb-8 font-sans md:px-12'>
       {/* Overview & Main Meta */}
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>
@@ -234,58 +225,38 @@ export function MediaDetailContent({ media }) {
         {isTV && (
           <TabsContent value='episodes'>
             <div className='space-y-6'>
-              <div className='flex items-center gap-4'>
-                <label className='text-foreground text-sm font-semibold'>
-                  Select Season:
-                </label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant='outline'
-                      role='combobox'
-                      className='w-50 justify-between'
-                    >
-                      Season {selectedSeason}
-                      <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className='w-50 p-0'
-                    onWheel={(e) => e.stopPropagation()}
-                  >
-                    <Command>
-                      <CommandInput placeholder='Search season...' />
-                      <ScrollArea className='h-75'>
-                        <CommandList>
-                          <CommandEmpty>No season found.</CommandEmpty>
-                          <CommandGroup>
-                            {media.seasons
-                              ?.filter((s) => s.season_number > 0)
-                              .map((season) => (
-                                <CommandItem
-                                  key={season.id}
-                                  value={season.season_number.toString()}
-                                  onSelect={() => {
-                                    setSelectedSeason(season.season_number);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      'mr-2 h-4 w-4',
-                                      selectedSeason === season.season_number
-                                        ? 'opacity-100'
-                                        : 'opacity-0'
-                                    )}
-                                  />
-                                  Season {season.season_number}
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </ScrollArea>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <h3 className='text-foreground text-lg font-bold'>Seasons</h3>
+                  <span className='text-muted-foreground text-xs font-semibold'>
+                    {media.seasons?.filter((s) => s.season_number > 0).length}{' '}
+                    Seasons
+                  </span>
+                </div>
+                <Tabs
+                  value={selectedSeason.toString()}
+                  onValueChange={(val) => setSelectedSeason(parseInt(val))}
+                  className='w-full'
+                >
+                  <ScrollArea className='w-full'>
+                    <TabsList className='h-auto w-full justify-start gap-2 bg-transparent p-0'>
+                      {media.seasons
+                        ?.filter((s) => s.season_number > 0)
+                        .map((season) => (
+                          <TabsTrigger
+                            key={season.id}
+                            value={season.season_number.toString()}
+                            className={cn(
+                              'border-border hover:bg-muted/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10 min-w-[100px] rounded-full border px-6 transition-all'
+                            )}
+                          >
+                            Season {season.season_number}
+                          </TabsTrigger>
+                        ))}
+                    </TabsList>
+                    <ScrollBar orientation='horizontal' className='invisible' />
+                  </ScrollArea>
+                </Tabs>
               </div>
 
               <AnimatePresence mode='wait'>
@@ -371,7 +342,11 @@ export function MediaDetailContent({ media }) {
         <TabsContent value='trailers' className='pt-8 outline-none'>
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
             {videos.map((video) => (
-              <div key={video.id} className='space-y-3'>
+              <div
+                key={video.id}
+                className='space-y-3'
+                onClick={() => setPlayingVideo(video)}
+              >
                 <div className='bg-muted border-border group relative aspect-video cursor-pointer overflow-hidden rounded-xl border'>
                   <img
                     src={`https://img.youtube.com/vi/${video.key}/maxresdefault.jpg`}
@@ -427,6 +402,29 @@ export function MediaDetailContent({ media }) {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Video Player Modal */}
+      <Dialog
+        open={!!playingVideo}
+        onOpenChange={(open) => !open && setPlayingVideo(null)}
+      >
+        <DialogContent className='max-w-5xl border-none bg-transparent p-0 shadow-none outline-none'>
+          <DialogTitle className='sr-only'>
+            {playingVideo?.name || 'Video Player'}
+          </DialogTitle>
+          {playingVideo && (
+            <div className='aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl'>
+              <iframe
+                src={`https://www.youtube.com/embed/${playingVideo.key}?autoplay=1`}
+                title={playingVideo.name}
+                className='h-full w-full'
+                allowFullScreen
+                allow='autoplay; encrypted-media'
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

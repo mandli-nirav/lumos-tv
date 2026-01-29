@@ -31,7 +31,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 z-100 w-full border-none font-sans transition-all duration-300',
+        'fixed top-0 z-40 w-full border-none font-sans transition-all duration-300',
         isScrolled
           ? 'bg-background/80 backdrop-blur-xl'
           : 'from-background/95 via-background/60 border-transparent bg-linear-to-b to-transparent dark:from-black/80 dark:via-black/40'

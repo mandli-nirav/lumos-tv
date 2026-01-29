@@ -35,9 +35,7 @@ export function MediaCard({ item, explicitType }) {
   const language = item.original_language?.toUpperCase() || 'EN';
 
   const handleCardClick = () => {
-    navigate(`/${mediaType}/${item.id}`, {
-      state: { backgroundLocation: location },
-    });
+    navigate(`/${mediaType}/${item.id}`);
   };
 
   const handleMouseEnter = () => {

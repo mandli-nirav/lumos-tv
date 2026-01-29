@@ -1,12 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ChevronLeft,
-  Info,
-  Maximize,
-  Play,
-  Server,
-  Settings,
-} from 'lucide-react';
+import { ChevronLeft, Info, Play, Server, Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -28,29 +21,34 @@ const SERVERS = [
     url: 'https://vidsrc.cc/v2/embed',
   },
   {
+    id: 'vidking',
+    name: 'Server 2 (VidKing)',
+    url: 'https://vidking.net/embed',
+  },
+  {
     id: 'vidsrc-me',
-    name: 'Server 2 (VidSrc.me)',
+    name: 'Server 3 (VidSrc.me)',
     url: 'https://vidsrc.me/embed',
   },
   {
     id: 'vidsrc-pro',
-    name: 'Server 3 (VidSrc.pro)',
+    name: 'Server 4 (VidSrc.pro)',
     url: 'https://vidsrc.pro/embed',
   },
-  { id: '2embed', name: 'Server 4 (2Embed)', url: 'https://www.2embed.cc' },
+  { id: '2embed', name: 'Server 5 (2Embed)', url: 'https://www.2embed.cc' },
   {
     id: 'autoembed',
-    name: 'Server 5 (AutoEmbed 1)',
+    name: 'Server 6 (AutoEmbed 1)',
     url: 'https://player.autoembed.cc/embed',
   },
   {
     id: 'autoembed-2',
-    name: 'Server 6 (AutoEmbed 2)',
+    name: 'Server 7 (AutoEmbed 2)',
     url: 'https://player.autoembed.cc/embed',
   },
   {
     id: 'autoembed-3',
-    name: 'Server 7 (AutoEmbed 3)',
+    name: 'Server 8 (AutoEmbed 3)',
     url: 'https://player.autoembed.cc/embed',
   },
 ];
@@ -69,18 +67,26 @@ export function VideoPlayer({
   const [showControls, setShowControls] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const timeoutRef = React.useRef(null);
 
-  // Auto-hide controls after 3 seconds of inactivity (but not when dropdown is open)
-  useEffect(() => {
-    let timeout;
-    if (showControls && !dropdownOpen) {
-      timeout = setTimeout(() => setShowControls(false), 3000);
+  const resetTimer = React.useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (!dropdownOpen) {
+      timeoutRef.current = setTimeout(() => setShowControls(false), 10000);
     }
-    return () => clearTimeout(timeout);
-  }, [showControls, dropdownOpen]);
+  }, [dropdownOpen]);
+
+  // Initial timer and reset on dropdown change
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [resetTimer, dropdownOpen]);
 
   const handleMouseMove = () => {
-    setShowControls(true);
+    if (!showControls) setShowControls(true);
+    resetTimer();
   };
 
   const constructUrl = (server) => {
@@ -88,6 +94,9 @@ export function VideoPlayer({
 
     if (isMovie) {
       // Movie URL patterns
+      if (server.id === 'vidking') {
+        return `${server.url}/movie/${id}`;
+      }
       if (server.id === 'vidsrc-cc') {
         return `${server.url}/movie/${id}`;
       }
@@ -111,6 +120,9 @@ export function VideoPlayer({
       }
     } else {
       // TV Show URL patterns
+      if (server.id === 'vidking') {
+        return `${server.url}/tv/${id}/${season}/${episode}`;
+      }
       if (server.id === 'vidsrc-cc') {
         return `${server.url}/tv/${id}/${season}/${episode}`;
       }
@@ -154,84 +166,98 @@ export function VideoPlayer({
   };
 
   return (
-    <div className='flex h-screen w-full flex-col bg-black'>
+    <div
+      className='flex h-screen w-full flex-col bg-black'
+      onMouseMove={handleMouseMove}
+    >
       {/* Fixed Header Bar */}
-      <div className='flex items-center justify-between border-b border-white/10 bg-black/95 px-4 py-3 backdrop-blur-md'>
-        <div className='flex items-center gap-4'>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20'
-            onClick={() => navigate(-1)}
+      <AnimatePresence>
+        {showControls && (
+          <motion.div
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className='absolute top-0 right-0 left-0 z-100 flex items-center justify-between border-b border-white/10 bg-black/95 px-4 py-3 backdrop-blur-md'
           >
-            <ChevronLeft className='h-6 w-6 text-white' />
-          </Button>
-          <div className='flex flex-col'>
-            <h1 className='text-lg font-bold tracking-tight text-white md:text-xl'>
-              {title}
-            </h1>
-            {metadata && (
-              <p className='text-xs font-medium text-white/60'>{metadata}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Server Selection Dropdown */}
-        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='gap-2 rounded-full border border-white/10 bg-white/10 text-white backdrop-blur-md hover:bg-white/20'
-            >
-              <Server className='h-4 w-4' />
-              <span className='hidden sm:inline'>{selectedServer.name}</span>
-              <Settings className='ml-1 h-4 w-4 opacity-60' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align='end'
-            className='z-110 w-56 border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl'
-          >
-            <DropdownMenuLabel className='px-3 py-2 text-[10px] font-bold tracking-widest text-zinc-400 uppercase'>
-              Switch Server
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className='bg-zinc-800' />
-            {SERVERS.map((server) => (
-              <DropdownMenuItem
-                key={server.id}
-                onClick={() => {
-                  setIsReady(false);
-                  setSelectedServer(server);
-                }}
-                className={cn(
-                  'flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors',
-                  selectedServer.id === server.id
-                    ? 'bg-primary/20 text-primary font-bold'
-                    : 'hover:bg-white/10'
-                )}
+            <div className='flex items-center gap-4'>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20'
+                onClick={() => navigate(-1)}
               >
-                <Play
-                  className={cn(
-                    'h-3 w-3',
-                    selectedServer.id === server.id
-                      ? 'fill-primary'
-                      : 'opacity-0'
-                  )}
-                />
-                {server.name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+                <ChevronLeft className='h-6 w-6 text-white' />
+              </Button>
+              <div className='flex flex-col'>
+                <h1 className='text-lg font-bold tracking-tight text-white md:text-xl'>
+                  {title}
+                </h1>
+                {metadata && (
+                  <p className='text-xs font-medium text-white/60'>
+                    {metadata}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Server Selection Dropdown */}
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='gap-2 rounded-full border border-white/10 bg-white/10 text-white backdrop-blur-md hover:bg-white/20'
+                >
+                  <Server className='h-4 w-4' />
+                  <span className='hidden sm:inline'>
+                    {selectedServer.name}
+                  </span>
+                  <Settings className='ml-1 h-4 w-4 opacity-60' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align='end'
+                className='z-110 w-56 border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl'
+              >
+                <DropdownMenuLabel className='px-3 py-2 text-[10px] font-bold tracking-widest text-zinc-400 uppercase'>
+                  Switch Server
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className='bg-zinc-800' />
+                {SERVERS.map((server) => (
+                  <DropdownMenuItem
+                    key={server.id}
+                    onClick={() => {
+                      setIsReady(false);
+                      setSelectedServer(server);
+                    }}
+                    className={cn(
+                      'flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors',
+                      selectedServer.id === server.id
+                        ? 'bg-primary/20 text-primary font-bold'
+                        : 'hover:bg-white/10'
+                    )}
+                  >
+                    <Play
+                      className={cn(
+                        'h-3 w-3',
+                        selectedServer.id === server.id
+                          ? 'fill-primary'
+                          : 'opacity-0'
+                      )}
+                    />
+                    {server.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Player Container */}
-      <div
-        className='group/player relative flex-1 overflow-hidden'
-        onMouseMove={handleMouseMove}
-      >
-        {/* Ad-Blocking Click Trap - Helps catch initial popup-generating clicks */}
+      <div className='group/player relative flex-1 overflow-hidden'>
+        {/* Ad-Blocking Click Trap */}
         <div
           className='absolute inset-0 z-30'
           onClick={(e) => {
