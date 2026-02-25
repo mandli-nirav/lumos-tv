@@ -8,9 +8,8 @@ import AppLayout from '@/layouts/AppLayout';
 const Home = lazy(() => import('@/pages/Home'));
 const Explore = lazy(() => import('@/pages/Explore'));
 const Search = lazy(() => import('@/pages/Search'));
-const Sports = lazy(() => import('@/pages/sports/Sports'));
+const LiveTV = lazy(() => import('@/pages/LiveTV'));
 const Watch = lazy(() => import('@/pages/Watch'));
-const WatchSport = lazy(() => import('@/pages/sports/WatchSport'));
 const MediaDetails = lazy(() => import('@/pages/MediaDetails'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
@@ -38,10 +37,10 @@ export const router = createBrowserRouter([
         loader: searchLoader,
       },
       {
-        path: '/sports',
+        path: '/live-tv',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <Sports />
+            <LiveTV />
           </Suspense>
         ),
       },
@@ -97,15 +96,6 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<PageLoader />}>
         <Watch />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/sports/watch/:matchId',
-    HydrateFallback: PageLoader,
-    element: (
-      <Suspense fallback={<PageLoader />}>
-        <WatchSport />
       </Suspense>
     ),
   },
