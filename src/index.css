@@ -198,3 +198,121 @@ nav {
   border-top-color: var(--primary) !important;
   border-left-color: var(--primary) !important;
 }
+
+/* ─── Player Glass Pill: Seek Slider ────────────────────────────────────────── */
+.seek-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  align-self: center;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.9) var(--pct, 0%),
+    rgba(255, 255, 255, 0.25) var(--pct, 0%),
+    rgba(255, 255, 255, 0.25) 100%
+  );
+  transition: height 0.15s ease;
+}
+
+.seek-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+}
+
+.seek-slider:hover {
+  height: 6px;
+}
+
+.seek-slider:hover::-webkit-slider-runnable-track {
+  height: 6px;
+}
+
+.seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  margin-top: -5px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.seek-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.18);
+}
+
+.seek-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+}
+
+.seek-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+/* ─── Player Glass Pill: Volume Slider ──────────────────────────────────────── */
+.vol-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  align-self: center;
+  height: 3px;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.85) var(--pct, 100%),
+    rgba(255, 255, 255, 0.2) var(--pct, 100%),
+    rgba(255, 255, 255, 0.2) 100%
+  );
+}
+
+.vol-slider::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+}
+
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  margin-top: -3.5px;
+}
+
+.vol-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.vol-slider::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: transparent;
+}

@@ -11,11 +11,12 @@ import { cn } from '@/lib/utils';
 
 export default function LiveTV() {
   const { data: channels, isLoading } = useLiveTV();
-  const categories = useLiveTVCategories(channels);
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeChannel, setActiveChannel] = useState(null);
+
+  const categories = useLiveTVCategories(channels);
 
   const filteredChannels = useMemo(() => {
     if (!channels) return [];
@@ -104,7 +105,7 @@ export default function LiveTV() {
         </ScrollArea>
       </div>
 
-      {/* Channels Grid */}
+      {/* Channels Grid (Standard rendering) */}
       <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
         {filteredChannels.map((channel) => (
           <div
