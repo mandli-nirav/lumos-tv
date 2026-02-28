@@ -316,3 +316,19 @@ nav {
   border-radius: 999px;
   background: transparent;
 }
+/* ─── Video.js Customization ────────────────────────────────────────────────── */
+.video-js .vjs-big-play-button,
+.video-js .vjs-control-bar,
+.video-js .vjs-error-display,
+.video-js .vjs-loading-spinner,
+.video-js .vjs-modal-dialog {
+  display: none !important;
+}
+
+.video-js {
+  background-color: black !important;
+}
+
+.video-js video {
+  object-fit: contain !important;
+}
