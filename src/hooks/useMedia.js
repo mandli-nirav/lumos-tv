@@ -186,6 +186,23 @@ export const useGenres = () => {
 };
 
 /**
+ * Fetch images (logos, backdrops, posters) for a movie or TV show.
+ */
+export const useMediaImages = (type, id) => {
+  return useQuery({
+    queryKey: ['media', type, id, 'images'],
+    queryFn: async () => {
+      const response = await tmdb.get(`/${type}/${id}/images`, {
+        params: { include_image_language: 'en,null' },
+      });
+      return response.data;
+    },
+    enabled: !!type && !!id,
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+};
+
+/**
  * Multi-search for movies, TV shows, and people.
  */
 export const useSearchMedia = (query, options = {}) => {

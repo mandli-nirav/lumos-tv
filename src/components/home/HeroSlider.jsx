@@ -12,8 +12,30 @@ import { AddToLibraryButton } from '@/components/media/AddToLibraryButton';
 import { WatchNowButton } from '@/components/media/WatchNowButton';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGenres } from '@/hooks/useMedia';
+import { useGenres, useMediaImages } from '@/hooks/useMedia';
 import { cn } from '@/lib/utils';
+
+function HeroSlideLogo({ type, id, title }) {
+  const { data } = useMediaImages(type, id);
+  const logo =
+    data?.logos?.find((l) => l.iso_639_1 === 'en') ?? data?.logos?.[0];
+
+  if (logo) {
+    return (
+      <img
+        src={getImageUrl(logo.file_path, 'w500')}
+        alt={title}
+        className='max-h-20 max-w-70 object-contain drop-shadow-2xl md:max-h-28 md:max-w-sm'
+      />
+    );
+  }
+
+  return (
+    <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl lg:text-6xl'>
+      {title}
+    </h1>
+  );
+}
 
 export default function HeroSlider({ data, isLoading }) {
   const [nav1, setNav1] = useState(null);
@@ -63,7 +85,7 @@ export default function HeroSlider({ data, isLoading }) {
 
   if (isLoading) {
     return (
-      <div className='relative h-[90vh] w-full overflow-hidden bg-[#050505]'>
+      <div className='relative h-screen w-full overflow-hidden bg-[#050505]'>
         {/* Background Gradients to match real slider */}
         <div className='absolute inset-0 z-10 bg-linear-to-r from-[#050505] via-[#050505]/60 to-transparent' />
         <div className='absolute inset-0 z-10 bg-linear-to-t from-[#050505] via-transparent to-transparent' />
@@ -116,10 +138,10 @@ export default function HeroSlider({ data, isLoading }) {
   if (trendingItems.length === 0) return null;
 
   return (
-    <div className='relative h-[90vh] w-full overflow-hidden font-sans'>
+    <div className='relative h-screen w-full overflow-hidden font-sans'>
       <Slider {...settingsMain} className='hero-slider h-full w-full'>
         {trendingItems.map((item) => (
-          <div key={item.id} className='relative h-[90vh] w-full'>
+          <div key={item.id} className='relative h-screen w-full'>
             {/* Background Backdrop */}
             <div className='absolute inset-0'>
               <LazyLoadImage
@@ -157,9 +179,11 @@ export default function HeroSlider({ data, isLoading }) {
                   </div>
                 </div>
 
-                <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl lg:text-6xl'>
-                  {item.title || item.name}
-                </h1>
+                <HeroSlideLogo
+                  type={item.media_type}
+                  id={item.id}
+                  title={item.title || item.name}
+                />
 
                 <div className='text-muted-foreground flex items-center justify-center gap-3 text-xs font-bold tracking-wider uppercase md:justify-start md:text-sm'>
                   <span>
