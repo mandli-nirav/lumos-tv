@@ -6,6 +6,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+const toProxyUrl = (url) => {
+  if (!url) return null;
+  // In dev, Vercel Edge Functions aren't available — hit streams directly.
+  // Run `vercel dev` instead of `npm run dev` to test the proxy locally.
+  if (import.meta.env.DEV) return url;
+  return `/api/stream-proxy?url=${encodeURIComponent(url)}`;
+};
+
 export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
   const artRef = useRef(null);
   const [currentStreamIndex, setCurrentStreamIndex] = useState(0);
@@ -13,7 +21,7 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
   const [decoderMode, setDecoderMode] = useState('HW+');
 
   const stream = streams[currentStreamIndex];
-  const streamUrl = stream?.url;
+  const streamUrl = toProxyUrl(stream?.url);
 
   // ─── Reset state for new stream ─────────
   const [prevUrl, setPrevUrl] = useState(streamUrl);

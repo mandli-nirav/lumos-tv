@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import _ from 'lodash';
 import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -45,33 +44,32 @@ export function MediaDetailContent({ media }) {
 
   if (!media) return null;
 
-  const cast = _.take(_.get(media, 'credits.cast', []), 20);
-  const crew = _.filter(_.get(media, 'credits.crew', []), (c) =>
-    _.includes(
-      [
-        'Director',
-        'Writer',
-        'Producer',
-        'Story',
-        'Screenplay',
-        'Music',
-        'Director of Photography',
-      ],
-      c.job
-    )
+  const cast = (media.credits?.cast || []).slice(0, 20);
+
+  const keyCrewLabels = new Set([
+    'Director',
+    'Writer',
+    'Producer',
+    'Story',
+    'Screenplay',
+    'Music',
+    'Director of Photography',
+  ]);
+  const crew = (media.credits?.crew || []).filter((c) => keyCrewLabels.has(c.job));
+
+  // Deduplicate similar items by ID
+  const similarItems = Array.from(
+    new Map(
+      (similarData?.pages || [])
+        .flatMap((page) => page.results || [])
+        .map((item) => [item.id, item])
+    ).values()
   );
-  const similarItems = _.uniqBy(
-    _.flatMap(_.get(similarData, 'pages', []), (page) =>
-      _.get(page, 'results', [])
-    ),
-    'id'
+
+  const videos = (media.videos?.results || []).sort(
+    (a, b) => (b.type === 'Trailer' ? 1 : 0) - (a.type === 'Trailer' ? 1 : 0)
   );
-  const videos = _.orderBy(
-    _.get(media, 'videos.results', []),
-    [(v) => v.type === 'Trailer'],
-    ['desc']
-  );
-  const photos = _.take(_.get(media, 'images.backdrops', []), 12);
+  const photos = (media.images?.backdrops || []).slice(0, 12);
 
   return (
     <div className='mt-8 w-full space-y-12 px-6 pb-8 font-sans md:px-12 lg:px-16'>
@@ -183,13 +181,13 @@ export function MediaDetailContent({ media }) {
               {media.status}
             </p>
           </div>
-          {_.get(media, 'networks', []).length > 0 && (
+          {(media.networks || []).length > 0 && (
             <div className='space-y-2'>
               <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
                 Networks
               </span>
               <div className='mt-2 flex flex-wrap gap-3'>
-                {_.map(_.get(media, 'networks'), (network) => (
+                {(media.networks || []).map((network) => (
                   <div key={network.id} title={network.name}>
                     {network.logo_path ? (
                       <img
@@ -420,6 +418,7 @@ export function MediaDetailContent({ media }) {
                 className='h-full w-full'
                 allowFullScreen
                 allow='autoplay; encrypted-media'
+                sandbox='allow-scripts allow-same-origin allow-presentation'
               />
             </div>
           )}

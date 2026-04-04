@@ -1,7 +1,6 @@
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { motion } from 'framer-motion';
-import { capitalize } from 'lodash';
 import { Play, Tv } from 'lucide-react';
 import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -9,6 +8,8 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
 export function ChannelCard({ channel, onClick }) {
   const mainStream = channel.streams?.[0];

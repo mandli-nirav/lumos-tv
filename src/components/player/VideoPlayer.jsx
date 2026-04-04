@@ -3,6 +3,8 @@ import { ChevronLeft, Info, Play, Server, Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import { constructPlayerUrl, PLAYER_SERVERS } from '@/config/playerServers';
+import { usePlayerServer } from '@/hooks/usePlayerServer';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,45 +16,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-const SERVERS = [
-  {
-    id: 'vidsrc-cc',
-    name: 'Server 1 (VidSrc.cc)',
-    url: 'https://vidsrc.cc/v2/embed',
-  },
-  {
-    id: 'vidking',
-    name: 'Server 2 (VidKing)',
-    url: 'https://vidking.net/embed',
-  },
-  {
-    id: 'vidsrc-me',
-    name: 'Server 3 (VidSrc.me)',
-    url: 'https://vidsrc.me/embed',
-  },
-  {
-    id: 'vidsrc-pro',
-    name: 'Server 4 (VidSrc.pro)',
-    url: 'https://vidsrc.pro/embed',
-  },
-  { id: '2embed', name: 'Server 5 (2Embed)', url: 'https://www.2embed.cc' },
-  {
-    id: 'autoembed',
-    name: 'Server 6 (AutoEmbed 1)',
-    url: 'https://player.autoembed.cc/embed',
-  },
-  {
-    id: 'autoembed-2',
-    name: 'Server 7 (AutoEmbed 2)',
-    url: 'https://player.autoembed.cc/embed',
-  },
-  {
-    id: 'autoembed-3',
-    name: 'Server 8 (AutoEmbed 3)',
-    url: 'https://player.autoembed.cc/embed',
-  },
-];
-
 export function VideoPlayer({
   type,
   id,
@@ -63,9 +26,17 @@ export function VideoPlayer({
   metadata,
 }) {
   const navigate = useNavigate();
-  const [selectedServer, setSelectedServer] = useState(SERVERS[0]);
+  const {
+    selectedServer,
+    setSelectedServer,
+    handleServerError,
+    allServersFailed,
+    isLoading,
+    setIsLoading,
+    resetError,
+  } = usePlayerServer();
+
   const [showControls, setShowControls] = useState(true);
-  const [isReady, setIsReady] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = React.useRef(null);
 
@@ -89,81 +60,7 @@ export function VideoPlayer({
     resetTimer();
   };
 
-  const constructUrl = (server) => {
-    const isMovie = type === 'movie';
-
-    if (isMovie) {
-      // Movie URL patterns
-      if (server.id === 'vidking') {
-        return `${server.url}/movie/${id}?color=ff4d00`;
-      }
-      if (server.id === 'vidsrc-cc') {
-        return `${server.url}/movie/${id}`;
-      }
-      if (server.id === 'vidsrc-me') {
-        return `${server.url}/movie?tmdb=${id}`;
-      }
-      if (server.id === 'vidsrc-pro') {
-        return `${server.url}/movie/${id}`;
-      }
-      if (server.id === '2embed') {
-        return `${server.url}/embed/${id}`;
-      }
-      if (server.id === 'autoembed') {
-        return `${server.url}/movie/${id}`;
-      }
-      if (server.id === 'autoembed-2') {
-        return `${server.url}/movie/${id}?server=2`;
-      }
-      if (server.id === 'autoembed-3') {
-        return `${server.url}/movie/${id}?server=3`;
-      }
-    } else {
-      // TV Show URL patterns
-      if (server.id === 'vidking') {
-        return `${server.url}/tv/${id}/${season}/${episode}?color=ff4d00&nextEpisode=true&episodeSelector=true`;
-      }
-      if (server.id === 'vidsrc-cc') {
-        return `${server.url}/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === 'vidsrc-me') {
-        return `${server.url}/tv?tmdb=${id}&season=${season}&episode=${episode}`;
-      }
-      if (server.id === 'vidsrc-pro') {
-        return `${server.url}/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === '2embed') {
-        return `${server.url}/embedtv/${id}&s=${season}&e=${episode}`;
-      }
-      if (server.id === 'embed-su') {
-        return `${server.url}/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === 'multiembed') {
-        return `${server.url}/?video_id=${id}&tmdb=1&s=${season}&e=${episode}`;
-      }
-      if (server.id === 'moviesapi') {
-        return `${server.url}/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === 'vidlink') {
-        return `https://vidlink.pro/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === 'smashystream') {
-        return `${server.url}/tv?tmdb=${id}&season=${season}&episode=${episode}`;
-      }
-      if (server.id === 'autoembed') {
-        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
-      }
-      if (server.id === 'autoembed-2') {
-        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}?server=2`;
-      }
-      if (server.id === 'autoembed-3') {
-        return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}?server=3`;
-      }
-    }
-
-    // Fallback
-    return `${server.url}/movie/${id}`;
-  };
+  const playerUrl = constructPlayerUrl(selectedServer, type, id, season, episode);
 
   return (
     <div
@@ -201,6 +98,12 @@ export function VideoPlayer({
               </div>
             </div>
 
+            {/* Tip */}
+            <div className='hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/40 md:flex'>
+              <Info className='h-3 w-3 shrink-0' />
+              <span>If video doesn't load, switch servers →</span>
+            </div>
+
             {/* Server Selection Dropdown */}
             <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
               <DropdownMenuTrigger asChild>
@@ -224,13 +127,10 @@ export function VideoPlayer({
                   Switch Server
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className='bg-zinc-800' />
-                {SERVERS.map((server) => (
+                {PLAYER_SERVERS.map((server) => (
                   <DropdownMenuItem
                     key={server.id}
-                    onClick={() => {
-                      setIsReady(false);
-                      setSelectedServer(server);
-                    }}
+                    onClick={() => setSelectedServer(server)}
                     className={cn(
                       'flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors',
                       selectedServer.id === server.id
@@ -270,53 +170,42 @@ export function VideoPlayer({
         {/* The Player Iframe */}
         <iframe
           key={selectedServer.id}
-          src={constructUrl(selectedServer)}
+          src={playerUrl}
           className='h-full w-full border-0'
-          sandbox='allow-scripts allow-same-origin allow-presentation'
           allowFullScreen
-          onLoad={() => setIsReady(true)}
-          onError={() => {
-            // Try next server on error
-            const currentIndex = SERVERS.findIndex(
-              (s) => s.id === selectedServer.id
-            );
-            if (currentIndex < SERVERS.length - 1) {
-              setIsReady(false);
-              setSelectedServer(SERVERS[currentIndex + 1]);
-            }
-          }}
+          onLoad={() => setIsLoading(false)}
+          onError={handleServerError}
           title={title}
         />
 
-        {/* Bottom Overlay - Only show tip */}
-        <AnimatePresence>
-          {showControls && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className='pointer-events-none absolute inset-x-0 bottom-0 z-50 bg-linear-to-t from-black/80 to-transparent p-6'
-            >
-              <div className='pointer-events-auto flex justify-end'>
-                <div className='flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/50 backdrop-blur-md'>
-                  <Info className='h-3 w-3' />
-                  <span>
-                    Tip: If video doesn't load, try switching servers from the
-                    top right.
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Loading Overlay */}
-        {!isReady && (
+        {isLoading && !allServersFailed && (
           <div className='absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-black'>
             <div className='border-primary/20 border-t-primary h-12 w-12 animate-spin rounded-full border-4' />
             <p className='animate-pulse font-medium text-white/60'>
               Requesting Stream...
             </p>
+          </div>
+        )}
+
+        {/* Error Overlay */}
+        {allServersFailed && (
+          <div className='absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-black'>
+            <div className='text-center space-y-3'>
+              <p className='text-xl font-semibold text-white'>
+                Unable to Load Content
+              </p>
+              <p className='text-sm text-white/60 max-w-xs'>
+                All streaming servers are unavailable. Please try again later.
+              </p>
+            </div>
+            <Button
+              variant='outline'
+              onClick={resetError}
+              className='text-white border-white/20 hover:bg-white/10'
+            >
+              Retry
+            </Button>
           </div>
         )}
       </div>

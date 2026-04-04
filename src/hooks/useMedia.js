@@ -1,9 +1,8 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 
 import tmdb from '@/api/tmdb';
 
-const append_to_response = 'videos,images,external_ids,watch/providers,reviews';
+const DETAIL_APPEND_TO_RESPONSE = 'videos,images,external_ids,watch/providers,reviews';
 const include_image_language = 'en-US';
 /**
  * Fetch trending media.
@@ -15,7 +14,7 @@ export const useTrending = (type = 'all', timeWindow = 'day', options = {}) => {
     queryKey: ['trending', type, timeWindow],
     queryFn: async () => {
       const response = await tmdb.get(`/trending/${type}/${timeWindow}`, {
-        params: { append_to_response, include_image_language },
+        params: { include_image_language },
       });
       return response.data;
     },
@@ -31,7 +30,7 @@ export const usePopularMovies = (page = 1) => {
     queryKey: ['movies', 'popular', page],
     queryFn: async () => {
       const response = await tmdb.get('/movie/popular', {
-        params: { page, append_to_response, include_image_language },
+        params: { page, include_image_language },
       });
       return response.data;
     },
@@ -46,7 +45,7 @@ export const useInfinitePopularMedia = (type, options = {}) => {
     queryKey: [type === 'movie' ? 'movies' : type, 'popular', 'infinite'],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await tmdb.get(`/${type}/popular`, {
-        params: { page: pageParam, append_to_response, include_image_language },
+        params: { page: pageParam, include_image_language },
       });
       return response.data;
     },
@@ -76,7 +75,7 @@ export const usePopularTV = (page = 1) => {
     queryKey: ['tv', 'popular', page],
     queryFn: async () => {
       const response = await tmdb.get('/tv/popular', {
-        params: { page, append_to_response, include_image_language },
+        params: { page, include_image_language },
       });
       return response.data;
     },
@@ -98,7 +97,7 @@ export const useTopRatedMovies = (page = 1) => {
     queryKey: ['movies', 'top_rated', page],
     queryFn: async () => {
       const response = await tmdb.get('/movie/top_rated', {
-        params: { page, append_to_response, include_image_language },
+        params: { page, include_image_language },
       });
       return response.data;
     },
@@ -107,14 +106,14 @@ export const useTopRatedMovies = (page = 1) => {
 
 /**
  * Fetch details for a specific movie or TV show.
- * Supports append_to_response by default via Axios instance.
+ * Includes full metadata: videos, images, credits, reviews, etc.
  */
 export const useMediaDetails = (type, id) => {
   return useQuery({
     queryKey: ['media', type, id],
     queryFn: async () => {
       const response = await tmdb.get(`/${type}/${id}`, {
-        params: { append_to_response, include_image_language },
+        params: { append_to_response: DETAIL_APPEND_TO_RESPONSE, include_image_language },
       });
       return response.data;
     },
@@ -130,7 +129,7 @@ export const useInfiniteSimilarMedia = (type, id) => {
     queryKey: ['media', type, id, 'similar'],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await tmdb.get(`/${type}/${id}/similar`, {
-        params: { page: pageParam, append_to_response, include_image_language },
+        params: { page: pageParam, include_image_language },
       });
       return response.data;
     },
@@ -153,7 +152,7 @@ export const useSeasonDetails = (tvId, seasonNumber, options = {}) => {
     queryKey: ['tv', tvId, 'season', seasonNumber],
     queryFn: async () => {
       const response = await tmdb.get(`/tv/${tvId}/season/${seasonNumber}`, {
-        params: { append_to_response, include_image_language },
+        params: { append_to_response: DETAIL_APPEND_TO_RESPONSE, include_image_language },
       });
       return response.data;
     },
@@ -174,12 +173,13 @@ export const useGenres = () => {
         tmdb.get('/genre/tv/list'),
       ]);
 
-      const allGenres = _.concat(
-        _.get(movieGenres, 'data.genres', []),
-        _.get(tvGenres, 'data.genres', [])
-      );
+      const allGenres = [
+        ...(movieGenres.data?.genres || []),
+        ...(tvGenres.data?.genres || []),
+      ];
 
-      return _.mapValues(_.keyBy(allGenres, 'id'), 'name');
+      // Create a map: { id: name }
+      return Object.fromEntries(allGenres.map((g) => [g.id, g.name]));
     },
     staleTime: 24 * 60 * 60 * 1000, // Genres rarely change, cache for 24h
   });

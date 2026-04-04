@@ -1,7 +1,13 @@
-import axios from 'axios';
+import { createApiClient } from './client';
 
-const tmdb = axios.create({
+/**
+ * TMDB API Client
+ * Only read-only tokens should be used with this instance.
+ * WARNING: Do NOT put write-capable API keys in VITE_* variables.
+ */
+const tmdb = createApiClient({
   baseURL: 'https://api.themoviedb.org/3',
+  timeout: 10000,
   headers: {
     accept: 'application/json',
     Authorization: `Bearer ${import.meta.env.VITE_TMDB_READ_ACCESS_TOKEN}`,

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Tv } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { ChannelCard } from '@/components/livetv/ChannelCard';
 import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
@@ -44,6 +45,24 @@ export default function LiveTV() {
     });
   }, [channels, selectedCategory, searchQuery]);
 
+  // Virtualization: group channels into rows (6 columns on XL, adjust as needed)
+  const COLUMNS = 6;
+  const rows = useMemo(() => {
+    const rowArray = [];
+    for (let i = 0; i < filteredChannels.length; i += COLUMNS) {
+      rowArray.push(filteredChannels.slice(i, i + COLUMNS));
+    }
+    return rowArray;
+  }, [filteredChannels]);
+
+  const parentRef = React.useRef(null);
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 250, // Approximate height of a channel card row
+    overscan: 5,
+  });
+
   if (activeChannel) {
     return (
       <div className='fixed inset-0 z-50 h-screen w-full bg-black'>
@@ -58,7 +77,10 @@ export default function LiveTV() {
   }
 
   return (
-    <div className='bg-background min-h-screen px-4 pt-24 pb-20 md:px-12 lg:px-16'>
+    <div
+      ref={parentRef}
+      className='bg-background min-h-screen overflow-y-auto px-4 pt-24 pb-20 md:px-12 lg:px-16'
+    >
       <div className=''>
         <LiveTVHeader
           channelCount={channels?.length || 0}
@@ -106,21 +128,35 @@ export default function LiveTV() {
               <ChannelGridSkeleton count={12} />
             </motion.div>
           ) : filteredChannels.length > 0 ? (
-            <motion.div
+            <div
               key='grid'
-              className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ staggerChildren: 0.05 }}
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
             >
-              {filteredChannels.map((channel) => (
-                <ChannelCard
-                  key={channel.id}
-                  channel={channel}
-                  onClick={setActiveChannel}
-                />
+              {virtualizer.getVirtualItems().map((virtualItem) => (
+                <motion.div
+                  key={virtualItem.key}
+                  style={{
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                  className='absolute inset-x-0 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ staggerChildren: 0.05 }}
+                >
+                  {rows[virtualItem.index]?.map((channel) => (
+                    <ChannelCard
+                      key={channel.id}
+                      channel={channel}
+                      onClick={setActiveChannel}
+                    />
+                  ))}
+                </motion.div>
               ))}
-            </motion.div>
+            </div>
           ) : (
             <motion.div
               key='empty'

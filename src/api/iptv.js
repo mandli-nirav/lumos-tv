@@ -3,34 +3,28 @@ import axios from 'axios';
 const API_BASE_URL = 'https://iptv-org.github.io/api';
 
 /**
- * Cache for API responses to avoid redundant network requests
+ * Fetch data from IPTV API.
+ * Caching is handled by TanStack Query hooks — do NOT add client-side caching here.
+ * @param {string} endpoint - API endpoint path
+ * @returns {Promise<Array>}
  */
-const cache = {
-  channels: null,
-  streams: null,
-  logos: null,
-  feeds: null,
-  categories: null,
-};
-
-const fetchAndCache = async (key, endpoint) => {
-  if (cache[key]) return cache[key];
+const fetchIptvData = async (endpoint) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/${endpoint}`);
-    cache[key] = response.data;
+    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
+      timeout: 10000,
+    });
     return response.data;
   } catch (error) {
-    console.error(`Error fetching ${key}:`, error);
+    console.error(`Error fetching from IPTV API (${endpoint}):`, error.message);
     return [];
   }
 };
 
-export const getChannels = () => fetchAndCache('channels', 'channels.json');
-export const getStreams = () => fetchAndCache('streams', 'streams.json');
-export const getLogos = () => fetchAndCache('logos', 'logos.json');
-export const getFeeds = () => fetchAndCache('feeds', 'feeds.json');
-export const getCategories = () =>
-  fetchAndCache('categories', 'categories.json');
+export const getChannels = () => fetchIptvData('channels.json');
+export const getStreams = () => fetchIptvData('streams.json');
+export const getLogos = () => fetchIptvData('logos.json');
+export const getFeeds = () => fetchIptvData('feeds.json');
+export const getCategories = () => fetchIptvData('categories.json');
 
 /**
  * Fetches and merges channel data with stream URLs, logos, and feed languages.

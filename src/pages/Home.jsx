@@ -12,11 +12,11 @@ export default function Home() {
   const initialData = useLoaderData();
 
   const trending = useTrending('all', 'day', {
-    initialData: initialData?.trending,
+    placeholderData: initialData?.trending,
   });
 
   const popularMovies = useInfinitePopularMovies({
-    initialData: initialData?.popularMovies
+    placeholderData: initialData?.popularMovies
       ? {
           pages: [initialData.popularMovies],
           pageParams: [1],
@@ -25,7 +25,7 @@ export default function Home() {
   });
 
   const popularTV = useInfinitePopularTV({
-    initialData: initialData?.popularTV
+    placeholderData: initialData?.popularTV
       ? {
           pages: [initialData.popularTV],
           pageParams: [1],

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import { Search as SearchIcon, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -18,7 +18,7 @@ export default function Search() {
 
   // Handle debounce
   const updateDebouncedQuery = useMemo(
-    () => _.debounce((q) => setDebouncedQuery(q), 500),
+    () => debounce((q) => setDebouncedQuery(q), 500),
     []
   );
 
