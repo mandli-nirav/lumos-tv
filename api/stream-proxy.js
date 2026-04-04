@@ -100,20 +100,34 @@ export default async function handler(req) {
     });
   }
 
+  // Some stream servers require a Referer from their own domain — spoof it
+  const referer = `${parsedUrl.protocol}//${parsedUrl.host}/`;
+
   try {
     const upstream = await fetch(parsedUrl.toString(), {
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
         Accept: '*/*',
         'Accept-Language': 'en-US,en;q=0.9',
         'Cache-Control': 'no-cache',
+        Referer: referer,
+        Origin: `${parsedUrl.protocol}//${parsedUrl.host}`,
+        Connection: 'keep-alive',
       },
     });
 
     if (!upstream.ok) {
       return new Response(
-        JSON.stringify({ error: `Upstream error: ${upstream.status}` }),
+        JSON.stringify({
+          error: `Upstream error: ${upstream.status}`,
+          reason:
+            upstream.status === 403
+              ? 'Stream server is blocking the proxy. This channel may be geo-restricted or IP-blocked.'
+              : upstream.status === 404
+                ? 'Stream URL not found. The channel may be offline.'
+                : 'Stream server returned an error.',
+        }),
         {
           status: upstream.status,
           headers: {

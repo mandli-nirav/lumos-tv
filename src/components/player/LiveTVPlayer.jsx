@@ -182,7 +182,7 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
         art.notice.show = `Stream failed. Trying source ${next + 1} of ${streams.length}...`;
         setTimeout(tryNextStream, 2000);
       } else {
-        setError('All available streams failed. The channel may be offline.');
+        setError('All available streams failed. The channel may be offline or geo-restricted.');
       }
     });
 
