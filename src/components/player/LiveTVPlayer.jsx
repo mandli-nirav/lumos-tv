@@ -1,7 +1,7 @@
 import Artplayer from 'artplayer';
 import Hls from 'hls.js';
 import { ChevronLeft } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,22 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
 
   const stream = streams[currentStreamIndex];
   const streamUrl = toProxyUrl(stream?.url);
+
+  // Use a ref so the ArtPlayer error handler always sees the latest index
+  const currentStreamIndexRef = useRef(currentStreamIndex);
+  useEffect(() => {
+    currentStreamIndexRef.current = currentStreamIndex;
+  }, [currentStreamIndex]);
+
+  const tryNextStream = useCallback(() => {
+    const next = currentStreamIndexRef.current + 1;
+    if (next < streams.length) {
+      setError(null);
+      setCurrentStreamIndex(next);
+    } else {
+      setError('All available streams failed. The channel may be offline.');
+    }
+  }, [streams.length]);
 
   // ─── Reset state for new stream ─────────
   const [prevUrl, setPrevUrl] = useState(streamUrl);
@@ -160,17 +176,13 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
       art.volume = 1;
     });
 
-    art.on('error', (err) => {
-      console.error('ArtPlayer Error:', err);
-      if (currentStreamIndex < streams.length - 1) {
-        art.notice.show = 'Stream failed. Trying fallback...';
-        setTimeout(() => {
-          setCurrentStreamIndex((prev) => prev + 1);
-        }, 2000);
+    art.on('error', () => {
+      const next = currentStreamIndexRef.current + 1;
+      if (next < streams.length) {
+        art.notice.show = `Stream failed. Trying source ${next + 1} of ${streams.length}...`;
+        setTimeout(tryNextStream, 2000);
       } else {
-        setError(
-          `Playback Error: ${err.message || 'The stream could not be loaded.'}`
-        );
+        setError('All available streams failed. The channel may be offline.');
       }
     });
 
@@ -191,7 +203,7 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
         art.destroy(true);
       }
     };
-  }, [streamUrl, currentStreamIndex, streams, title, logo]);
+  }, [streamUrl, streams, title, logo, tryNextStream]);
 
   return (
     <div className='font-outfit relative flex h-full w-full flex-col overflow-hidden bg-black'>
@@ -274,8 +286,8 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
               variant='default'
               className='bg-primary hover:bg-primary/90 font-bold text-white'
               onClick={() => {
+                setCurrentStreamIndex(0);
                 setError(null);
-                window.location.reload();
               }}
             >
               Retry Stream
