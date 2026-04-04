@@ -21,11 +21,16 @@ export function InstallPrompt() {
 
   useEffect(() => {
     const handler = (e) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later
       setDeferredPrompt(e);
-      // Show our custom install prompt
+
+      // Respect the dismissal — only show if not dismissed within 7 days
+      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      if (dismissed) {
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - parseInt(dismissed, 10) < sevenDays) return;
+      }
+
       setShowPrompt(true);
     };
 
