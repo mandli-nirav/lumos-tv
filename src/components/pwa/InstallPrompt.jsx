@@ -65,14 +65,14 @@ export function InstallPrompt() {
 
   return (
     <div className='fixed right-4 bottom-20 left-4 z-50 md:right-4 md:left-auto md:w-96'>
-      <div className='rounded-lg border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur-md'>
+      <div className='rounded-lg border border-border bg-card p-4 shadow-2xl backdrop-blur-md'>
         <div className='flex items-start gap-3'>
           <div className='shrink-0 rounded-full bg-linear-to-br from-purple-500 to-blue-500 p-2'>
             <Download className='h-5 w-5 text-white' />
           </div>
           <div className='flex-1'>
-            <h3 className='font-bold text-white'>Install Lumos TV</h3>
-            <p className='mt-1 text-sm text-white/60'>
+            <h3 className='font-bold text-card-foreground'>Install Lumos TV</h3>
+            <p className='mt-1 text-sm text-muted-foreground'>
               Install our app for a better experience with offline support and
               faster loading.
             </p>
@@ -89,7 +89,6 @@ export function InstallPrompt() {
                 onClick={handleDismiss}
                 size='sm'
                 variant='ghost'
-                className='text-white/60 hover:text-white'
               >
                 Not now
               </Button>
@@ -97,7 +96,7 @@ export function InstallPrompt() {
           </div>
           <button
             onClick={handleDismiss}
-            className='shrink-0 rounded-full p-1 text-white/40 hover:bg-white/10 hover:text-white'
+            className='shrink-0 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground'
           >
             <X className='h-4 w-4' />
           </button>
