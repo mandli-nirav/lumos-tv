@@ -1,24 +1,24 @@
-import { ChevronLeft } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import {
   useLoaderData,
   useLocation,
-  useNavigate,
   useParams,
 } from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
-import { useInfinitePopularMedia } from '@/hooks/useMedia';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGenreList, useInfiniteDiscover, useInfinitePopularMedia } from '@/hooks/useMedia';
 import NotFound from '@/pages/NotFound';
 
 export default function Explore() {
   const initialData = useLoaderData();
   const { type: paramType } = useParams();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const { ref, inView } = useInView();
+  const [selectedGenre, setSelectedGenre] = useState(null);
 
   const type =
     paramType ||
@@ -32,15 +32,22 @@ export default function Explore() {
   const isTV = type === 'tv' || type === 'series' || type === 'tv-shows';
   const canonicalType = isMovie ? 'movie' : 'tv';
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfinitePopularMedia(canonicalType, {
-      initialData: initialData
-        ? {
-            pages: [initialData],
-            pageParams: [1],
-          }
-        : undefined,
-    });
+  const { data: genres } = useGenreList(canonicalType);
+
+  // Use discover when genre is selected, popular otherwise
+  const popular = useInfinitePopularMedia(canonicalType, {
+    enabled: !selectedGenre,
+    initialData: !selectedGenre && initialData
+      ? { pages: [initialData], pageParams: [1] }
+      : undefined,
+  });
+
+  const discover = useInfiniteDiscover(canonicalType, selectedGenre, {
+    enabled: !!selectedGenre,
+  });
+
+  const active = selectedGenre ? discover : popular;
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = active;
 
   const items = data?.pages.flatMap((page) => page.results) || [];
 
@@ -55,24 +62,26 @@ export default function Explore() {
   }
 
   return (
-    <div className='w-full px-4 pt-24 pb-8 md:px-12 lg:px-16'>
-      {/* Header */}
-      <div className='mb-8 flex items-center gap-4'>
-        <button
-          onClick={() => navigate(-1)}
-          className='bg-background/40 hover:bg-background/60 text-foreground border-border flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all hover:scale-110'
-        >
-          <ChevronLeft className='h-6 w-6' />
-        </button>
-        <div>
-          <h1 className='text-2xl font-black tracking-tight lg:text-4xl'>
-            Popular {isMovie ? 'Movies' : 'TV Shows'}
-          </h1>
-          <p className='text-muted-foreground text-sm font-medium'>
-            Explore the most watched {isMovie ? 'movies' : 'series'} right now.
-          </p>
-        </div>
-      </div>
+    <div className='container mx-auto pt-24 pb-8'>
+      {/* Genre Filter Tabs */}
+      <Tabs
+        value={selectedGenre?.toString() || 'all'}
+        onValueChange={(val) => setSelectedGenre(val === 'all' ? null : parseInt(val))}
+      >
+        <ScrollArea className='mb-6 w-full'>
+          <TabsList>
+            <TabsTrigger value='all'>
+              All {isMovie ? 'Movies' : 'TV Shows'}
+            </TabsTrigger>
+            {(genres || []).map((genre) => (
+              <TabsTrigger key={genre.id} value={genre.id.toString()}>
+                {genre.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <ScrollBar orientation='horizontal' />
+        </ScrollArea>
+      </Tabs>
 
       {/* Grid */}
       <div className='grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>

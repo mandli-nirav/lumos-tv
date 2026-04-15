@@ -79,7 +79,7 @@ export default function LiveTV() {
   return (
     <div
       ref={parentRef}
-      className='bg-background min-h-screen overflow-y-auto px-4 pt-24 pb-20 md:px-12 lg:px-16'
+      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-24 pb-20'
     >
       <div className=''>
         <LiveTVHeader

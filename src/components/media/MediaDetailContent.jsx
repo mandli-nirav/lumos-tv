@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play } from 'lucide-react';
+import { Film, Image, Play, Tv, Video } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router';
@@ -10,8 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
+import { useInfiniteRecommendations, useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
 import { cn } from '@/lib/utils';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 
 import { MediaCard } from './MediaCard';
 
@@ -20,12 +21,20 @@ export function MediaDetailContent({ media }) {
   const navigate = useNavigate();
   const {
     data: similarData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    fetchNextPage: fetchNextSimilar,
+    hasNextPage: hasNextSimilar,
+    isFetchingNextPage: isFetchingNextSimilar,
   } = useInfiniteSimilarMedia(type, id);
 
-  const { ref, inView } = useInView();
+  const {
+    data: recData,
+    fetchNextPage: fetchNextRec,
+    hasNextPage: hasNextRec,
+    isFetchingNextPage: isFetchingNextRec,
+  } = useInfiniteRecommendations(type, id);
+
+  const { ref: similarRef, inView: similarInView } = useInView();
+  const { ref: recRef, inView: recInView } = useInView();
 
   const isTV = !!media?.seasons;
   const [selectedSeason, setSelectedSeason] = useState(1);
@@ -37,14 +46,21 @@ export function MediaDetailContent({ media }) {
   );
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+    if (similarInView && hasNextSimilar && !isFetchingNextSimilar) {
+      fetchNextSimilar();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [similarInView, hasNextSimilar, isFetchingNextSimilar, fetchNextSimilar]);
+
+  useEffect(() => {
+    if (recInView && hasNextRec && !isFetchingNextRec) {
+      fetchNextRec();
+    }
+  }, [recInView, hasNextRec, isFetchingNextRec, fetchNextRec]);
 
   if (!media) return null;
 
-  const cast = (media.credits?.cast || []).slice(0, 20);
+  const credits = media.aggregate_credits || media.credits;
+  const cast = (credits?.cast || []).slice(0, 20);
 
   const keyCrewLabels = new Set([
     'Director',
@@ -55,7 +71,10 @@ export function MediaDetailContent({ media }) {
     'Music',
     'Director of Photography',
   ]);
-  const crew = (media.credits?.crew || []).filter((c) => keyCrewLabels.has(c.job));
+  const crew = (credits?.crew || []).filter((c) => {
+    const jobs = c.jobs?.map((j) => j.job) || [c.job];
+    return jobs.some((job) => keyCrewLabels.has(job));
+  });
 
   // Deduplicate similar items by ID
   const similarItems = Array.from(
@@ -66,13 +85,23 @@ export function MediaDetailContent({ media }) {
     ).values()
   );
 
+  // Deduplicate recommendation items by ID
+  const recItems = Array.from(
+    new Map(
+      (recData?.pages || [])
+        .flatMap((page) => page.results || [])
+        .map((item) => [item.id, item])
+    ).values()
+  );
+
   const videos = (media.videos?.results || []).sort(
     (a, b) => (b.type === 'Trailer' ? 1 : 0) - (a.type === 'Trailer' ? 1 : 0)
   );
-  const photos = (media.images?.backdrops || []).slice(0, 12);
+  const backdrops = media.images?.backdrops || [];
+  const posters = media.images?.posters || [];
 
   return (
-    <div className='mt-8 w-full space-y-12 px-6 pb-8 font-sans md:px-12 lg:px-16'>
+    <div className='container mx-auto mt-8 space-y-12 pb-8 font-sans'>
       {/* Overview & Main Meta */}
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>
@@ -109,7 +138,7 @@ export function MediaDetailContent({ media }) {
                       {person.name}
                     </span>
                     <span className='text-muted-foreground truncate text-[10px]'>
-                      {person.character}
+                      {person.roles?.[0]?.character || person.character}
                     </span>
                   </div>
                 </div>
@@ -146,7 +175,7 @@ export function MediaDetailContent({ media }) {
                       {person.name}
                     </span>
                     <span className='text-muted-foreground truncate text-[10px]'>
-                      {person.job}
+                      {person.jobs?.map((j) => j.job).join(', ') || person.job}
                     </span>
                   </div>
                 </div>
@@ -156,6 +185,25 @@ export function MediaDetailContent({ media }) {
         </div>
 
         <div className='space-y-6'>
+          {/* Certification */}
+          {(() => {
+            const usRelease = media.release_dates?.results?.find((r) => r.iso_3166_1 === 'US');
+            const movieCert = usRelease?.release_dates?.map((d) => d.certification).find((c) => c);
+            const tvCert = media.content_ratings?.results?.find((r) => r.iso_3166_1 === 'US')?.rating;
+            const cert = movieCert || tvCert;
+            return cert ? (
+              <div className='space-y-1'>
+                <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                  Rating
+                </span>
+                <p className='text-foreground/90 text-sm font-bold'>
+                  <span className='border-foreground/30 rounded border px-2 py-0.5 text-xs'>
+                    {cert}
+                  </span>
+                </p>
+              </div>
+            ) : null;
+          })()}
           {/* Secondary Meta details */}
           <div className='space-y-1'>
             <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
@@ -181,6 +229,52 @@ export function MediaDetailContent({ media }) {
               {media.status}
             </p>
           </div>
+          {/* Created By (TV) */}
+          {(media.created_by || []).length > 0 && (
+            <div className='space-y-1'>
+              <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                Created By
+              </span>
+              <p className='text-foreground/90 text-sm font-bold'>
+                {media.created_by.map((c) => c.name).join(', ')}
+              </p>
+            </div>
+          )}
+          {/* Type (TV) */}
+          {media.type && (
+            <div className='space-y-1'>
+              <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                Type
+              </span>
+              <p className='text-foreground/90 text-sm font-bold'>
+                {media.type}
+              </p>
+            </div>
+          )}
+          {/* Seasons & Episodes (TV) */}
+          {media.number_of_seasons && (
+            <div className='space-y-1'>
+              <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                Seasons & Episodes
+              </span>
+              <p className='text-foreground/90 text-sm font-bold'>
+                {media.number_of_seasons} Season{media.number_of_seasons > 1 ? 's' : ''}
+                {media.number_of_episodes ? ` • ${media.number_of_episodes} Episodes` : ''}
+              </p>
+            </div>
+          )}
+          {/* Last Air Date (TV) */}
+          {media.last_air_date && (
+            <div className='space-y-1'>
+              <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                Last Aired
+              </span>
+              <p className='text-foreground/90 text-sm font-bold'>
+                {media.last_air_date}
+              </p>
+            </div>
+          )}
+          {/* Networks (TV) */}
           {(media.networks || []).length > 0 && (
             <div className='space-y-2'>
               <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
@@ -193,7 +287,7 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={`https://image.tmdb.org/t/p/h30${network.logo_path}`}
                         alt={network.name}
-                        className='max-h-5 object-contain opacity-80 brightness-0 dark:invert'
+                        className='max-h-5 object-contain dark:invert'
                       />
                     ) : (
                       <span className='text-foreground/80 text-[10px] font-black tracking-tight'>
@@ -205,14 +299,40 @@ export function MediaDetailContent({ media }) {
               </div>
             </div>
           )}
+          {/* Production Companies */}
+          {(media.production_companies || []).length > 0 && (
+            <div className='space-y-2'>
+              <span className='text-muted-foreground/50 text-xs font-bold tracking-widest uppercase'>
+                Production
+              </span>
+              <div className='mt-2 flex flex-wrap gap-3'>
+                {media.production_companies.map((company) => (
+                  <div key={company.id} title={company.name}>
+                    {company.logo_path ? (
+                      <img
+                        src={`https://image.tmdb.org/t/p/h30${company.logo_path}`}
+                        alt={company.name}
+                        className='max-h-5 object-contain dark:invert'
+                      />
+                    ) : (
+                      <span className='text-foreground/80 text-xs font-semibold'>
+                        {company.name}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Tabs Section */}
-      <Tabs defaultValue={isTV ? 'episodes' : 'more'}>
+      <Tabs defaultValue={isTV ? 'episodes' : 'recommendations'}>
         <ScrollArea className='w-full'>
           <TabsList>
             {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
+            <TabsTrigger value='recommendations'>Recommended</TabsTrigger>
             <TabsTrigger value='more'>More Like This</TabsTrigger>
             <TabsTrigger value='trailers'>Trailers & More</TabsTrigger>
             <TabsTrigger value='photos'>Photos</TabsTrigger>
@@ -223,39 +343,27 @@ export function MediaDetailContent({ media }) {
         {isTV && (
           <TabsContent value='episodes'>
             <div className='space-y-6'>
-              <div className='space-y-4'>
-                <div className='flex items-center justify-between'>
-                  <h3 className='text-foreground text-lg font-bold'>Seasons</h3>
-                  <span className='text-muted-foreground text-xs font-semibold'>
-                    {media.seasons?.filter((s) => s.season_number > 0).length}{' '}
-                    Seasons
-                  </span>
-                </div>
-                <Tabs
-                  value={selectedSeason.toString()}
-                  onValueChange={(val) => setSelectedSeason(parseInt(val))}
-                  className='w-full'
-                >
-                  <ScrollArea className='w-full'>
-                    <TabsList className='h-auto w-full justify-start gap-2 bg-transparent p-0'>
-                      {media.seasons
-                        ?.filter((s) => s.season_number > 0)
-                        .map((season) => (
-                          <TabsTrigger
-                            key={season.id}
-                            value={season.season_number.toString()}
-                            className={cn(
-                              'border-border hover:bg-muted/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10 min-w-[100px] rounded-full border px-6 transition-all'
-                            )}
-                          >
-                            Season {season.season_number}
-                          </TabsTrigger>
-                        ))}
-                    </TabsList>
-                    <ScrollBar orientation='horizontal' className='invisible' />
-                  </ScrollArea>
-                </Tabs>
-              </div>
+              <Tabs
+                value={selectedSeason.toString()}
+                onValueChange={(val) => setSelectedSeason(parseInt(val))}
+                className='w-full'
+              >
+                <ScrollArea className='w-full'>
+                  <TabsList>
+                    {media.seasons
+                      ?.filter((s) => s.season_number > 0)
+                      .map((season) => (
+                        <TabsTrigger
+                          key={season.id}
+                          value={season.season_number.toString()}
+                        >
+                          Season {season.season_number}
+                        </TabsTrigger>
+                      ))}
+                  </TabsList>
+                  <ScrollBar orientation='horizontal' />
+                </ScrollArea>
+              </Tabs>
 
               <AnimatePresence mode='wait'>
                 {isSeasonLoading ? (
@@ -322,16 +430,45 @@ export function MediaDetailContent({ media }) {
           </TabsContent>
         )}
 
+        <TabsContent value='recommendations' className='pt-8 outline-none'>
+          <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
+            {recItems.map((item) => (
+              <MediaCard key={item.id} item={item} explicitType={item.media_type || type} />
+            ))}
+          </div>
+          {recItems.length === 0 && (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant='icon'><Tv /></EmptyMedia>
+                <EmptyTitle>No Recommendations</EmptyTitle>
+                <EmptyDescription>We don't have any recommendations for this title yet.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+          <div ref={recRef} className='flex h-20 items-center justify-center pt-8'>
+            {isFetchingNextRec && (
+              <div className='border-primary/20 border-t-primary h-6 w-6 animate-spin rounded-full border-2' />
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value='more' className='pt-8 outline-none'>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
             {similarItems.map((item) => (
               <MediaCard key={item.id} item={item} explicitType={type} />
             ))}
           </div>
-
-          {/* Intersection Observer Trigger */}
-          <div ref={ref} className='flex h-20 items-center justify-center pt-8'>
-            {isFetchingNextPage && (
+          {similarItems.length === 0 && (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant='icon'><Film /></EmptyMedia>
+                <EmptyTitle>No Similar Titles</EmptyTitle>
+                <EmptyDescription>We couldn't find any similar titles to show here.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+          <div ref={similarRef} className='flex h-20 items-center justify-center pt-8'>
+            {isFetchingNextSimilar && (
               <div className='border-primary/20 border-t-primary h-6 w-6 animate-spin rounded-full border-2' />
             )}
           </div>
@@ -370,32 +507,70 @@ export function MediaDetailContent({ media }) {
                 </p>
               </div>
             ))}
-            {videos.length === 0 && (
-              <p className='text-muted-foreground italic'>
-                No videos available for this title.
-              </p>
-            )}
           </div>
+          {videos.length === 0 && (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant='icon'><Video /></EmptyMedia>
+                <EmptyTitle>No Videos</EmptyTitle>
+                <EmptyDescription>No trailers or clips are available for this title yet.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
         </TabsContent>
 
         <TabsContent value='photos' className='pt-8 outline-none'>
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-            {photos.map((photo, index) => (
-              <div
-                key={index}
-                className='bg-muted border-border group relative aspect-video overflow-hidden rounded-xl border'
-              >
-                <img
-                  src={getImageUrl(photo.file_path, 'w780')}
-                  className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
-                  alt={`Photo ${index + 1}`}
-                />
+          <div className='space-y-8'>
+            {/* Backdrops */}
+            {backdrops.length > 0 && (
+              <div className='space-y-4'>
+                <h3 className='text-foreground text-lg font-bold'>Backdrops</h3>
+                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                  {backdrops.map((photo, index) => (
+                    <div
+                      key={index}
+                      className='bg-muted border-border group relative aspect-video overflow-hidden rounded-xl border'
+                    >
+                      <img
+                        src={getImageUrl(photo.file_path, 'w780')}
+                        className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
+                        alt={`Backdrop ${index + 1}`}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-            {photos.length === 0 && (
-              <p className='text-muted-foreground italic'>
-                No photos available for this title.
-              </p>
+            )}
+
+            {/* Posters */}
+            {posters.length > 0 && (
+              <div className='space-y-4'>
+                <h3 className='text-foreground text-lg font-bold'>Posters</h3>
+                <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
+                  {posters.map((poster, index) => (
+                    <div
+                      key={index}
+                      className='bg-muted border-border group relative aspect-2/3 overflow-hidden rounded-xl border'
+                    >
+                      <img
+                        src={getImageUrl(poster.file_path, 'w500')}
+                        className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
+                        alt={`Poster ${index + 1}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {backdrops.length === 0 && posters.length === 0 && (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant='icon'><Image /></EmptyMedia>
+                  <EmptyTitle>No Photos</EmptyTitle>
+                  <EmptyDescription>No backdrops or posters are available for this title yet.</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </div>
         </TabsContent>

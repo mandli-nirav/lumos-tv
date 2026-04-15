@@ -55,7 +55,7 @@ export default function Search() {
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className='w-full px-4 pt-24 pb-8 md:px-12 lg:px-16'>
+    <div className='container mx-auto pt-24 pb-8'>
       {/* Search Header */}
       <div className='mx-auto mb-12 max-w-2xl'>
         <div className='group relative'>

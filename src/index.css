@@ -131,6 +131,11 @@
   }
 }
 
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
 /* Custom Hero Slider Styles */
 .hero-slider .slick-slide {
   @apply relative outline-hidden;
@@ -161,7 +166,7 @@
 
 /* Apple TV Style Dots */
 .slick-thumb-dots {
-  @apply bottom-8! z-30 flex items-center justify-center gap-2 md:hidden!;
+  @apply bottom-2! z-30 flex items-center justify-center gap-2 md:hidden!;
 }
 
 .slick-thumb-dots li {

@@ -53,7 +53,7 @@ export default function MediaDetails() {
         className='bg-background min-h-screen'
       >
         {/* Top Bar — Back + Volume controls */}
-        <div className='pointer-events-none absolute inset-x-0 top-20 z-50 w-full px-4 md:top-24 md:px-12 lg:px-16'>
+        <div className='pointer-events-none absolute inset-x-0 top-20 z-50 container mx-auto md:top-24'>
           <div className='flex items-center justify-between'>
             <motion.div
               initial={{ opacity: 0, x: -20 }}

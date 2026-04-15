@@ -1,13 +1,14 @@
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play, Plus, Star } from 'lucide-react';
+import { Play, Star } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useLocation, useNavigate } from 'react-router';
 
 import { getImageUrl } from '@/api/tmdb';
 import { Button } from '@/components/ui/button';
+import { useMediaImages } from '@/hooks/useMedia';
 
 export function MediaCard({ item, explicitType }) {
   const navigate = useNavigate();
@@ -16,6 +17,14 @@ export function MediaCard({ item, explicitType }) {
   const hoverTimeoutRef = useRef(null);
   const cardRef = useRef(null);
   const [origin, setOrigin] = useState('center'); // 'left', 'right', 'center'
+
+  const { data: imagesData } = useMediaImages(
+    explicitType || item.media_type || (item.title ? 'movie' : 'tv'),
+    item?.id
+  );
+  const logo =
+    imagesData?.logos?.find((l) => l.iso_639_1 === 'en') ??
+    imagesData?.logos?.[0];
 
   if (!item) return;
 
@@ -80,8 +89,8 @@ export function MediaCard({ item, explicitType }) {
     }
 
     return {
-      scale: 1.35,
-      width: '145%',
+      scale: 1.15,
+      width: '125%',
       y: '-50%',
       top: '50%',
       x: origin === 'left' ? '0%' : origin === 'right' ? '-100%' : '-50%',
@@ -138,9 +147,17 @@ export function MediaCard({ item, explicitType }) {
 
           {/* Title gradient - smooth multi-stop for seamless blending */}
           <div className='from-background via-background/80 absolute inset-x-0 bottom-0 bg-linear-to-t via-30% to-transparent to-70% p-3 pt-12'>
-            <h3 className='text-foreground mb-0.5 line-clamp-1 text-[11px] font-bold'>
-              {title}
-            </h3>
+            {isHovered && logo ? (
+              <img
+                src={getImageUrl(logo.file_path, 'w300')}
+                alt={title}
+                className='mb-1 max-h-8 max-w-32 object-contain drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]'
+              />
+            ) : (
+              <h3 className='text-foreground mb-0.5 line-clamp-1 text-[11px] font-bold'>
+                {title}
+              </h3>
+            )}
             {!isHovered && (
               <p className='text-muted-foreground text-[9px] font-semibold'>
                 {year}
@@ -173,9 +190,6 @@ export function MediaCard({ item, explicitType }) {
                 >
                   <Play className='mr-2 h-4 w-4 fill-current' />
                   Watch Now
-                </Button>
-                <Button size='icon' variant='outline'>
-                  <Plus />
                 </Button>
               </div>
 

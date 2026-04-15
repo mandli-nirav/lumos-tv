@@ -41,7 +41,7 @@ export default function Home() {
     <div className='space-y-12 pb-10'>
       <HeroSlider data={trending.data} isLoading={trending.isLoading} />
 
-      <div className='w-full space-y-12 px-4 py-6 md:px-12 lg:px-16'>
+      <div className='container mx-auto space-y-12 py-6'>
         <MediaSlider
           title='Popular Movies'
           items={flattenData(popularMovies.data)}

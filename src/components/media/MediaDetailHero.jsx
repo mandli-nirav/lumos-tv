@@ -11,7 +11,6 @@ import { getImageUrl } from '@/api/tmdb';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
-import { AddToLibraryButton } from './AddToLibraryButton';
 import { WatchNowButton } from './WatchNowButton';
 
 export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
@@ -30,15 +29,17 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '-25%']);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
-  // Auto-play trailer after 20 seconds
+  // Auto-play trailer after 20 seconds (desktop only)
   useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return;
+
     const timer = setTimeout(() => {
       setShowVideo(true);
       onVideoShow?.(true);
     }, 20000);
 
     return () => clearTimeout(timer);
-  // onVideoShow is a stable setter from useState — safe to omit
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,6 +72,20 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
   const rating = media.vote_average ? media.vote_average.toFixed(1) : 'N/A';
   const language = (media.original_language || 'EN').toUpperCase();
 
+  // Get certification (movie: release_dates, TV: content_ratings)
+  const certification = (() => {
+    // Movie certification from release_dates
+    const usRelease = media.release_dates?.results?.find((r) => r.iso_3166_1 === 'US');
+    const movieCert = usRelease?.release_dates
+      ?.map((d) => d.certification)
+      .find((c) => c);
+    if (movieCert) return movieCert;
+
+    // TV content rating
+    const usRating = media.content_ratings?.results?.find((r) => r.iso_3166_1 === 'US');
+    return usRating?.rating || null;
+  })();
+
   // Format duration
   const runtime = media.runtime || media.episode_run_time?.[0];
   const duration = runtime
@@ -88,21 +103,18 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
 
   // Get the best logo (prefer landscape)
   const logos = media.images?.logos || [];
-  const logo = logos.sort((a, b) => {
-    // Prefer landscape logos (aspect ratio >= 1.5)
+  const logo = [...logos].sort((a, b) => {
     const isLandscapeA = a.aspect_ratio >= 1.5;
     const isLandscapeB = b.aspect_ratio >= 1.5;
     if (isLandscapeA && !isLandscapeB) return -1;
     if (!isLandscapeA && isLandscapeB) return 1;
 
-    // Among landscape logos, prefer those closest to 2.5 (ideal ratio)
     if (isLandscapeA && isLandscapeB) {
       const diffA = Math.abs(a.aspect_ratio - 2.5);
       const diffB = Math.abs(b.aspect_ratio - 2.5);
       if (diffA !== diffB) return diffA - diffB;
     }
 
-    // Prefer English, then original language, then highest rated
     if (a.iso_639_1 === 'en') return -1;
     if (b.iso_639_1 === 'en') return 1;
     if (a.iso_639_1 === media.original_language) return -1;
@@ -115,257 +127,278 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
     (v) => v.type === 'Trailer' && v.site === 'YouTube'
   );
 
-  // Clamp overview to 3 lines
   const overviewLines = media.overview
     ? media.overview.split('\n').slice(0, 3).join('\n')
     : '';
 
   return (
-    <div
-      ref={heroRef}
-      className='relative h-screen w-full overflow-hidden font-sans'
-    >
-      {/* Immersive Backdrop */}
-      <motion.div
-        style={{
-          y: backdropY,
-          scale: backdropScale,
-          opacity,
-        }}
-        className='absolute inset-0 z-0 origin-top'
-      >
-        <AnimatePresence mode='wait'>
-          {showVideo && trailer ? (
-            <motion.iframe
-              key='trailer'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-              ref={iframeRef}
-              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${
-                isMuted ? 1 : 0
-              }&controls=0&modestbranding=1&rel=0&showinfo=0`}
-              title={trailer.name}
-              className='absolute inset-0 h-full w-full'
-              sandbox='allow-scripts allow-same-origin allow-presentation'
-              allowFullScreen
+    <>
+      {/* ===== MOBILE LAYOUT — Stacked: Backdrop → Content ===== */}
+      <div className='block md:hidden font-sans'>
+        {/* Backdrop — fixed aspect ratio, no overlap */}
+        <div className='relative aspect-4/3 w-full overflow-hidden'>
+          <img
+            src={getImageUrl(media.backdrop_path, 'w780', 'backdrop')}
+            alt={title}
+            className='h-full w-full object-cover'
+          />
+          {/* Bottom fade into content */}
+          <div className='from-background absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t to-transparent' />
+        </div>
+
+        {/* Content — flows naturally below the image */}
+        <div className='container relative z-10 mx-auto -mt-20 space-y-3 pb-4'>
+          {/* Logo / Title */}
+          {logo ? (
+            <img
+              src={getImageUrl(logo.file_path, 'w300')}
+              alt={title}
+              className='h-auto max-h-14 w-auto max-w-44 object-contain drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]'
+              style={{ aspectRatio: logo.aspect_ratio }}
             />
           ) : (
-            <motion.img
-              key='backdrop'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-              src={getImageUrl(media.backdrop_path, 'original', 'backdrop')}
-              alt={title}
-              className='absolute inset-0 h-full w-full object-cover object-top'
-            />
+            <h1 className='text-foreground text-2xl font-bold leading-tight'>
+              {title}
+            </h1>
           )}
-        </AnimatePresence>
 
-        {/* Blur Effect */}
-        <motion.div
-          animate={{ opacity: showVideo ? 0 : 1 }}
-          transition={{ duration: 1 }}
-          className='absolute inset-0 z-[5] backdrop-blur-[2px]'
-        />
+          {/* Meta */}
+          <div className='text-foreground/80 flex flex-wrap items-center gap-2 text-xs font-semibold'>
+            {certification && (
+              <>
+                <span className='border-foreground/30 rounded border px-1.5 py-0.5 text-[10px] font-bold leading-none'>
+                  {certification}
+                </span>
+                <span className='text-foreground/30'>•</span>
+              </>
+            )}
+            <span>{year}</span>
+            <span className='text-foreground/30'>•</span>
+            <span>{duration}</span>
+            <span className='text-foreground/30'>•</span>
+            <div className='flex items-center gap-1 text-yellow-500'>
+              <Star className='h-3.5 w-3.5 fill-yellow-500' />
+              <span>{rating}</span>
+            </div>
+          </div>
 
-        {/* Gradients */}
-        <motion.div
-          animate={{ opacity: showVideo ? 0.5 : 1 }}
-          transition={{ duration: 1 }}
-          className='absolute inset-0 z-10 pointer-events-none'
-        >
-          <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t via-30% to-transparent to-60%' />
-          <div className='from-background via-background/50 absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t via-20% to-transparent to-50%' />
-          <div className='from-background/90 via-background/40 absolute inset-0 hidden bg-linear-to-r via-35% to-transparent to-70% md:block' />
-          <div className='from-background absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t to-transparent md:hidden' />
-        </motion.div>
-      </motion.div>
+          {/* Genres */}
+          <div className='text-muted-foreground text-xs font-semibold'>
+            {genres}
+          </div>
 
-      {/* Content Overlay - Netflix-style Grid Layout */}
-      <motion.div
-        style={{ y: contentY }}
-        className={`relative z-30 flex h-full justify-center transition-all duration-700 ease-in-out ${
-          showVideo
-            ? 'items-end pb-10 md:pb-14'
-            : 'items-center pb-12 md:pb-0'
-        }`}
+          {/* Tagline */}
+          {media.tagline && (
+            <p className='text-muted-foreground/60 text-xs italic'>
+              &ldquo;{media.tagline}&rdquo;
+            </p>
+          )}
+
+          {/* Overview */}
+          {overviewLines && (
+            <p className='text-foreground/80 line-clamp-3 text-sm leading-relaxed'>
+              {overviewLines}
+            </p>
+          )}
+
+          {/* Actions — full width buttons */}
+          <div className='flex flex-col gap-2 pt-2'>
+            <WatchNowButton item={media} className='w-full' />
+            <div className='flex gap-2'>
+              {trailer && (
+                <Button
+                  onClick={() => setShowTrailerModal(true)}
+                  variant='outline'
+                  className='flex-1'
+                >
+                  <Play className='mr-2 h-4 w-4' />
+                  Trailer
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== DESKTOP LAYOUT — Immersive fullscreen overlay ===== */}
+      <div
+        ref={heroRef}
+        className='relative hidden h-screen w-full overflow-hidden font-sans md:block'
       >
-        <div className='w-full px-4 md:px-8 lg:px-12'>
-          {/* Mobile Layout (1 column) */}
+        {/* Immersive Backdrop */}
+        <motion.div
+          style={{
+            y: backdropY,
+            scale: backdropScale,
+            opacity,
+          }}
+          className='absolute inset-0 z-0 origin-top'
+        >
+          <AnimatePresence mode='wait'>
+            {showVideo && trailer ? (
+              <motion.iframe
+                key='trailer'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                ref={iframeRef}
+                src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${
+                  isMuted ? 1 : 0
+                }&controls=0&modestbranding=1&rel=0&showinfo=0`}
+                title={trailer.name}
+                className='absolute inset-0 h-full w-full'
+                sandbox='allow-scripts allow-same-origin allow-presentation'
+                allowFullScreen
+              />
+            ) : (
+              <motion.img
+                key='backdrop'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                src={getImageUrl(media.backdrop_path, 'original', 'backdrop')}
+                alt={title}
+                className='absolute inset-0 h-full w-full object-cover object-top'
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Blur Effect */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className='block md:hidden'
+            animate={{ opacity: showVideo ? 0 : 1 }}
+            transition={{ duration: 1 }}
+            className='absolute inset-0 z-5 backdrop-blur-[2px]'
+          />
+
+          {/* Gradients */}
+          <motion.div
+            animate={{ opacity: showVideo ? 0.5 : 1 }}
+            transition={{ duration: 1 }}
+            className='pointer-events-none absolute inset-0 z-10'
           >
-            <div className='space-y-4'>
-              {/* Poster for mobile */}
-              {media.poster_path && (
-                <div className='mx-auto w-40'>
+            <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t via-30% to-transparent to-60%' />
+            <div className='from-background via-background/50 absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t via-20% to-transparent to-50%' />
+            <div className='from-background/90 via-background/40 absolute inset-0 bg-linear-to-r via-35% to-transparent to-70%' />
+          </motion.div>
+        </motion.div>
+
+        {/* Desktop Content */}
+        <motion.div
+          style={{ y: contentY }}
+          className={`relative z-30 flex h-full items-end transition-all duration-700 ease-in-out ${
+            showVideo ? 'pb-14' : 'pb-16'
+          }`}
+        >
+          <div className='container mx-auto'>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className='grid grid-cols-[auto_1fr] items-end gap-10 lg:gap-12'
+            >
+              {/* Column 1: Poster */}
+              <div className='hidden shrink-0 lg:block'>
+                {media.poster_path && (
                   <img
                     src={getImageUrl(media.poster_path, 'w342')}
                     alt={title}
-                    className='w-full rounded-lg shadow-2xl'
+                    className='w-52 rounded-xl shadow-2xl lg:w-60 xl:w-64'
                   />
-                </div>
-              )}
-
-              {/* Title / Logo */}
-              <div>
-                {logo ? (
-                  <img
-                    src={getImageUrl(logo.file_path, 'w300')}
-                    alt={title}
-                    className='h-auto w-full max-w-40'
-                    style={{ aspectRatio: logo.aspect_ratio }}
-                  />
-                ) : (
-                  <h1 className='text-foreground text-2xl font-bold leading-[1.1]'>
-                    {title}
-                  </h1>
                 )}
               </div>
 
-              {/* Metadata Bar */}
-              <div className='text-foreground/80 flex flex-wrap items-center gap-2 text-xs font-semibold'>
-                <span>{year}</span>
-                <span className='text-foreground/30'>•</span>
-                <span>{duration}</span>
-                <span className='text-foreground/30'>•</span>
-                <div className='flex items-center gap-1 text-yellow-500'>
-                  <Star className='h-3.5 w-3.5 fill-yellow-500' />
-                  <span>{rating}</span>
-                </div>
-              </div>
-
-              {/* Genres */}
-              <div className='text-muted-foreground/80 text-xs font-semibold'>
-                {genres}
-              </div>
-
-              {/* Overview */}
-              {overviewLines && (
-                <p className='text-foreground/90 line-clamp-3 text-sm leading-relaxed'>
-                  {overviewLines}
-                </p>
-              )}
-
-              {/* Actions */}
-              <div className='relative z-50 flex flex-wrap gap-2 pt-2'>
-                <WatchNowButton item={media} />
-                {trailer && (
-                  <Button
-                    onClick={() => setShowTrailerModal(true)}
-                    variant='outline'
-                    className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
-                  >
-                    <Play className='mr-2 h-4 w-4' />
-                    Trailer
-                  </Button>
-                )}
-                <AddToLibraryButton />
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Desktop Layout (3-column grid) */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className='hidden md:grid md:grid-cols-3 md:gap-8 md:items-center'
-          >
-            {/* Column 1: Poster */}
-            <div className='flex justify-center'>
-              {media.poster_path && (
-                <img
-                  src={getImageUrl(media.poster_path, 'w342')}
-                  alt={title}
-                  className='w-full max-w-xs rounded-xl shadow-2xl'
-                />
-              )}
-            </div>
-
-            {/* Columns 2-3: Info */}
-            <div className='col-span-2 space-y-5'>
-              {/* Metadata Bar */}
-              <div className='text-foreground/80 flex items-center gap-3 text-sm font-semibold'>
-                <span>{year}</span>
-                <span className='text-foreground/30'>•</span>
-                <span>{duration}</span>
-                <span className='text-foreground/30'>•</span>
-                <div className='bg-primary/20 text-primary flex items-center gap-1.5 rounded px-2 py-1 text-xs font-bold uppercase tracking-wider'>
-                  {language}
-                </div>
-                <span className='text-foreground/30'>•</span>
-                <div className='flex items-center gap-1.5 text-yellow-500'>
-                  <Star className='h-4 w-4 fill-yellow-500' />
-                  <span className='font-bold'>{rating}/10</span>
-                </div>
-              </div>
-
-              {/* Title / Logo */}
-              <div>
-                {logo ? (
-                  <img
-                    src={getImageUrl(logo.file_path, 'w500')}
-                    alt={title}
-                    className='h-auto w-full max-w-sm'
-                    style={{ aspectRatio: logo.aspect_ratio }}
-                  />
-                ) : (
-                  <h1 className='text-foreground text-4xl font-bold leading-[1.1] lg:text-5xl'>
-                    {title}
-                  </h1>
-                )}
-              </div>
-
-              {/* Genres */}
-              <div className='text-muted-foreground/80 flex flex-wrap items-center gap-2 text-sm font-semibold'>
-                {(media.genres || []).slice(0, 3).map((genre, i) => (
-                  <div key={genre.id} className='flex items-center gap-2'>
-                    <span>{genre.name}</span>
-                    {i < Math.min((media.genres || []).length, 3) - 1 && (
-                      <span className='text-foreground/20'>•</span>
-                    )}
+              {/* Columns 2-3: Info */}
+              <div className='space-y-5'>
+                {/* Metadata Bar */}
+                <div className='text-foreground/80 flex items-center gap-3 text-sm font-semibold'>
+                  {certification && (
+                    <>
+                      <span className='border-foreground/30 rounded border px-2 py-0.5 text-xs font-bold leading-none'>
+                        {certification}
+                      </span>
+                      <span className='text-foreground/30'>•</span>
+                    </>
+                  )}
+                  <span>{year}</span>
+                  <span className='text-foreground/30'>•</span>
+                  <span>{duration}</span>
+                  <span className='text-foreground/30'>•</span>
+                  <div className='bg-primary/20 text-primary flex items-center gap-1.5 rounded px-2 py-1 text-xs font-bold uppercase tracking-wider'>
+                    {language}
                   </div>
-                ))}
-              </div>
+                  <span className='text-foreground/30'>•</span>
+                  <div className='flex items-center gap-1.5 text-yellow-500'>
+                    <Star className='h-4 w-4 fill-yellow-500' />
+                    <span className='font-bold'>{rating}/10</span>
+                  </div>
+                </div>
 
-              {/* Overview */}
-              {overviewLines && (
-                <p className='text-foreground/90 line-clamp-3 max-w-2xl text-base leading-relaxed'>
-                  {overviewLines}
-                </p>
-              )}
+                {/* Title / Logo */}
+                <div>
+                  {logo ? (
+                    <img
+                      src={getImageUrl(logo.file_path, 'w500')}
+                      alt={title}
+                      className='h-auto w-full max-w-sm'
+                      style={{ aspectRatio: logo.aspect_ratio }}
+                    />
+                  ) : (
+                    <h1 className='text-foreground text-4xl font-bold leading-[1.1] lg:text-5xl'>
+                      {title}
+                    </h1>
+                  )}
+                </div>
 
-              {/* Actions */}
-              <div className='relative z-50 flex gap-4 pt-2'>
-                <WatchNowButton item={media} />
-                {trailer && (
-                  <Button
-                    onClick={() => setShowTrailerModal(true)}
-                    variant='outline'
-                    className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
-                    size='lg'
-                  >
-                    <Play className='mr-2 h-5 w-5' />
-                    Watch Trailer
-                  </Button>
+                {/* Genres */}
+                <div className='text-muted-foreground/80 flex flex-wrap items-center gap-2 text-sm font-semibold'>
+                  {(media.genres || []).slice(0, 3).map((genre, i) => (
+                    <div key={genre.id} className='flex items-center gap-2'>
+                      <span>{genre.name}</span>
+                      {i < Math.min((media.genres || []).length, 3) - 1 && (
+                        <span className='text-foreground/20'>•</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tagline */}
+                {media.tagline && (
+                  <p className='text-muted-foreground/60 text-sm italic'>
+                    &ldquo;{media.tagline}&rdquo;
+                  </p>
                 )}
-                <AddToLibraryButton />
+
+                {/* Overview */}
+                {overviewLines && (
+                  <p className='text-foreground/90 line-clamp-3 max-w-2xl text-base leading-relaxed'>
+                    {overviewLines}
+                  </p>
+                )}
+
+                {/* Actions */}
+                <div className='relative z-50 flex gap-4 pt-2'>
+                  <WatchNowButton item={media} />
+                  {trailer && (
+                    <Button
+                      onClick={() => setShowTrailerModal(true)}
+                      variant='outline'
+                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      size='lg'
+                    >
+                      <Play className='mr-2 h-5 w-5' />
+                      Watch Trailer
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
 
-
-      {/* Trailer Modal with Lazy-loaded Iframe */}
+      {/* Trailer Modal */}
       <Dialog open={showTrailerModal} onOpenChange={setShowTrailerModal}>
         <DialogContent className='max-w-6xl border-none bg-black p-0 shadow-2xl'>
           <DialogTitle className='sr-only'>Watch Trailer</DialogTitle>
@@ -383,6 +416,6 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

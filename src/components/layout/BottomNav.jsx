@@ -1,4 +1,4 @@
-import { Film, Home, Layers, Tv } from 'lucide-react';
+import { Film, Home, Tv } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 
 import { cn } from '@/lib/utils';
@@ -8,7 +8,6 @@ const navItems = [
   { title: 'Live TV', href: '/live-tv', icon: Tv },
   { title: 'Movies', href: '/movies', icon: Film },
   { title: 'TV Shows', href: '/tv-shows', icon: Tv },
-  { title: 'Library', href: '/collections', icon: Layers },
 ];
 
 export function BottomNav() {

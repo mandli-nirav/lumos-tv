@@ -8,7 +8,6 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import Slider from 'react-slick';
 
 import { getImageUrl } from '@/api/tmdb';
-import { AddToLibraryButton } from '@/components/media/AddToLibraryButton';
 import { WatchNowButton } from '@/components/media/WatchNowButton';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,7 +24,7 @@ function HeroSlideLogo({ type, id, title }) {
       <img
         src={getImageUrl(logo.file_path, 'w500')}
         alt={title}
-        className='max-h-20 max-w-70 object-contain drop-shadow-2xl md:max-h-28 md:max-w-sm'
+        className='mx-auto max-h-20 max-w-70 object-contain drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] dark:drop-shadow-2xl md:mx-0 md:max-h-28 md:max-w-sm'
       />
     );
   }
@@ -53,8 +52,7 @@ export default function HeroSlider({ data, isLoading }) {
     infinite: true,
     slidesToShow: 1,
     slidesToScroll: 1,
-    dots: true,
-    dotsClass: 'slick-dots slick-thumb-dots',
+    dots: false,
   };
 
   const settingsThumb = {
@@ -85,7 +83,7 @@ export default function HeroSlider({ data, isLoading }) {
 
   if (isLoading) {
     return (
-      <div className='relative h-screen w-full overflow-hidden bg-[#050505]'>
+      <div className='relative h-[85vh] w-full overflow-hidden bg-[#050505] md:h-screen'>
         {/* Background Gradients to match real slider */}
         <div className='absolute inset-0 z-10 bg-linear-to-r from-[#050505] via-[#050505]/60 to-transparent' />
         <div className='absolute inset-0 z-10 bg-linear-to-t from-[#050505] via-transparent to-transparent' />
@@ -94,7 +92,7 @@ export default function HeroSlider({ data, isLoading }) {
         <Skeleton className='absolute inset-0 h-full w-full rounded-none bg-zinc-900/20' />
 
         {/* Content Skeleton */}
-        <div className='relative z-20 flex h-full w-full flex-col justify-center px-4 md:px-12 lg:px-16'>
+        <div className='container relative z-20 mx-auto flex h-full w-full flex-col justify-center'>
           <div className='max-w-2xl space-y-8'>
             <div className='flex items-center gap-4'>
               <Skeleton className='h-6 w-28 bg-zinc-800/40' />
@@ -120,7 +118,7 @@ export default function HeroSlider({ data, isLoading }) {
 
         {/* Thumbnails Skeleton */}
         <div className='absolute bottom-12 z-30 w-full'>
-          <div className='flex w-full justify-end px-4 md:px-12 lg:px-16'>
+          <div className='container mx-auto flex w-full justify-end'>
             <div className='flex w-full max-w-sm gap-3 md:max-w-md lg:max-w-lg'>
               {[1, 2, 3, 4].map((i) => (
                 <Skeleton
@@ -138,10 +136,10 @@ export default function HeroSlider({ data, isLoading }) {
   if (trendingItems.length === 0) return null;
 
   return (
-    <div className='relative h-screen w-full overflow-hidden font-sans'>
+    <div className='relative h-[90vh] w-full overflow-hidden font-sans md:h-screen'>
       <Slider {...settingsMain} className='hero-slider h-full w-full'>
         {trendingItems.map((item) => (
-          <div key={item.id} className='relative h-screen w-full'>
+          <div key={item.id} className='relative h-[90vh] w-full md:h-screen'>
             {/* Background Backdrop */}
             <div className='absolute inset-0'>
               <LazyLoadImage
@@ -159,12 +157,12 @@ export default function HeroSlider({ data, isLoading }) {
             </div>
 
             {/* Content */}
-            <div className='relative flex h-full w-full flex-col justify-end px-4 pb-24 md:justify-center md:px-12 md:pb-0 lg:px-16'>
+            <div className='container relative mx-auto flex h-full w-full flex-col justify-end pb-0 md:pb-40'>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className='mx-auto max-w-3xl space-y-4 text-center md:mx-0 md:space-y-6 md:text-left'
+                className='mx-auto max-w-4xl space-y-4 text-center md:mx-0 md:space-y-6 md:text-left lg:max-w-5xl'
               >
                 <div className='flex items-center justify-center gap-4 md:justify-start'>
                   <Badge
@@ -210,7 +208,7 @@ export default function HeroSlider({ data, isLoading }) {
                   <span>{item.original_language?.toUpperCase()}</span>
                 </div>
 
-                <p className='text-muted-foreground mx-auto line-clamp-2 max-w-xl text-base leading-relaxed font-medium md:mx-0 md:line-clamp-3 md:text-lg'>
+                <p className='text-muted-foreground mx-auto line-clamp-2 max-w-xl text-base leading-relaxed font-medium md:mx-0 md:line-clamp-3 md:max-w-2xl md:text-lg lg:max-w-3xl'>
                   {item.overview}
                 </p>
 
@@ -219,7 +217,6 @@ export default function HeroSlider({ data, isLoading }) {
                     item={item}
                     className='w-full text-lg md:w-auto md:text-base'
                   />
-                  <AddToLibraryButton />
                 </div>
               </motion.div>
             </div>
@@ -229,7 +226,7 @@ export default function HeroSlider({ data, isLoading }) {
 
       {/* Thumbnail Navigation */}
       <div className='absolute bottom-12 z-10 hidden w-full md:block'>
-        <div className='flex w-full justify-end px-4 md:px-12 lg:px-16'>
+        <div className='container mx-auto flex w-full justify-end'>
           <div className='w-full max-w-75 md:max-w-100 lg:max-w-150'>
             <Slider {...settingsThumb} className='thumbnail-slider'>
               {trendingItems.map((item, index) => (

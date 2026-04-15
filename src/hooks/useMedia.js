@@ -2,8 +2,8 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import tmdb from '@/api/tmdb';
 
-const DETAIL_APPEND_TO_RESPONSE = 'videos,images,external_ids,watch/providers,reviews';
-const include_image_language = 'en-US';
+const DETAIL_APPEND_TO_RESPONSE = 'videos,images,external_ids,watch/providers,reviews,credits,aggregate_credits,release_dates,content_ratings';
+const include_image_language = 'en,null';
 /**
  * Fetch trending media.
  * @param {string} type - 'all', 'movie', 'tv', 'person'
@@ -145,6 +145,29 @@ export const useInfiniteSimilarMedia = (type, id) => {
 };
 
 /**
+ * Fetch infinite recommendations for a specific movie or TV show.
+ */
+export const useInfiniteRecommendations = (type, id) => {
+  return useInfiniteQuery({
+    queryKey: ['media', type, id, 'recommendations'],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await tmdb.get(`/${type}/${id}/recommendations`, {
+        params: { page: pageParam, include_image_language },
+      });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!type && !!id,
+  });
+};
+
+/**
  * Fetch details for a specific season of a TV show.
  */
 export const useSeasonDetails = (tvId, seasonNumber, options = {}) => {
@@ -181,7 +204,46 @@ export const useGenres = () => {
       // Create a map: { id: name }
       return Object.fromEntries(allGenres.map((g) => [g.id, g.name]));
     },
-    staleTime: 24 * 60 * 60 * 1000, // Genres rarely change, cache for 24h
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+};
+
+/**
+ * Fetch genre list for a specific type (movie or tv).
+ */
+export const useGenreList = (type) => {
+  return useQuery({
+    queryKey: ['genres', type],
+    queryFn: async () => {
+      const response = await tmdb.get(`/genre/${type}/list`);
+      return response.data.genres || [];
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+    enabled: !!type,
+  });
+};
+
+/**
+ * Fetch infinite discover media with optional genre filter.
+ */
+export const useInfiniteDiscover = (type, genreId, options = {}) => {
+  return useInfiniteQuery({
+    queryKey: ['discover', type, genreId],
+    queryFn: async ({ pageParam = 1 }) => {
+      const params = { page: pageParam, include_image_language, sort_by: 'popularity.desc' };
+      if (genreId) params.with_genres = genreId;
+      const response = await tmdb.get(`/discover/${type}`, { params });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!type,
+    ...options,
   });
 };
 
