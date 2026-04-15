@@ -3,8 +3,6 @@ import { ChevronLeft, Info, Play, Server, Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { constructPlayerUrl, PLAYER_SERVERS } from '@/config/playerServers';
-import { usePlayerServer } from '@/hooks/usePlayerServer';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,6 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { constructPlayerUrl, PLAYER_SERVERS } from '@/config/playerServers';
+import { usePlayerServer } from '@/hooks/usePlayerServer';
 import { cn } from '@/lib/utils';
 
 export function VideoPlayer({
@@ -38,14 +38,32 @@ export function VideoPlayer({
 
   const [showControls, setShowControls] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  // Touch devices can't reveal auto-hidden controls via mousemove, and taps
+  // on the <iframe> don't bubble to the parent. Keep controls always visible
+  // on those devices so the server selector stays reachable.
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const timeoutRef = React.useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = (e) => setIsTouchDevice(!e.matches);
+    update(mq);
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
+  }, []);
+
+  // Controls are always rendered on touch devices; the user can't otherwise
+  // reveal them once hidden because taps on the iframe don't bubble.
+  const effectiveShowControls = isTouchDevice || showControls;
 
   const resetTimer = React.useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (isTouchDevice) return; // Never auto-hide on touch devices
     if (!dropdownOpen) {
       timeoutRef.current = setTimeout(() => setShowControls(false), 10000);
     }
-  }, [dropdownOpen]);
+  }, [dropdownOpen, isTouchDevice]);
 
   // Initial timer and reset on dropdown change
   useEffect(() => {
@@ -55,7 +73,7 @@ export function VideoPlayer({
     };
   }, [resetTimer, dropdownOpen]);
 
-  const handleMouseMove = () => {
+  const handleInteraction = () => {
     if (!showControls) setShowControls(true);
     resetTimer();
   };
@@ -65,11 +83,13 @@ export function VideoPlayer({
   return (
     <div
       className='flex h-screen w-full flex-col bg-black'
-      onMouseMove={handleMouseMove}
+      onMouseMove={handleInteraction}
+      onPointerDown={handleInteraction}
+      onTouchStart={handleInteraction}
     >
       {/* Fixed Header Bar */}
       <AnimatePresence>
-        {showControls && (
+        {effectiveShowControls && (
           <motion.div
             initial={{ opacity: 0, y: -100 }}
             animate={{ opacity: 1, y: 0 }}
