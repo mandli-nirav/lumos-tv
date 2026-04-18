@@ -19,24 +19,22 @@ export function LiveTVHeader({
   languages = [],
 }) {
   return (
-    <div className='mb-8 flex flex-col justify-between gap-6 md:flex-row md:items-center'>
-      <div>
-        <h1 className='flex items-center gap-3 text-4xl font-extrabold tracking-tight lg:text-5xl'>
-          <Tv className='text-primary h-10 w-10' />
-          Live TV
-        </h1>
-        <p className='text-muted-foreground mt-2'>
-          Watch{' '}
-          <span className='text-foreground font-semibold'>{channelCount}</span>{' '}
-          premium channels live
-        </p>
-      </div>
+    <div className='mb-4 space-y-3 sm:mb-6 sm:space-y-4'>
+      <div className='flex items-center justify-between gap-4'>
+        <div>
+          <h1 className='flex items-center gap-2 text-2xl font-extrabold tracking-tight sm:gap-3 sm:text-3xl lg:text-4xl'>
+            <Tv className='text-primary h-7 w-7 sm:h-8 sm:w-8' />
+            Live TV
+          </h1>
+          <p className='text-muted-foreground mt-0.5 text-sm'>
+            <span className='text-foreground font-semibold'>{channelCount}</span>{' '}
+            channels live
+          </p>
+        </div>
 
-      <div className='flex flex-wrap items-center gap-3'>
-        {/* Language Dropdown */}
         <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-          <SelectTrigger className='bg-card/40 border-border/40 hover:bg-card/60 w-40 transition-colors'>
-            <Globe className='text-muted-foreground mr-2 h-4 w-4' />
+          <SelectTrigger className='bg-card/40 border-border/40 hover:bg-card/60 w-32 shrink-0 transition-colors sm:w-40'>
+            <Globe className='text-muted-foreground mr-1.5 h-4 w-4' />
             <SelectValue placeholder='Language' />
           </SelectTrigger>
           <SelectContent>
@@ -47,25 +45,24 @@ export function LiveTVHeader({
             ))}
           </SelectContent>
         </Select>
+      </div>
 
-        {/* Search */}
-        <div className='relative w-full max-sm:order-first md:w-72'>
-          <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-          <Input
-            placeholder='Search channels...'
-            className='bg-card/40 border-border/40 focus:border-primary/40 focus:ring-primary/20 pl-10 transition-all'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button
-              className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold tracking-wider uppercase'
-              onClick={() => setSearchQuery('')}
-            >
-              Clear
-            </button>
-          )}
-        </div>
+      <div className='relative'>
+        <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+        <Input
+          placeholder='Search channels...'
+          className='bg-card/40 border-border/40 focus:border-primary/40 focus:ring-primary/20 pl-10 transition-all'
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button
+            className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold tracking-wider uppercase'
+            onClick={() => setSearchQuery('')}
+          >
+            Clear
+          </button>
+        )}
       </div>
     </div>
   );
