@@ -7,7 +7,7 @@ import {
 } from 'react-router';
 
 import { MediaCard } from '@/components/media/MediaCard';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollFade } from '@/components/ui/scroll-fade';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGenreList, useInfiniteDiscover, useInfinitePopularMedia } from '@/hooks/useMedia';
@@ -68,7 +68,7 @@ export default function Explore() {
         value={selectedGenre?.toString() || 'all'}
         onValueChange={(val) => setSelectedGenre(val === 'all' ? null : parseInt(val))}
       >
-        <ScrollArea className='mb-6 w-full'>
+        <ScrollFade className='mb-6'>
           <TabsList>
             <TabsTrigger value='all'>
               All {isMovie ? 'Movies' : 'TV Shows'}
@@ -79,8 +79,7 @@ export default function Explore() {
               </TabsTrigger>
             ))}
           </TabsList>
-          <ScrollBar orientation='horizontal' />
-        </ScrollArea>
+        </ScrollFade>
       </Tabs>
 
       {/* Grid */}
