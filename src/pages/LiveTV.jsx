@@ -79,9 +79,9 @@ export default function LiveTV() {
   return (
     <div
       ref={parentRef}
-      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-24 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]'
+      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-20 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-24'
     >
-      <div className=''>
+      <div>
         <LiveTVHeader
           channelCount={channels?.length || 0}
           searchQuery={searchQuery}
@@ -92,7 +92,7 @@ export default function LiveTV() {
         />
 
         {/* Categories Section */}
-        <div className='mb-8'>
+        <div className='mb-4 sm:mb-6'>
           <Tabs
             value={selectedCategory}
             onValueChange={setSelectedCategory}
