@@ -36,7 +36,8 @@ export function useLiveTV() {
   return useQuery({
     queryKey: ['live-tv'],
     queryFn: getLiveTVData,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 30,
+    throwOnError: false,
   });
 }
 
@@ -45,6 +46,7 @@ export function useDetailedLiveTV(filters = {}) {
     queryKey: ['live-tv-detailed', filters],
     queryFn: () => getDetailedChannels(filters),
     staleTime: 1000 * 60 * 30,
+    throwOnError: false,
   });
 }
 
