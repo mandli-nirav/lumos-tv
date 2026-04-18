@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import { MediaDetailContent } from '@/components/media/MediaDetailContent';
 import { MediaDetailHero } from '@/components/media/MediaDetailHero';
@@ -10,7 +10,6 @@ import { useMediaDetails } from '@/hooks/useMedia';
 
 export default function MediaDetails() {
   const { type, id } = useParams();
-  const navigate = useNavigate();
   const { data: media, isLoading } = useMediaDetails(type, id);
   const [isMuted, setIsMuted] = useState(true);
   const [showTrailerVideo, setShowTrailerVideo] = useState(false);
@@ -19,14 +18,6 @@ export default function MediaDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
-
-  const handleBack = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate('/', { replace: true });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -52,28 +43,11 @@ export default function MediaDetails() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className='bg-background min-h-screen'
       >
-        {/* Top Bar — Back + Volume controls */}
-        <div className='pointer-events-none absolute inset-x-0 top-20 z-50 container mx-auto md:top-24'>
-          <div className='flex items-center justify-between'>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className='pointer-events-auto'
-            >
-              <Button
-                onClick={handleBack}
-                variant='outline'
-                size='icon'
-                className='bg-background/40 border-border h-10 w-10 cursor-pointer rounded-full backdrop-blur-md transition-all hover:scale-110 active:scale-95'
-              >
-                <ChevronLeft className='h-6 w-6' />
-                <span className='sr-only'>Back</span>
-              </Button>
-            </motion.div>
-
-            <AnimatePresence>
-              {showTrailerVideo && (
+        {/* Volume control for trailer */}
+        <AnimatePresence>
+          {showTrailerVideo && (
+            <div className='pointer-events-none absolute inset-x-0 top-20 z-50 container mx-auto md:top-24'>
+              <div className='flex justify-end'>
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -95,10 +69,10 @@ export default function MediaDetails() {
                     <span className='sr-only'>{isMuted ? 'Unmute' : 'Mute'}</span>
                   </Button>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <div className='relative pb-24'>
           <MediaDetailHero
