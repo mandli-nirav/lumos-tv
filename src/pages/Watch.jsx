@@ -52,14 +52,14 @@ export default function Watch() {
 
   if (isMediaLoading) {
     return (
-      <div className='flex h-screen w-full items-center justify-center bg-black'>
+      <div className='flex h-dvh w-full items-center justify-center bg-black'>
         <div className='border-primary/20 border-t-primary h-10 w-10 animate-spin rounded-full border-4' />
       </div>
     );
   }
 
   return (
-    <div className='fixed inset-0 z-100 h-screen w-full overflow-hidden bg-black'>
+    <div className='fixed inset-0 z-100 h-dvh w-full overflow-hidden bg-black'>
       <VideoPlayer
         type={type}
         id={id}
