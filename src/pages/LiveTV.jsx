@@ -8,7 +8,7 @@ import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
 import { LiveTVHeader } from '@/components/livetv/LiveTVHeader';
 import { LiveTVPlayer } from '@/components/player/LiveTVPlayer';
 import { Button } from '@/components/ui/button';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollFade } from '@/components/ui/scroll-fade';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useDetailedLiveTV,
@@ -98,7 +98,7 @@ export default function LiveTV() {
             onValueChange={setSelectedCategory}
             className='w-full'
           >
-            <ScrollArea className='w-full'>
+            <ScrollFade>
               <TabsList className='bg-background/50 border-border/40 inline-flex h-12 w-full justify-start gap-2 rounded-full border p-1.5 backdrop-blur-sm'>
                 {categories.map((cat) => (
                   <TabsTrigger
@@ -110,8 +110,7 @@ export default function LiveTV() {
                   </TabsTrigger>
                 ))}
               </TabsList>
-              <ScrollBar orientation='horizontal' className='invisible' />
-            </ScrollArea>
+            </ScrollFade>
           </Tabs>
         </div>
 
