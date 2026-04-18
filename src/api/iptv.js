@@ -9,10 +9,15 @@ const API_BASE_URL = 'https://iptv-org.github.io/api';
  * @returns {Promise<Array>}
  */
 const fetchIptvData = async (endpoint) => {
-  const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
-    timeout: 10000,
-  });
-  return response.data;
+  try {
+    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
+      timeout: 10000,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`IPTV API error (${endpoint}):`, error.message);
+    throw error;
+  }
 };
 
 export const getChannels = () => fetchIptvData('channels.json');
@@ -27,12 +32,21 @@ export const getCategories = () => fetchIptvData('categories.json');
  *   language should be an ISO 639-3 code like 'hin', 'eng', 'spa', etc.
  */
 export const getDetailedChannels = async (filters = {}) => {
-  const [channels, streams, logos, feeds] = await Promise.all([
+  const results = await Promise.allSettled([
     getChannels(),
     getStreams(),
     getLogos(),
     getFeeds(),
   ]);
+
+  const channels = results[0].status === 'fulfilled' ? results[0].value : [];
+  const streams = results[1].status === 'fulfilled' ? results[1].value : [];
+  const logos = results[2].status === 'fulfilled' ? results[2].value : [];
+  const feeds = results[3].status === 'fulfilled' ? results[3].value : [];
+
+  if (channels.length === 0 || streams.length === 0) {
+    throw new Error('Failed to load channel data');
+  }
 
   // Stream lookup: channel ID → array of stream objects
   const streamMap = streams.reduce((acc, stream) => {
