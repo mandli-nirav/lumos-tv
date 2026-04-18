@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getDetailedChannels, getLiveTVData } from '@/api/iptv';
+import { getDetailedChannels } from '@/api/iptv';
 
-// Fetch popular languages (hardcoded list for fast load + clean UX)
 const LANGUAGES = [
   { code: '', name: 'All Languages' },
   { code: 'hin', name: 'Hindi' },
@@ -32,21 +31,14 @@ const LANGUAGES = [
   { code: 'vie', name: 'Vietnamese' },
 ];
 
-export function useLiveTV() {
-  return useQuery({
-    queryKey: ['live-tv'],
-    queryFn: getLiveTVData,
-    staleTime: 1000 * 60 * 30,
-    throwOnError: false,
-  });
-}
-
 export function useDetailedLiveTV(filters = {}) {
   return useQuery({
-    queryKey: ['live-tv-detailed', filters],
+    queryKey: ['live-tv', filters],
     queryFn: () => getDetailedChannels(filters),
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60,
     throwOnError: false,
+    retry: 1,
   });
 }
 
