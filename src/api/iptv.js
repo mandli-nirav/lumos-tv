@@ -2,109 +2,101 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://iptv-org.github.io/api';
 
-/**
- * Fetch data from IPTV API.
- * Caching is handled by TanStack Query hooks — do NOT add client-side caching here.
- * @param {string} endpoint - API endpoint path
- * @returns {Promise<Array>}
- */
-const fetchIptvData = async (endpoint) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
-      timeout: 10000,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`IPTV API error (${endpoint}):`, error.message);
-    throw error;
-  }
-};
+const iptvClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+});
 
-export const getChannels = () => fetchIptvData('channels.json');
-export const getStreams = () => fetchIptvData('streams.json');
-export const getLogos = () => fetchIptvData('logos.json');
-export const getFeeds = () => fetchIptvData('feeds.json');
-export const getCategories = () => fetchIptvData('categories.json');
+const fetchEndpoint = (endpoint) =>
+  iptvClient.get(`/${endpoint}`).then((r) => r.data);
+
+let cachedBaseData = null;
 
 /**
- * Fetches and merges channel data with stream URLs, logos, and feed languages.
- * @param {Object} filters - Filter criteria { category, language, country }
- *   language should be an ISO 639-3 code like 'hin', 'eng', 'spa', etc.
+ * Fetch and merge the core IPTV datasets (channels, streams, feeds, logos).
+ * Cached in memory so switching language/category doesn't re-download ~27 MB.
  */
-export const getDetailedChannels = async (filters = {}) => {
-  const results = await Promise.allSettled([
-    getChannels(),
-    getStreams(),
-    getLogos(),
-    getFeeds(),
-  ]);
+const getBaseData = async () => {
+  if (cachedBaseData) return cachedBaseData;
 
-  const channels = results[0].status === 'fulfilled' ? results[0].value : [];
-  const streams = results[1].status === 'fulfilled' ? results[1].value : [];
-  const logos = results[2].status === 'fulfilled' ? results[2].value : [];
-  const feeds = results[3].status === 'fulfilled' ? results[3].value : [];
+  const [channelsRes, streamsRes, feedsRes, logosRes] =
+    await Promise.allSettled([
+      fetchEndpoint('channels.json'),
+      fetchEndpoint('streams.json'),
+      fetchEndpoint('feeds.json'),
+      fetchEndpoint('logos.json'),
+    ]);
+
+  const channels =
+    channelsRes.status === 'fulfilled' ? channelsRes.value : [];
+  const streams = streamsRes.status === 'fulfilled' ? streamsRes.value : [];
+  const feeds = feedsRes.status === 'fulfilled' ? feedsRes.value : [];
+  const logos = logosRes.status === 'fulfilled' ? logosRes.value : [];
 
   if (channels.length === 0 || streams.length === 0) {
-    throw new Error('Failed to load channel data');
+    throw new Error('Failed to load channel data from IPTV API');
   }
 
-  // Stream lookup: channel ID → array of stream objects
-  const streamMap = streams.reduce((acc, stream) => {
-    if (!acc[stream.channel]) acc[stream.channel] = [];
-    acc[stream.channel].push(stream);
-    return acc;
-  }, {});
+  const streamMap = new Map();
+  for (const s of streams) {
+    if (!s.channel) continue;
+    if (!streamMap.has(s.channel)) streamMap.set(s.channel, []);
+    streamMap.get(s.channel).push(s);
+  }
 
-  // Logo lookup: channel ID → first logo URL
-  const logoMap = logos.reduce((acc, logo) => {
-    if (!acc[logo.channel]) acc[logo.channel] = logo.url;
-    return acc;
-  }, {});
+  const logoMap = new Map();
+  for (const l of logos) {
+    if (l.channel && !logoMap.has(l.channel)) logoMap.set(l.channel, l.url);
+  }
 
-  // Feed language lookup: channel ID → Set of language codes (from feeds.json)
-  const langMap = feeds.reduce((acc, feed) => {
-    if (!acc[feed.channel]) acc[feed.channel] = new Set();
-    if (feed.languages) {
-      feed.languages.forEach((lang) => acc[feed.channel].add(lang));
-    }
-    return acc;
-  }, {});
+  const langMap = new Map();
+  for (const f of feeds) {
+    if (!f.channel || !f.languages) continue;
+    if (!langMap.has(f.channel)) langMap.set(f.channel, new Set());
+    for (const lang of f.languages) langMap.get(f.channel).add(lang);
+  }
 
-  let detailedChannels = channels
-    .filter((channel) => streamMap[channel.id]) // Only channels with streams
-    .map((channel) => ({
-      ...channel,
-      logo: logoMap[channel.id] || null,
-      streams: streamMap[channel.id],
-      languages: langMap[channel.id] ? [...langMap[channel.id]] : [],
-    }));
+  const merged = [];
+  for (const ch of channels) {
+    const chStreams = streamMap.get(ch.id);
+    if (!chStreams) continue;
+    merged.push({
+      ...ch,
+      logo: logoMap.get(ch.id) || null,
+      streams: chStreams,
+      languages: langMap.has(ch.id) ? [...langMap.get(ch.id)] : [],
+    });
+  }
 
-  // Apply filters
+  cachedBaseData = merged;
+  return merged;
+};
+
+/**
+ * Get channels filtered by language, category, or country.
+ * Base data is fetched once and reused across filter changes.
+ */
+export const getDetailedChannels = async (filters = {}) => {
+  let channels = await getBaseData();
+
   if (filters.category && filters.category !== 'All') {
-    detailedChannels = detailedChannels.filter((c) =>
-      c.categories?.some(
-        (cat) => cat.toLowerCase() === filters.category.toLowerCase()
-      )
+    const cat = filters.category.toLowerCase();
+    channels = channels.filter((c) =>
+      c.categories?.some((cc) => cc.toLowerCase() === cat)
     );
   }
 
   if (filters.language) {
-    const langCode = filters.language.toLowerCase();
-    detailedChannels = detailedChannels.filter((c) =>
-      c.languages?.some((l) => l.toLowerCase() === langCode)
+    const lang = filters.language.toLowerCase();
+    channels = channels.filter((c) =>
+      c.languages?.some((l) => l.toLowerCase() === lang)
     );
   }
 
   if (filters.country) {
-    detailedChannels = detailedChannels.filter(
-      (c) => c.country?.toLowerCase() === filters.country.toLowerCase()
-    );
+    const country = filters.country.toLowerCase();
+    channels = channels.filter((c) => c.country?.toLowerCase() === country);
   }
 
-  return detailedChannels;
+  return channels;
 };
-
-/**
- * Fetches Hindi live TV channels with streams
- */
-export const getLiveTVData = () => getDetailedChannels({ language: 'hin' });
