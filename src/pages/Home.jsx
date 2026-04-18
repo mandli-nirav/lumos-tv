@@ -5,8 +5,16 @@ import { MediaSlider } from '@/components/media/MediaSlider';
 import {
   useInfinitePopularMovies,
   useInfinitePopularTV,
+  useInfiniteTopRatedMovies,
+  useInfiniteTopRatedTV,
   useTrending,
 } from '@/hooks/useMedia';
+
+const toPlaceholder = (data) =>
+  data ? { pages: [data], pageParams: [1] } : undefined;
+
+const flattenData = (data) =>
+  data?.pages.flatMap((page) => page.results) || [];
 
 export default function Home() {
   const initialData = useLoaderData();
@@ -16,26 +24,20 @@ export default function Home() {
   });
 
   const popularMovies = useInfinitePopularMovies({
-    placeholderData: initialData?.popularMovies
-      ? {
-          pages: [initialData.popularMovies],
-          pageParams: [1],
-        }
-      : undefined,
+    placeholderData: toPlaceholder(initialData?.popularMovies),
   });
 
   const popularTV = useInfinitePopularTV({
-    placeholderData: initialData?.popularTV
-      ? {
-          pages: [initialData.popularTV],
-          pageParams: [1],
-        }
-      : undefined,
+    placeholderData: toPlaceholder(initialData?.popularTV),
   });
 
-  // Helper to flatten infinite query data
-  const flattenData = (data) =>
-    data?.pages.flatMap((page) => page.results) || [];
+  const topRatedMovies = useInfiniteTopRatedMovies({
+    placeholderData: toPlaceholder(initialData?.topRatedMovies),
+  });
+
+  const topRatedTV = useInfiniteTopRatedTV({
+    placeholderData: toPlaceholder(initialData?.topRatedTV),
+  });
 
   return (
     <div className='space-y-12 pb-10'>
@@ -59,6 +61,26 @@ export default function Home() {
           fetchNextPage={popularTV.fetchNextPage}
           hasNextPage={popularTV.hasNextPage}
           isFetchingNextPage={popularTV.isFetchingNextPage}
+          viewAllPath='/tv-shows'
+        />
+
+        <MediaSlider
+          title='Top Rated Movies'
+          items={flattenData(topRatedMovies.data)}
+          isLoading={topRatedMovies.isLoading}
+          fetchNextPage={topRatedMovies.fetchNextPage}
+          hasNextPage={topRatedMovies.hasNextPage}
+          isFetchingNextPage={topRatedMovies.isFetchingNextPage}
+          viewAllPath='/movies'
+        />
+
+        <MediaSlider
+          title='Top Rated TV Shows'
+          items={flattenData(topRatedTV.data)}
+          isLoading={topRatedTV.isLoading}
+          fetchNextPage={topRatedTV.fetchNextPage}
+          hasNextPage={topRatedTV.hasNextPage}
+          isFetchingNextPage={topRatedTV.isFetchingNextPage}
           viewAllPath='/tv-shows'
         />
       </div>

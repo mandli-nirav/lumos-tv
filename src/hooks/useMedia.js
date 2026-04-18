@@ -105,6 +105,37 @@ export const useTopRatedMovies = (page = 1) => {
 };
 
 /**
+ * Fetch infinite top-rated media.
+ */
+export const useInfiniteTopRatedMedia = (type, options = {}) => {
+  return useInfiniteQuery({
+    queryKey: [type === 'movie' ? 'movies' : type, 'top_rated', 'infinite'],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await tmdb.get(`/${type}/top_rated`, {
+        params: { page: pageParam, include_image_language },
+      });
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    ...options,
+  });
+};
+
+export const useInfiniteTopRatedMovies = (options = {}) => {
+  return useInfiniteTopRatedMedia('movie', options);
+};
+
+export const useInfiniteTopRatedTV = (options = {}) => {
+  return useInfiniteTopRatedMedia('tv', options);
+};
+
+/**
  * Fetch details for a specific movie or TV show.
  * Includes full metadata: videos, images, credits, reviews, etc.
  */
