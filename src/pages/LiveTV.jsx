@@ -99,12 +99,11 @@ export default function LiveTV() {
             className='w-full'
           >
             <ScrollFade>
-              <TabsList className='bg-background/50 border-border/40 inline-flex h-12 w-full justify-start gap-2 rounded-full border p-1.5 backdrop-blur-sm'>
+              <TabsList>
                 {categories.map((cat) => (
                   <TabsTrigger
                     key={cat}
                     value={cat}
-                    className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-full rounded-full px-6 text-sm font-semibold transition-all duration-300'
                   >
                     {cat}
                   </TabsTrigger>
