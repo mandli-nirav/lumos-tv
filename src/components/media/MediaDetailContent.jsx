@@ -8,11 +8,10 @@ import { getImageUrl } from '@/api/tmdb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { ScrollFade } from '@/components/ui/scroll-fade';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInfiniteRecommendations, useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
-import { cn } from '@/lib/utils';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 
 import { MediaCard } from './MediaCard';
 
@@ -329,7 +328,7 @@ export function MediaDetailContent({ media }) {
 
       {/* Tabs Section */}
       <Tabs defaultValue={isTV ? 'episodes' : 'recommendations'}>
-        <ScrollArea className='w-full'>
+        <ScrollFade>
           <TabsList>
             {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
             <TabsTrigger value='recommendations'>Recommended</TabsTrigger>
@@ -337,8 +336,7 @@ export function MediaDetailContent({ media }) {
             <TabsTrigger value='trailers'>Trailers & More</TabsTrigger>
             <TabsTrigger value='photos'>Photos</TabsTrigger>
           </TabsList>
-          <ScrollBar orientation='horizontal' />
-        </ScrollArea>
+        </ScrollFade>
 
         {isTV && (
           <TabsContent value='episodes'>
@@ -348,7 +346,7 @@ export function MediaDetailContent({ media }) {
                 onValueChange={(val) => setSelectedSeason(parseInt(val))}
                 className='w-full'
               >
-                <ScrollArea className='w-full'>
+                <ScrollFade>
                   <TabsList>
                     {media.seasons
                       ?.filter((s) => s.season_number > 0)
@@ -361,8 +359,7 @@ export function MediaDetailContent({ media }) {
                         </TabsTrigger>
                       ))}
                   </TabsList>
-                  <ScrollBar orientation='horizontal' />
-                </ScrollArea>
+                </ScrollFade>
               </Tabs>
 
               <AnimatePresence mode='wait'>
