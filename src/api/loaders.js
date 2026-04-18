@@ -1,18 +1,23 @@
 import tmdb from '@/api/tmdb';
 
 export async function homeLoader() {
-  const [trending, popularMovies, popularTV] = await Promise.all([
-    tmdb.get('/trending/all/day', {
-      params: { append_to_response: 'videos,images,external_ids' },
-    }),
-    tmdb.get('/movie/popular', { params: { page: 1 } }),
-    tmdb.get('/tv/popular', { params: { page: 1 } }),
-  ]);
+  const [trending, popularMovies, popularTV, topRatedMovies, topRatedTV] =
+    await Promise.all([
+      tmdb.get('/trending/all/day', {
+        params: { append_to_response: 'videos,images,external_ids' },
+      }),
+      tmdb.get('/movie/popular', { params: { page: 1 } }),
+      tmdb.get('/tv/popular', { params: { page: 1 } }),
+      tmdb.get('/movie/top_rated', { params: { page: 1 } }),
+      tmdb.get('/tv/top_rated', { params: { page: 1 } }),
+    ]);
 
   return {
     trending: trending.data,
     popularMovies: popularMovies.data,
     popularTV: popularTV.data,
+    topRatedMovies: topRatedMovies.data,
+    topRatedTV: topRatedTV.data,
   };
 }
 
