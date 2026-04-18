@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 
 import { MediaDetailContent } from '@/components/media/MediaDetailContent';
@@ -14,10 +14,6 @@ export default function MediaDetails() {
   const [isMuted, setIsMuted] = useState(true);
   const [showTrailerVideo, setShowTrailerVideo] = useState(false);
 
-  // Scroll to top on mount
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
 
   if (isLoading) {
     return (

@@ -1,6 +1,6 @@
 import nprogress from 'nprogress';
 import { useEffect } from 'react';
-import { Outlet, useNavigation } from 'react-router';
+import { Outlet, ScrollRestoration, useNavigation } from 'react-router';
 
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
@@ -25,6 +25,7 @@ export default function AppLayout() {
       </main>
       <Footer />
       <BottomNav />
+      <ScrollRestoration />
     </div>
   );
 }
