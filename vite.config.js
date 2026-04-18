@@ -46,7 +46,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Hybrid caching strategy
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             // Cache API responses (network first)
