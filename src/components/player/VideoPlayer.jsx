@@ -178,19 +178,25 @@ export function VideoPlayer({
       {/* Player Container — 16:9 constrained on portrait mobile, full height on landscape/desktop */}
       <div className='relative flex flex-1 items-center justify-center overflow-hidden'>
         <div className='relative aspect-video w-full max-h-full md:absolute md:inset-0 md:aspect-auto'>
-          {/* Ad-Blocking Click Trap */}
-          <div
-            className='absolute inset-0 z-30'
-            onClick={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {/* Ad-Blocking Click Trap — desktop only.
+              On touch devices this blocks the first tap and prevents users
+              from reaching the iframe's embedded player controls. Mobile
+              browsers already block popup windows from iframes. */}
+          {!isTouchDevice && (
+            <div
+              className='absolute inset-0 z-30'
+              onClick={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
 
           {/* The Player Iframe */}
           <iframe
             key={selectedServer.id}
             src={playerUrl}
             className='h-full w-full border-0'
+            allow='autoplay; fullscreen; encrypted-media; picture-in-picture'
             allowFullScreen
             onLoad={() => setIsLoading(false)}
             onError={handleServerError}
