@@ -1,7 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Tv } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { ChannelCard } from '@/components/livetv/ChannelCard';
 import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
@@ -17,8 +17,13 @@ import {
 } from '@/hooks/useLiveTV';
 
 export default function LiveTV() {
-  const [selectedLanguage, setSelectedLanguage] = useState('hin');
-  const { data: channels, isLoading } = useDetailedLiveTV({
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const {
+    data: channels,
+    isLoading,
+    isError,
+    refetch,
+  } = useDetailedLiveTV({
     language: selectedLanguage,
   });
   const languages = useLanguages();
@@ -55,7 +60,7 @@ export default function LiveTV() {
     return rowArray;
   }, [filteredChannels]);
 
-  const parentRef = React.useRef(null);
+  const parentRef = useRef(null);
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
@@ -124,6 +129,30 @@ export default function LiveTV() {
               transition={{ duration: 0.3 }}
             >
               <ChannelGridSkeleton count={12} />
+            </motion.div>
+          ) : isError ? (
+            <motion.div
+              key='error'
+              className='flex flex-col items-center justify-center py-32 text-center'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className='bg-card/50 mb-6 rounded-full p-6'>
+                <Tv className='text-muted-foreground/30 h-12 w-12' />
+              </div>
+              <h2 className='text-foreground text-xl font-bold'>
+                Failed to load channels
+              </h2>
+              <p className='text-muted-foreground/60 mt-1'>
+                Could not fetch live TV data. Please try again.
+              </p>
+              <Button
+                variant='outline'
+                className='mt-4'
+                onClick={() => refetch()}
+              >
+                Retry
+              </Button>
             </motion.div>
           ) : filteredChannels.length > 0 ? (
             <div

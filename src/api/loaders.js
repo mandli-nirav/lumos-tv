@@ -1,8 +1,10 @@
 import tmdb from '@/api/tmdb';
 
+const EMPTY_PAGE = { results: [] };
+
 export async function homeLoader() {
-  const [trending, popularMovies, popularTV, topRatedMovies, topRatedTV] =
-    await Promise.all([
+  try {
+    const results = await Promise.allSettled([
       tmdb.get('/trending/all/day', {
         params: { append_to_response: 'videos,images,external_ids' },
       }),
@@ -12,13 +14,26 @@ export async function homeLoader() {
       tmdb.get('/tv/top_rated', { params: { page: 1 } }),
     ]);
 
-  return {
-    trending: trending.data,
-    popularMovies: popularMovies.data,
-    popularTV: popularTV.data,
-    topRatedMovies: topRatedMovies.data,
-    topRatedTV: topRatedTV.data,
-  };
+    const data = results.map((r) =>
+      r.status === 'fulfilled' ? r.value.data : EMPTY_PAGE
+    );
+
+    return {
+      trending: data[0],
+      popularMovies: data[1],
+      popularTV: data[2],
+      topRatedMovies: data[3],
+      topRatedTV: data[4],
+    };
+  } catch {
+    return {
+      trending: EMPTY_PAGE,
+      popularMovies: EMPTY_PAGE,
+      popularTV: EMPTY_PAGE,
+      topRatedMovies: EMPTY_PAGE,
+      topRatedTV: EMPTY_PAGE,
+    };
+  }
 }
 
 export async function exploreLoader({ request }) {
@@ -32,11 +47,14 @@ export async function exploreLoader({ request }) {
 
   if (!type) return null;
 
-  const response = await tmdb.get(`/${type}/popular`, {
-    params: { page: 1 },
-  });
-
-  return response.data;
+  try {
+    const response = await tmdb.get(`/${type}/popular`, {
+      params: { page: 1 },
+    });
+    return response.data;
+  } catch {
+    return EMPTY_PAGE;
+  }
 }
 
 export async function searchLoader({ request }) {
@@ -44,8 +62,12 @@ export async function searchLoader({ request }) {
   const q = url.searchParams.get('q');
   if (!q) return null;
 
-  const response = await tmdb.get('/search/multi', {
-    params: { query: q, page: 1 },
-  });
-  return { results: response.data, q };
+  try {
+    const response = await tmdb.get('/search/multi', {
+      params: { query: q, page: 1 },
+    });
+    return { results: response.data, q };
+  } catch {
+    return { results: EMPTY_PAGE, q };
+  }
 }

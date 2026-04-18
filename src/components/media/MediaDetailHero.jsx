@@ -40,17 +40,17 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
     }, 20000);
 
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onVideoShow]);
 
   // Sync mute state to the YouTube iframe
+  const [iframeReady, setIframeReady] = useState(false);
   useEffect(() => {
-    if (!iframeRef.current || !showVideo) return;
-    iframeRef.current.contentWindow.postMessage(
+    if (!iframeRef.current || !showVideo || !iframeReady) return;
+    iframeRef.current.contentWindow?.postMessage(
       { event: 'command', func: isMuted ? 'mute' : 'unMute' },
       'https://www.youtube.com'
     );
-  }, [isMuted, showVideo]);
+  }, [isMuted, showVideo, iframeReady]);
 
   // Handle ESC key to close trailer modal
   useEffect(() => {
@@ -243,6 +243,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1 }}
                 ref={iframeRef}
+                onLoad={() => setIframeReady(true)}
                 src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${
                   isMuted ? 1 : 0
                 }&controls=0&modestbranding=1&rel=0&showinfo=0`}

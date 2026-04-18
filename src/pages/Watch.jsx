@@ -1,23 +1,26 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useEffect } from 'react';
+import { Link, useParams } from 'react-router';
 
 import { VideoPlayer } from '@/components/player/VideoPlayer';
+import { Button } from '@/components/ui/button';
 import { useMediaDetails, useSeasonDetails } from '@/hooks/useMedia';
 
 export default function Watch() {
   const { type, id, season, episode } = useParams();
 
-  // Fetch media details for title and general info
-  const { data: media, isLoading: isMediaLoading } = useMediaDetails(type, id);
+  const {
+    data: media,
+    isLoading: isMediaLoading,
+    isError: isMediaError,
+  } = useMediaDetails(type, id);
 
-  // For TV shows, we might want the specific episode name
-  const { data: seasonData, isLoading: isSeasonLoading } = useSeasonDetails(
+  const { data: seasonData } = useSeasonDetails(
     type === 'tv' ? id : null,
     season
   );
 
   const episodeData = seasonData?.episodes?.find(
-    (e) => e.episode_number === parseInt(episode)
+    (e) => e.episode_number === parseInt(episode, 10)
   );
 
   const getTitle = () => {
@@ -39,7 +42,6 @@ export default function Watch() {
     return `Season ${season}, Episode ${episode}`;
   };
 
-  // Set page title for better accessibility and browser history
   const pageTitle = `${getTitle()} | Lumos TV`;
 
   useEffect(() => {
@@ -50,10 +52,50 @@ export default function Watch() {
     };
   }, [pageTitle]);
 
+  if (type !== 'movie' && type !== 'tv') {
+    return (
+      <div className='flex h-dvh w-full flex-col items-center justify-center gap-4 bg-black text-white'>
+        <h1 className='text-4xl font-extrabold'>Not Found</h1>
+        <p className='text-white/60'>Invalid content type.</p>
+        <Button asChild variant='outline'>
+          <Link to='/'>Go Home</Link>
+        </Button>
+      </div>
+    );
+  }
+
   if (isMediaLoading) {
     return (
       <div className='flex h-dvh w-full items-center justify-center bg-black'>
         <div className='border-primary/20 border-t-primary h-10 w-10 animate-spin rounded-full border-4' />
+      </div>
+    );
+  }
+
+  if (isMediaError || !media) {
+    return (
+      <div className='flex h-dvh w-full flex-col items-center justify-center gap-4 bg-black text-white'>
+        <h1 className='text-4xl font-extrabold'>
+          {isMediaError ? 'Something went wrong' : 'Not Found'}
+        </h1>
+        <p className='text-white/60'>
+          {isMediaError
+            ? 'Failed to load content. Please try again.'
+            : 'This content does not exist.'}
+        </p>
+        <div className='flex gap-3'>
+          {isMediaError && (
+            <Button
+              variant='outline'
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          )}
+          <Button asChild>
+            <Link to='/'>Go Home</Link>
+          </Button>
+        </div>
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { getDetailedChannels, getLiveTVData } from '@/api/iptv';
 
 // Fetch popular languages (hardcoded list for fast load + clean UX)
 const LANGUAGES = [
+  { code: '', name: 'All Languages' },
   { code: 'hin', name: 'Hindi' },
   { code: 'eng', name: 'English' },
   { code: 'tam', name: 'Tamil' },

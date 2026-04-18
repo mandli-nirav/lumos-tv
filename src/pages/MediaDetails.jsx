@@ -1,19 +1,28 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
-import { useState } from 'react';
-import { useParams } from 'react-router';
+import { lazy, Suspense, useState } from 'react';
+import { Link, useParams } from 'react-router';
 
 import { MediaDetailContent } from '@/components/media/MediaDetailContent';
 import { MediaDetailHero } from '@/components/media/MediaDetailHero';
 import { Button } from '@/components/ui/button';
 import { useMediaDetails } from '@/hooks/useMedia';
 
+const NotFound = lazy(() => import('@/pages/NotFound'));
+
 export default function MediaDetails() {
   const { type, id } = useParams();
-  const { data: media, isLoading } = useMediaDetails(type, id);
+  const { data: media, isLoading, isError, refetch } = useMediaDetails(type, id);
   const [isMuted, setIsMuted] = useState(true);
   const [showTrailerVideo, setShowTrailerVideo] = useState(false);
 
+  if (type !== 'movie' && type !== 'tv') {
+    return (
+      <Suspense fallback={null}>
+        <NotFound />
+      </Suspense>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -27,7 +36,32 @@ export default function MediaDetails() {
     );
   }
 
-  if (!media) return null;
+  if (isError) {
+    return (
+      <div className='bg-background flex h-[70vh] flex-col items-center justify-center gap-4 text-center'>
+        <h1 className='text-4xl font-extrabold'>Something went wrong</h1>
+        <p className='text-muted-foreground text-lg'>
+          Failed to load content details. Please try again.
+        </p>
+        <div className='flex gap-3'>
+          <Button variant='outline' onClick={() => refetch()}>
+            Try Again
+          </Button>
+          <Button asChild>
+            <Link to='/'>Go Home</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!media) {
+    return (
+      <Suspense fallback={null}>
+        <NotFound />
+      </Suspense>
+    );
+  }
 
   return (
     <AnimatePresence mode='wait'>
