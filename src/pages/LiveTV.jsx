@@ -1,7 +1,7 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Tv } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { ChannelCard } from '@/components/livetv/ChannelCard';
 import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
@@ -79,7 +79,7 @@ export default function LiveTV() {
   return (
     <div
       ref={parentRef}
-      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-24 pb-20'
+      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-24 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]'
     >
       <div className=''>
         <LiveTVHeader

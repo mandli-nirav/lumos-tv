@@ -131,6 +131,12 @@
   }
 }
 
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  :root {
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
 @utility container {
   margin-inline: auto;
   padding-inline: 1.5rem;

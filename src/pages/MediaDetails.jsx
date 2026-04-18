@@ -74,7 +74,7 @@ export default function MediaDetails() {
           )}
         </AnimatePresence>
 
-        <div className='relative pb-24'>
+        <div className='relative pb-[calc(6rem+env(safe-area-inset-bottom,0px))]'>
           <MediaDetailHero
             media={media}
             isMuted={isMuted}
