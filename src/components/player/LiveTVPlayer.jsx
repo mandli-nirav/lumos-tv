@@ -1,7 +1,7 @@
 import Artplayer from 'artplayer';
 import Hls from 'hls.js';
 import { ChevronLeft } from 'lucide-react';
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

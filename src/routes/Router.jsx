@@ -2,7 +2,8 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 
 import { exploreLoader, homeLoader, searchLoader } from '@/api/loaders';
-import PageLoader from '@/components/PageLoader';
+import PageLoader from '@/components/layout/PageLoader';
+import { RouteError } from '@/components/layout/RouteError';
 import AppLayout from '@/layouts/AppLayout';
 
 const Home = lazy(() => import('@/pages/Home'));
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     HydrateFallback: PageLoader,
+    errorElement: <RouteError />,
     children: [
       {
         path: '/',
@@ -69,7 +71,6 @@ export const router = createBrowserRouter([
             <MediaDetails />
           </Suspense>
         ),
-        loader: homeLoader,
       },
       {
         path: '*',

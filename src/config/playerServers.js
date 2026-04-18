@@ -109,6 +109,9 @@ export const PLAYER_SERVERS = [
  * @returns {string} Full URL for the iframe
  */
 export const constructPlayerUrl = (server, type, id, season, episode) => {
+  if (!server || !type || id == null) return '';
+  if (type === 'tv' && (season == null || episode == null)) return '';
+
   const isMovie = type === 'movie';
   const pattern = isMovie ? server.patterns.movie : server.patterns.tv;
 

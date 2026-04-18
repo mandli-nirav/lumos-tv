@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import * as React from 'react';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 
 import {
   Carousel,
@@ -23,7 +23,6 @@ export function MediaSlider({
   isFetchingNextPage,
   viewAllPath,
 }) {
-  const navigate = useNavigate();
   const [api, setApi] = React.useState(null);
 
   React.useEffect(() => {
@@ -47,12 +46,14 @@ export function MediaSlider({
         <h2 className='text-foreground/90 text-xl font-bold tracking-tight md:text-2xl'>
           {title}
         </h2>
-        <button
-          onClick={() => viewAllPath && navigate(viewAllPath)}
-          className='text-muted-foreground hover:text-foreground flex cursor-pointer items-center text-[12px] font-bold tracking-tight transition-colors'
-        >
-          View All <ChevronRight className='ml-1 h-3.5 w-3.5' />
-        </button>
+        {viewAllPath && (
+          <Link
+            to={viewAllPath}
+            className='text-muted-foreground hover:text-foreground flex items-center text-[12px] font-bold tracking-tight transition-colors'
+          >
+            View All <ChevronRight className='ml-1 h-3.5 w-3.5' />
+          </Link>
+        )}
       </div>
 
       <Carousel

@@ -9,15 +9,10 @@ const API_BASE_URL = 'https://iptv-org.github.io/api';
  * @returns {Promise<Array>}
  */
 const fetchIptvData = async (endpoint) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
-      timeout: 10000,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching from IPTV API (${endpoint}):`, error.message);
-    return [];
-  }
+  const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
+    timeout: 10000,
+  });
+  return response.data;
 };
 
 export const getChannels = () => fetchIptvData('channels.json');
@@ -98,12 +93,4 @@ export const getDetailedChannels = async (filters = {}) => {
 /**
  * Fetches Hindi live TV channels with streams
  */
-export const getLiveTVData = async () => {
-  try {
-    const channels = await getDetailedChannels({ language: 'hin' });
-    return channels;
-  } catch (error) {
-    console.error('Error fetching Live TV data:', error);
-    return [];
-  }
-};
+export const getLiveTVData = () => getDetailedChannels({ language: 'hin' });

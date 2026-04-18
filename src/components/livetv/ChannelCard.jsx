@@ -2,7 +2,6 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { motion } from 'framer-motion';
 import { Play, Tv } from 'lucide-react';
-import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
