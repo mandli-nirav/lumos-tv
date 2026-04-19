@@ -1,7 +1,6 @@
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { Tv } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChannelCard } from '@/components/livetv/ChannelCard';
 import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
@@ -17,6 +16,25 @@ import {
   useLiveTVCategories,
 } from '@/hooks/useLiveTV';
 
+// Matches the Tailwind grid-cols classes below
+const getColumns = (width) => {
+  if (width >= 1280) return 6; // xl
+  if (width >= 1024) return 5; // lg
+  if (width >= 768) return 4; // md
+  if (width >= 640) return 3; // sm
+  return 2; // mobile
+};
+
+// Rough row height including gap. Cards are 16:9, so height = columnWidth * 9/16
+// Container max width ~1280px, gap ~16px.
+const estimateRowHeight = (width) => {
+  const cols = getColumns(width);
+  const maxContainerWidth = Math.min(width, 1280) - 32; // px-4 padding
+  const gap = 16;
+  const colWidth = (maxContainerWidth - gap * (cols - 1)) / cols;
+  return Math.round((colWidth * 9) / 16) + gap;
+};
+
 export default function LiveTV() {
   const [selectedLanguage, setSelectedLanguage] = useState(ALL_LANGUAGES);
   const {
@@ -24,9 +42,7 @@ export default function LiveTV() {
     isLoading,
     isError,
     refetch,
-  } = useDetailedLiveTV({
-    language: selectedLanguage,
-  });
+  } = useDetailedLiveTV({ language: selectedLanguage });
   const languages = useLanguages();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -35,39 +51,66 @@ export default function LiveTV() {
 
   const categories = useLiveTVCategories(channels);
 
+  // Responsive column tracking
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1280
+  );
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const columns = getColumns(viewportWidth);
+  const rowHeight = estimateRowHeight(viewportWidth);
+
   const filteredChannels = useMemo(() => {
     if (!channels) return [];
+    const q = searchQuery.trim().toLowerCase();
+    const cat = selectedCategory.toLowerCase();
     return channels.filter((channel) => {
-      const matchesCategory =
-        selectedCategory === 'All' ||
-        (channel.categories &&
-          channel.categories.some(
-            (cat) => cat.toLowerCase() === selectedCategory.toLowerCase()
-          ));
-      const matchesSearch = channel.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      if (selectedCategory !== 'All') {
+        const match = channel.categories?.some((c) => c.toLowerCase() === cat);
+        if (!match) return false;
+      }
+      if (q && !channel.name.toLowerCase().includes(q)) return false;
+      return true;
     });
   }, [channels, selectedCategory, searchQuery]);
 
-  // Virtualization: group channels into rows (6 columns on XL, adjust as needed)
-  const COLUMNS = 6;
   const rows = useMemo(() => {
     const rowArray = [];
-    for (let i = 0; i < filteredChannels.length; i += COLUMNS) {
-      rowArray.push(filteredChannels.slice(i, i + COLUMNS));
+    for (let i = 0; i < filteredChannels.length; i += columns) {
+      rowArray.push(filteredChannels.slice(i, i + columns));
     }
     return rowArray;
-  }, [filteredChannels]);
+  }, [filteredChannels, columns]);
 
-  const parentRef = useRef(null);
-  const virtualizer = useVirtualizer({
+  const listRef = useRef(null);
+  const [listOffset, setListOffset] = useState(0);
+
+  useEffect(() => {
+    if (!listRef.current) return;
+    const updateOffset = () => {
+      const rect = listRef.current.getBoundingClientRect();
+      setListOffset(rect.top + window.scrollY);
+    };
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+    return () => window.removeEventListener('resize', updateOffset);
+  }, [isLoading, isError, rows.length]);
+
+  const virtualizer = useWindowVirtualizer({
     count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 250, // Approximate height of a channel card row
-    overscan: 5,
+    estimateSize: () => rowHeight,
+    overscan: 3,
+    scrollMargin: listOffset,
   });
+
+  const handleChannelClick = useCallback((channel) => {
+    setActiveChannel(channel);
+  }, []);
 
   if (activeChannel) {
     return (
@@ -82,139 +125,112 @@ export default function LiveTV() {
     );
   }
 
+  const virtualItems = virtualizer.getVirtualItems();
+
   return (
-    <div
-      ref={parentRef}
-      className='bg-background container mx-auto min-h-screen overflow-y-auto pt-20 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-24'
-    >
-      <div>
-        <LiveTVHeader
-          channelCount={channels?.length || 0}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedLanguage={selectedLanguage}
-          setSelectedLanguage={setSelectedLanguage}
-          languages={languages}
-        />
+    <div className='bg-background container mx-auto min-h-screen pt-20 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-24'>
+      <LiveTVHeader
+        channelCount={channels?.length || 0}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+        languages={languages}
+      />
 
-        {/* Categories Section */}
-        <div className='mb-4 sm:mb-6'>
-          <Tabs
-            value={selectedCategory}
-            onValueChange={setSelectedCategory}
-            className='w-full'
-          >
-            <ScrollFade>
-              <TabsList>
-                {categories.map((cat) => (
-                  <TabsTrigger
-                    key={cat}
-                    value={cat}
-                  >
-                    {cat}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </ScrollFade>
-          </Tabs>
+      <div className='mb-4 sm:mb-6'>
+        <Tabs
+          value={selectedCategory}
+          onValueChange={setSelectedCategory}
+          className='w-full'
+        >
+          <ScrollFade>
+            <TabsList>
+              {categories.map((cat) => (
+                <TabsTrigger key={cat} value={cat}>
+                  {cat}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </ScrollFade>
+        </Tabs>
+      </div>
+
+      {isLoading ? (
+        <ChannelGridSkeleton count={12} />
+      ) : isError ? (
+        <div className='flex flex-col items-center justify-center py-32 text-center'>
+          <div className='bg-card/50 mb-6 rounded-full p-6'>
+            <Tv className='text-muted-foreground/30 h-12 w-12' />
+          </div>
+          <h2 className='text-foreground text-xl font-bold'>
+            Failed to load channels
+          </h2>
+          <p className='text-muted-foreground/60 mt-1'>
+            Could not fetch live TV data. Please try again.
+          </p>
+          <Button variant='outline' className='mt-4' onClick={() => refetch()}>
+            Retry
+          </Button>
         </div>
-
-        {/* Content Area */}
-        <AnimatePresence mode='wait'>
-          {isLoading ? (
-            <motion.div
-              key='loading'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChannelGridSkeleton count={12} />
-            </motion.div>
-          ) : isError ? (
-            <motion.div
-              key='error'
-              className='flex flex-col items-center justify-center py-32 text-center'
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className='bg-card/50 mb-6 rounded-full p-6'>
-                <Tv className='text-muted-foreground/30 h-12 w-12' />
-              </div>
-              <h2 className='text-foreground text-xl font-bold'>
-                Failed to load channels
-              </h2>
-              <p className='text-muted-foreground/60 mt-1'>
-                Could not fetch live TV data. Please try again.
-              </p>
-              <Button
-                variant='outline'
-                className='mt-4'
-                onClick={() => refetch()}
-              >
-                Retry
-              </Button>
-            </motion.div>
-          ) : filteredChannels.length > 0 ? (
+      ) : filteredChannels.length > 0 ? (
+        <div
+          ref={listRef}
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualItems.map((virtualItem) => (
             <div
-              key='grid'
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
               style={{
-                height: `${virtualizer.getTotalSize()}px`,
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
-                position: 'relative',
+                transform: `translateY(${
+                  virtualItem.start - virtualizer.options.scrollMargin
+                }px)`,
               }}
+              className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
             >
-              {virtualizer.getVirtualItems().map((virtualItem) => (
-                <motion.div
-                  key={virtualItem.key}
-                  style={{
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                  className='absolute inset-x-0 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ staggerChildren: 0.05 }}
-                >
-                  {rows[virtualItem.index]?.map((channel) => (
-                    <ChannelCard
-                      key={channel.id}
-                      channel={channel}
-                      onClick={setActiveChannel}
-                    />
-                  ))}
-                </motion.div>
+              {rows[virtualItem.index]?.map((channel) => (
+                <ChannelCard
+                  key={channel.id}
+                  channel={channel}
+                  onClick={handleChannelClick}
+                />
               ))}
             </div>
-          ) : (
-            <motion.div
-              key='empty'
-              className='flex flex-col items-center justify-center py-32 text-center'
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className='bg-card/50 mb-6 rounded-full p-6'>
-                <Tv className='text-muted-foreground/30 h-12 w-12' />
-              </div>
-              <h2 className='text-foreground text-xl font-bold'>
-                No channels found
-              </h2>
-              <p className='text-muted-foreground/60 mt-1'>
-                Try adjusting your search or category filter for "{searchQuery}"
-              </p>
-              <Button
-                variant='link'
-                className='text-primary mt-4'
-                onClick={() => {
-                  setSelectedCategory('All');
-                  setSearchQuery('');
-                }}
-              >
-                Reset filters
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className='flex flex-col items-center justify-center py-32 text-center'>
+          <div className='bg-card/50 mb-6 rounded-full p-6'>
+            <Tv className='text-muted-foreground/30 h-12 w-12' />
+          </div>
+          <h2 className='text-foreground text-xl font-bold'>
+            No channels found
+          </h2>
+          <p className='text-muted-foreground/60 mt-1'>
+            Try adjusting your search or category filter for "{searchQuery}"
+          </p>
+          <Button
+            variant='link'
+            className='text-primary mt-4'
+            onClick={() => {
+              setSelectedCategory('All');
+              setSearchQuery('');
+            }}
+          >
+            Reset filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
