@@ -133,7 +133,9 @@ export default function HeroSlider({ data, isLoading }) {
     );
   }
 
-  if (trendingItems.length === 0) return null;
+  // When no trending data, reserve space for the fixed header so the content
+  // below doesn't slide up under it.
+  if (trendingItems.length === 0) return <div className='h-16 md:h-20' />;
 
   return (
     <div className='relative h-[90vh] w-full overflow-hidden font-sans md:h-screen'>
