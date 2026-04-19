@@ -11,13 +11,14 @@ import { Button } from '@/components/ui/button';
 import { ScrollFade } from '@/components/ui/scroll-fade';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  ALL_LANGUAGES,
   useDetailedLiveTV,
   useLanguages,
   useLiveTVCategories,
 } from '@/hooks/useLiveTV';
 
 export default function LiveTV() {
-  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState(ALL_LANGUAGES);
   const {
     data: channels,
     isLoading,
