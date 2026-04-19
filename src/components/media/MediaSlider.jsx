@@ -41,7 +41,7 @@ export function MediaSlider({
   }, [api, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
-    <div className='group/slider relative z-10 space-y-4 font-sans transition-all duration-300 hover:z-50'>
+    <div className='group/slider relative z-10 space-y-4 font-sans transition-all duration-300 hover:z-30'>
       <div className='relative z-0 flex items-center justify-between'>
         <h2 className='text-foreground/90 text-xl font-bold tracking-tight md:text-2xl'>
           {title}
@@ -65,7 +65,7 @@ export function MediaSlider({
           {items?.map((item, index) => (
             <CarouselItem
               key={`${item.id}-${index}`}
-              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-50 sm:basis-1/3 sm:pl-4 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
+              className='relative basis-1/2 overflow-visible pl-2 transition-[z-index] duration-0 hover:z-30 sm:basis-1/3 sm:pl-4 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
             >
               <MediaCard item={item} />
             </CarouselItem>
@@ -87,8 +87,8 @@ export function MediaSlider({
               </CarouselItem>
             ))}
         </CarouselContent>
-        <CarouselPrevious className='bg-background/40 text-foreground hover:bg-background/60 absolute top-1/2 left-1 z-60 h-10 w-10 -translate-y-1/2 rounded-full border-none opacity-0 shadow-lg backdrop-blur-md transition-all group-hover/slider:opacity-100 hover:scale-110 disabled:pointer-events-none disabled:opacity-0 md:left-2' />
-        <CarouselNext className='bg-background/40 text-foreground hover:bg-background/60 absolute top-1/2 right-1 z-60 h-10 w-10 -translate-y-1/2 rounded-full border-none opacity-0 shadow-lg backdrop-blur-md transition-all group-hover/slider:opacity-100 hover:scale-110 disabled:pointer-events-none disabled:opacity-0 md:right-2' />
+        <CarouselPrevious className='bg-background/40 text-foreground hover:bg-background/60 absolute top-1/2 left-1 z-30 h-10 w-10 -translate-y-1/2 rounded-full border-none opacity-0 shadow-lg backdrop-blur-md transition-all group-hover/slider:opacity-100 hover:scale-110 disabled:pointer-events-none disabled:opacity-0 md:left-2' />
+        <CarouselNext className='bg-background/40 text-foreground hover:bg-background/60 absolute top-1/2 right-1 z-30 h-10 w-10 -translate-y-1/2 rounded-full border-none opacity-0 shadow-lg backdrop-blur-md transition-all group-hover/slider:opacity-100 hover:scale-110 disabled:pointer-events-none disabled:opacity-0 md:right-2' />
       </Carousel>
     </div>
   );
