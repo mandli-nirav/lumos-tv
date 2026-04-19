@@ -86,7 +86,7 @@ export const getDetailedChannels = async (filters = {}) => {
     );
   }
 
-  if (filters.language) {
+  if (filters.language && filters.language !== 'all') {
     const lang = filters.language.toLowerCase();
     channels = channels.filter((c) =>
       c.languages?.some((l) => l.toLowerCase() === lang)

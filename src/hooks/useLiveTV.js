@@ -2,8 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import { getDetailedChannels } from '@/api/iptv';
 
+export const ALL_LANGUAGES = 'all';
+
 const LANGUAGES = [
-  { code: '', name: 'All Languages' },
+  { code: ALL_LANGUAGES, name: 'All Languages' },
   { code: 'hin', name: 'Hindi' },
   { code: 'eng', name: 'English' },
   { code: 'tam', name: 'Tamil' },
