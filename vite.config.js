@@ -50,22 +50,7 @@ export default defineConfig({
         clientsClaim: true,
         runtimeCaching: [
           {
-            // Cache API responses (network first)
-            urlPattern: /^https:\/\/api\.themoviedb\.org\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'tmdb-api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24, // 24 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // Cache images (cache first)
+            // Cache TMDB images (static, safe to cache long-term)
             urlPattern: /^https:\/\/image\.tmdb\.org\/.*/i,
             handler: 'CacheFirst',
             options: {
@@ -73,21 +58,6 @@ export default defineConfig({
               expiration: {
                 maxEntries: 200,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // Cache sports API (network first)
-            urlPattern: /^https:\/\/.*\/api\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'sports-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5, // 5 minutes (live data)
               },
               cacheableResponse: {
                 statuses: [0, 200],
