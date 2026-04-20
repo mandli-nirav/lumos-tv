@@ -50,12 +50,17 @@ export function MediaCard({ item, explicitType }) {
   const handleMouseEnter = () => {
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
-      const windowWidth = window.innerWidth;
-      const threshold = 100; // Distance from edge to trigger edge-case popout
+      // Use the nearest carousel container's bounds (it clips overflow);
+      // fall back to the viewport if the card is rendered outside a slider.
+      const container = cardRef.current.closest('[data-media-slider]');
+      const bounds = container
+        ? container.getBoundingClientRect()
+        : { left: 0, right: window.innerWidth };
+      const threshold = 100;
 
-      if (rect.left < threshold) {
+      if (rect.left - bounds.left < threshold) {
         setOrigin('left');
-      } else if (windowWidth - rect.right < threshold) {
+      } else if (bounds.right - rect.right < threshold) {
         setOrigin('right');
       } else {
         setOrigin('center');
