@@ -79,7 +79,7 @@ export function MediaSlider({
         )}
       </div>
 
-      <div className='relative overflow-x-clip'>
+      <div className='relative overflow-x-clip' data-media-slider=''>
         <Carousel
           setApi={setApi}
           className='w-full'
