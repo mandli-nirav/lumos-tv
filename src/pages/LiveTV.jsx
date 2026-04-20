@@ -1,4 +1,5 @@
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { motion } from 'framer-motion';
 import { Tv } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -129,16 +130,27 @@ export default function LiveTV() {
 
   return (
     <div className='bg-background container mx-auto min-h-screen pt-20 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-24'>
-      <LiveTVHeader
-        channelCount={channels?.length || 0}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
-        languages={languages}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <LiveTVHeader
+          channelCount={channels?.length || 0}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedLanguage={selectedLanguage}
+          setSelectedLanguage={setSelectedLanguage}
+          languages={languages}
+        />
+      </motion.div>
 
-      <div className='mb-4 sm:mb-6'>
+      <motion.div
+        className='mb-4 sm:mb-6'
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
         <Tabs
           value={selectedCategory}
           onValueChange={setSelectedCategory}
@@ -154,7 +166,7 @@ export default function LiveTV() {
             </TabsList>
           </ScrollFade>
         </Tabs>
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <ChannelGridSkeleton count={12} />
@@ -174,8 +186,11 @@ export default function LiveTV() {
           </Button>
         </div>
       ) : filteredChannels.length > 0 ? (
-        <div
+        <motion.div
           ref={listRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
           style={{
             height: `${virtualizer.getTotalSize()}px`,
             width: '100%',
@@ -207,7 +222,7 @@ export default function LiveTV() {
               ))}
             </div>
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className='flex flex-col items-center justify-center py-32 text-center'>
           <div className='bg-card/50 mb-6 rounded-full p-6'>
