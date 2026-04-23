@@ -178,17 +178,10 @@ export function VideoPlayer({
       {/* Player Container — 16:9 constrained on portrait mobile, full height on landscape/desktop */}
       <div className='relative flex flex-1 items-center justify-center overflow-hidden'>
         <div className='relative aspect-video w-full max-h-full md:absolute md:inset-0 md:aspect-auto'>
-          {/* The Player Iframe
-              sandbox: allow only what the player needs. Omitting
-              allow-popups / allow-top-navigation / allow-modals
-              lets the browser block popup ads, tab redirects, and
-              alert() spam at the engine level — no JS workaround
-              can bypass it. */}
           <iframe
             key={selectedServer.id}
             src={playerUrl}
             className='h-full w-full border-0'
-            sandbox='allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen allow-orientation-lock'
             allow='autoplay; fullscreen; encrypted-media; picture-in-picture'
             allowFullScreen
             referrerPolicy='no-referrer'
