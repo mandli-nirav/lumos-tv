@@ -4,7 +4,7 @@ import {
   useScroll,
   useTransform,
 } from 'framer-motion';
-import { Play, Star } from 'lucide-react';
+import { Download, ExternalLink, Play, Star } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { getImageUrl } from '@/api/tmdb';
@@ -127,6 +127,21 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
     (v) => v.type === 'Trailer' && v.site === 'YouTube'
   );
 
+  const isMovie = !!(
+    media.title ||
+    media.original_title ||
+    (media.release_date && !media.first_air_date)
+  );
+  const downloadUrl = isMovie ? `https://vidvault.ru/movie/${media.id}` : null;
+
+  const providerResults = media['watch/providers']?.results || {};
+  const justWatchUrl =
+    providerResults.US?.link ||
+    providerResults.GB?.link ||
+    providerResults.IN?.link ||
+    Object.values(providerResults)[0]?.link ||
+    null;
+
   const overviewLines = media.overview
     ? media.overview.split('\n').slice(0, 3).join('\n')
     : '';
@@ -213,6 +228,22 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                 >
                   <Play className='mr-2 h-4 w-4' />
                   Trailer
+                </Button>
+              )}
+              {isMovie && (
+                <Button asChild variant='outline' className='flex-1'>
+                  <a href={downloadUrl} target='_blank' rel='noopener noreferrer'>
+                    <Download className='mr-2 h-4 w-4' />
+                    Download
+                  </a>
+                </Button>
+              )}
+              {justWatchUrl && (
+                <Button asChild variant='outline' className='flex-1'>
+                  <a href={justWatchUrl} target='_blank' rel='noopener noreferrer'>
+                    <ExternalLink className='mr-2 h-4 w-4' />
+                    JustWatch
+                  </a>
                 </Button>
               )}
             </div>
@@ -390,6 +421,32 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                     >
                       <Play className='mr-2 h-5 w-5' />
                       Watch Trailer
+                    </Button>
+                  )}
+                  {isMovie && (
+                    <Button
+                      asChild
+                      variant='outline'
+                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      size='lg'
+                    >
+                      <a href={downloadUrl} target='_blank' rel='noopener noreferrer'>
+                        <Download className='mr-2 h-5 w-5' />
+                        Download
+                      </a>
+                    </Button>
+                  )}
+                  {justWatchUrl && (
+                    <Button
+                      asChild
+                      variant='outline'
+                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      size='lg'
+                    >
+                      <a href={justWatchUrl} target='_blank' rel='noopener noreferrer'>
+                        <ExternalLink className='mr-2 h-5 w-5' />
+                        JustWatch
+                      </a>
                     </Button>
                   )}
                 </div>

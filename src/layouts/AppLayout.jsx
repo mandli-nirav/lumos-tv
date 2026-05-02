@@ -25,7 +25,7 @@ export default function AppLayout() {
       </main>
       <Footer />
       <BottomNav />
-      <ScrollRestoration />
+      <ScrollRestoration getKey={(location) => location.pathname} />
     </div>
   );
 }

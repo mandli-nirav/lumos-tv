@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, Info, Play, Server, Settings } from 'lucide-react';
+import { ChevronLeft, Play, Server, Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -78,7 +78,13 @@ export function VideoPlayer({
     resetTimer();
   };
 
-  const playerUrl = constructPlayerUrl(selectedServer, type, id, season, episode);
+  const playerUrl = constructPlayerUrl(
+    selectedServer,
+    type,
+    id,
+    season,
+    episode
+  );
 
   return (
     <div
@@ -118,25 +124,15 @@ export function VideoPlayer({
               </div>
             </div>
 
-            {/* Tip */}
-            <div className='hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/40 md:flex'>
-              <Info className='h-3 w-3 shrink-0' />
-              <span>If video doesn't load, switch servers →</span>
-            </div>
-
             {/* Server Selection Dropdown */}
             <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='h-9 shrink-0 gap-1.5 rounded-full border border-white/10 bg-white/10 px-3 text-white backdrop-blur-md hover:bg-white/20 sm:h-10 sm:gap-2 sm:px-4'
-                >
-                  <Server className='h-4 w-4' />
+                <Button variant='outline' size='sm'>
+                  <Server className='size-4' />
                   <span className='hidden sm:inline'>
                     {selectedServer.name}
                   </span>
-                  <Settings className='ml-0.5 h-4 w-4 opacity-60 sm:ml-1' />
+                  <Settings className='size-4' />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -177,7 +173,7 @@ export function VideoPlayer({
 
       {/* Player Container — 16:9 constrained on portrait mobile, full height on landscape/desktop */}
       <div className='relative flex flex-1 items-center justify-center overflow-hidden'>
-        <div className='relative aspect-video w-full max-h-full md:absolute md:inset-0 md:aspect-auto'>
+        <div className='relative aspect-video max-h-full w-full md:absolute md:inset-0 md:aspect-auto'>
           <iframe
             key={selectedServer.id}
             src={playerUrl}
@@ -203,18 +199,18 @@ export function VideoPlayer({
           {/* Error Overlay */}
           {allServersFailed && (
             <div className='absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-black'>
-              <div className='text-center space-y-3'>
+              <div className='space-y-3 text-center'>
                 <p className='text-xl font-semibold text-white'>
                   Unable to Load Content
                 </p>
-                <p className='text-sm text-white/60 max-w-xs'>
+                <p className='max-w-xs text-sm text-white/60'>
                   All streaming servers are unavailable. Please try again later.
                 </p>
               </div>
               <Button
                 variant='outline'
                 onClick={resetError}
-                className='text-white border-white/20 hover:bg-white/10'
+                className='border-white/20 text-white hover:bg-white/10'
               >
                 Retry
               </Button>

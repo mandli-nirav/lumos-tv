@@ -36,17 +36,7 @@ export async function homeLoader() {
   }
 }
 
-export async function exploreLoader({ request }) {
-  const url = new URL(request.url);
-  const pathname = url.pathname;
-
-  const isMovie = pathname.includes('movies');
-  const isTV = pathname.includes('tv-shows');
-
-  const type = isMovie ? 'movie' : isTV ? 'tv' : null;
-
-  if (!type) return null;
-
+async function popularLoader(type) {
   try {
     const response = await tmdb.get(`/${type}/popular`, {
       params: { page: 1 },
@@ -56,6 +46,9 @@ export async function exploreLoader({ request }) {
     return EMPTY_PAGE;
   }
 }
+
+export const moviesLoader = () => popularLoader('movie');
+export const tvShowsLoader = () => popularLoader('tv');
 
 export async function searchLoader({ request }) {
   const url = new URL(request.url);

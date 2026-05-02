@@ -2,6 +2,7 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { motion } from 'framer-motion';
 import { Tv } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 
 import { ChannelCard } from '@/components/livetv/ChannelCard';
 import { ChannelGridSkeleton } from '@/components/livetv/ChannelSkeleton';
@@ -46,7 +47,21 @@ export default function LiveTV() {
   } = useDetailedLiveTV({ language: selectedLanguage });
   const languages = useLanguages();
 
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCategory = searchParams.get('category') || 'All';
+
+  const setSelectedCategory = (val) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (val === 'All') next.delete('category');
+        else next.set('category', val);
+        return next;
+      },
+      { replace: true }
+    );
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeChannel, setActiveChannel] = useState(null);
 

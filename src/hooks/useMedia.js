@@ -255,14 +255,75 @@ export const useGenreList = (type) => {
 };
 
 /**
- * Fetch infinite discover media with optional genre filter.
+ * Fetch infinite discover media with full TMDB filter support.
+ * @param {string} type - 'movie' or 'tv'
+ * @param {object} filters - All supported TMDB discover params
  */
-export const useInfiniteDiscover = (type, genreId, options = {}) => {
+export const useInfiniteDiscover = (type, filters = {}, options = {}) => {
   return useInfiniteQuery({
-    queryKey: ['discover', type, genreId],
+    queryKey: ['discover', type, filters],
     queryFn: async ({ pageParam = 1 }) => {
-      const params = { page: pageParam, include_image_language, sort_by: 'popularity.desc' };
-      if (genreId) params.with_genres = genreId;
+      const params = {
+        page: pageParam,
+        include_image_language,
+        sort_by: filters.sortBy || 'popularity.desc',
+      };
+
+      // Common
+      if (filters.genres?.length) params.with_genres = filters.genres.join(',');
+      if (filters.withoutGenres?.length)
+        params.without_genres = filters.withoutGenres.join(',');
+      if (filters.language) params.with_original_language = filters.language;
+      if (filters.voteAverageGte != null)
+        params['vote_average.gte'] = filters.voteAverageGte;
+      if (filters.voteAverageLte != null)
+        params['vote_average.lte'] = filters.voteAverageLte;
+      if (filters.voteCountGte != null)
+        params['vote_count.gte'] = filters.voteCountGte;
+      if (filters.runtimeGte != null) params['with_runtime.gte'] = filters.runtimeGte;
+      if (filters.runtimeLte != null) params['with_runtime.lte'] = filters.runtimeLte;
+      if (filters.watchProviders?.length)
+        params.with_watch_providers = filters.watchProviders.join('|');
+      if (filters.watchMonetizationTypes?.length)
+        params.with_watch_monetization_types =
+          filters.watchMonetizationTypes.join('|');
+      if (
+        filters.watchRegion ||
+        filters.watchProviders?.length ||
+        filters.watchMonetizationTypes?.length
+      )
+        params.watch_region = filters.watchRegion || 'US';
+      if (filters.includeAdult) params.include_adult = true;
+
+      if (type === 'movie') {
+        if (filters.yearFrom)
+          params['primary_release_date.gte'] = `${filters.yearFrom}-01-01`;
+        if (filters.yearTo)
+          params['primary_release_date.lte'] = `${filters.yearTo}-12-31`;
+        if (filters.releaseTypes?.length)
+          params.with_release_type = filters.releaseTypes.join('|');
+        if (filters.certification) {
+          params.certification = filters.certification;
+          params.certification_country = filters.certificationCountry || 'US';
+        }
+        if (filters.region) params.region = filters.region;
+        if (filters.companies?.length)
+          params.with_companies = filters.companies.join(',');
+      } else {
+        if (filters.yearFrom)
+          params['first_air_date.gte'] = `${filters.yearFrom}-01-01`;
+        if (filters.yearTo)
+          params['first_air_date.lte'] = `${filters.yearTo}-12-31`;
+        if (filters.networks?.length)
+          params.with_networks = filters.networks.join(',');
+        if (filters.tvStatus != null) params.with_status = filters.tvStatus;
+        if (filters.tvType != null) params.with_type = filters.tvType;
+        if (filters.originCountry)
+          params.with_origin_country = filters.originCountry;
+        if (filters.includeNullFirstAirDates)
+          params.include_null_first_air_dates = true;
+      }
+
       const response = await tmdb.get(`/discover/${type}`, { params });
       return response.data;
     },
@@ -275,6 +336,37 @@ export const useInfiniteDiscover = (type, genreId, options = {}) => {
     initialPageParam: 1,
     enabled: !!type,
     ...options,
+  });
+};
+
+/**
+ * Fetch TMDB countries list (ISO 3166-1).
+ */
+export const useCountries = () => {
+  return useQuery({
+    queryKey: ['configuration', 'countries'],
+    queryFn: async () => {
+      const response = await tmdb.get('/configuration/countries');
+      return response.data || [];
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+};
+
+/**
+ * Fetch popular watch providers for a region.
+ */
+export const useWatchProviders = (type, region) => {
+  return useQuery({
+    queryKey: ['watch_providers', type, region],
+    queryFn: async () => {
+      const response = await tmdb.get(`/watch/providers/${type}`, {
+        params: { watch_region: region || 'US' },
+      });
+      return response.data?.results || [];
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+    enabled: !!type,
   });
 };
 

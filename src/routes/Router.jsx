@@ -1,13 +1,14 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 
-import { exploreLoader, homeLoader, searchLoader } from '@/api/loaders';
+import { homeLoader, moviesLoader, searchLoader, tvShowsLoader } from '@/api/loaders';
 import PageLoader from '@/components/layout/PageLoader';
 import { RouteError } from '@/components/layout/RouteError';
 import AppLayout from '@/layouts/AppLayout';
 
 const Home = lazy(() => import('@/pages/Home'));
-const Explore = lazy(() => import('@/pages/Explore'));
+const Movies = lazy(() => import('@/pages/Movies'));
+const TVShows = lazy(() => import('@/pages/TVShows'));
 const Search = lazy(() => import('@/pages/Search'));
 const LiveTV = lazy(() => import('@/pages/LiveTV'));
 const Watch = lazy(() => import('@/pages/Watch'));
@@ -50,19 +51,19 @@ export const router = createBrowserRouter([
         path: '/movies',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <Explore />
+            <Movies />
           </Suspense>
         ),
-        loader: exploreLoader,
+        loader: moviesLoader,
       },
       {
         path: '/tv-shows',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <Explore />
+            <TVShows />
           </Suspense>
         ),
-        loader: exploreLoader,
+        loader: tvShowsLoader,
       },
       {
         path: '/:type/:id',

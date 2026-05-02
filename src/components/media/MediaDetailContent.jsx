@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Film, Image, Play, Tv, Video } from 'lucide-react';
+import { Download, Film, Image, Play, Tv, Video } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 
 import { getImageUrl } from '@/api/tmdb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -35,14 +35,27 @@ export function MediaDetailContent({ media }) {
   const { ref: similarRef, inView: similarInView } = useInView();
   const { ref: recRef, inView: recInView } = useInView();
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const isTV = !!media?.seasons;
-  const [selectedSeason, setSelectedSeason] = useState(1);
+  const tab = searchParams.get('tab') || (isTV ? 'episodes' : 'recommendations');
+  const selectedSeason = parseInt(searchParams.get('season') || '1', 10);
   const [playingVideo, setPlayingVideo] = useState(null);
   const { data: seasonData, isLoading: isSeasonLoading } = useSeasonDetails(
     id,
     selectedSeason,
     { enabled: isTV }
   );
+
+  const updateSearchParam = (key, value) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(key, value);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   useEffect(() => {
     if (similarInView && hasNextSimilar && !isFetchingNextSimilar) {
@@ -327,7 +340,7 @@ export function MediaDetailContent({ media }) {
       </section>
 
       {/* Tabs Section */}
-      <Tabs defaultValue={isTV ? 'episodes' : 'recommendations'}>
+      <Tabs value={tab} onValueChange={(val) => updateSearchParam('tab', val)}>
         <ScrollFade>
           <TabsList>
             {isTV && <TabsTrigger value='episodes'>Episodes</TabsTrigger>}
@@ -343,7 +356,7 @@ export function MediaDetailContent({ media }) {
             <div className='space-y-6'>
               <Tabs
                 value={selectedSeason.toString()}
-                onValueChange={(val) => setSelectedSeason(parseInt(val))}
+                onValueChange={(val) => updateSearchParam('season', val)}
                 className='w-full'
               >
                 <ScrollFade>
@@ -418,6 +431,17 @@ export function MediaDetailContent({ media }) {
                             <span>{episode.runtime || 0}m</span>
                           </div>
                         </div>
+                        <a
+                          href={`https://vidvault.ru/tv/${id}/${selectedSeason}/${episode.episode_number}`}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          onClick={(e) => e.stopPropagation()}
+                          title='Download'
+                          aria-label={`Download episode ${episode.episode_number}`}
+                          className='text-muted-foreground hover:bg-background/50 hover:text-foreground flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full transition-all'
+                        >
+                          <Download className='h-4 w-4' />
+                        </a>
                       </div>
                     ))}
                   </motion.div>
