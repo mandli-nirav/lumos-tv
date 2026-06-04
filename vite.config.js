@@ -74,4 +74,34 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // hls.js (in the lazy "player" chunk) is inherently ~600 kB and only loads
+    // on watch/live routes, so raise the limit past it while still catching
+    // regressions in eager chunks.
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          // Heavy video stack — only pulled in by watch/live routes (lazy).
+          if (id.includes('hls.js') || id.includes('artplayer')) return 'player';
+          // Charting libs (recharts + its d3 deps).
+          if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+          // Carousels.
+          if (id.includes('slick') || id.includes('embla')) return 'carousel';
+          if (id.includes('framer-motion')) return 'motion';
+          if (id.includes('@radix-ui')) return 'radix';
+          // React core kept together to avoid runtime init issues.
+          if (
+            id.includes('/react-dom/') ||
+            id.includes('/react-router/') ||
+            id.includes('/react/') ||
+            id.includes('/scheduler/')
+          ) {
+            return 'react-vendor';
+          }
+        },
+      },
+    },
+  },
 });

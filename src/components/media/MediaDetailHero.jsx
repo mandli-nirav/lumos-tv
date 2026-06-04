@@ -75,14 +75,18 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
   // Get certification (movie: release_dates, TV: content_ratings)
   const certification = (() => {
     // Movie certification from release_dates
-    const usRelease = media.release_dates?.results?.find((r) => r.iso_3166_1 === 'US');
+    const usRelease = media.release_dates?.results?.find(
+      (r) => r.iso_3166_1 === 'US'
+    );
     const movieCert = usRelease?.release_dates
       ?.map((d) => d.certification)
       .find((c) => c);
     if (movieCert) return movieCert;
 
     // TV content rating
-    const usRating = media.content_ratings?.results?.find((r) => r.iso_3166_1 === 'US');
+    const usRating = media.content_ratings?.results?.find(
+      (r) => r.iso_3166_1 === 'US'
+    );
     return usRating?.rating || null;
   })();
 
@@ -149,7 +153,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
   return (
     <>
       {/* ===== MOBILE LAYOUT — Stacked: Backdrop → Content ===== */}
-      <div className='block md:hidden font-sans'>
+      <div className='block font-sans md:hidden'>
         {/* Backdrop — fixed aspect ratio, no overlap */}
         <div className='relative aspect-4/3 w-full overflow-hidden'>
           <img
@@ -162,7 +166,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
         </div>
 
         {/* Content — flows naturally below the image */}
-        <div className='container relative z-10 mx-auto -mt-20 space-y-3 pb-4'>
+        <div className='relative z-10 container mx-auto -mt-20 space-y-3 pb-4'>
           {/* Logo / Title */}
           {logo ? (
             <img
@@ -172,7 +176,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
               style={{ aspectRatio: logo.aspect_ratio }}
             />
           ) : (
-            <h1 className='text-foreground text-2xl font-bold leading-tight'>
+            <h1 className='text-foreground text-2xl leading-tight font-bold'>
               {title}
             </h1>
           )}
@@ -181,7 +185,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
           <div className='text-foreground/80 flex flex-wrap items-center gap-2 text-xs font-semibold'>
             {certification && (
               <>
-                <span className='border-foreground/30 rounded border px-1.5 py-0.5 text-[10px] font-bold leading-none'>
+                <span className='border-foreground/30 rounded border px-1.5 py-0.5 text-[10px] leading-none font-bold'>
                   {certification}
                 </span>
                 <span className='text-foreground/30'>•</span>
@@ -223,7 +227,6 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
               {trailer && (
                 <Button
                   onClick={() => setShowTrailerModal(true)}
-                  variant='outline'
                   className='flex-1'
                 >
                   <Play className='mr-2 h-4 w-4' />
@@ -231,16 +234,24 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                 </Button>
               )}
               {isMovie && (
-                <Button asChild variant='outline' className='flex-1'>
-                  <a href={downloadUrl} target='_blank' rel='noopener noreferrer'>
+                <Button asChild className='flex-1'>
+                  <a
+                    href={downloadUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
                     <Download className='mr-2 h-4 w-4' />
                     Download
                   </a>
                 </Button>
               )}
               {justWatchUrl && (
-                <Button asChild variant='outline' className='flex-1'>
-                  <a href={justWatchUrl} target='_blank' rel='noopener noreferrer'>
+                <Button asChild className='flex-1'>
+                  <a
+                    href={justWatchUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
                     <ExternalLink className='mr-2 h-4 w-4' />
                     JustWatch
                   </a>
@@ -347,7 +358,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                 <div className='text-foreground/80 flex items-center gap-3 text-sm font-semibold'>
                   {certification && (
                     <>
-                      <span className='border-foreground/30 rounded border px-2 py-0.5 text-xs font-bold leading-none'>
+                      <span className='border-foreground/30 rounded border px-2 py-0.5 text-xs leading-none font-bold'>
                         {certification}
                       </span>
                       <span className='text-foreground/30'>•</span>
@@ -357,7 +368,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                   <span className='text-foreground/30'>•</span>
                   <span>{duration}</span>
                   <span className='text-foreground/30'>•</span>
-                  <div className='bg-primary/20 text-primary flex items-center gap-1.5 rounded px-2 py-1 text-xs font-bold uppercase tracking-wider'>
+                  <div className='bg-primary/20 text-primary flex items-center gap-1.5 rounded px-2 py-1 text-xs font-bold tracking-wider uppercase'>
                     {language}
                   </div>
                   <span className='text-foreground/30'>•</span>
@@ -377,7 +388,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                       style={{ aspectRatio: logo.aspect_ratio }}
                     />
                   ) : (
-                    <h1 className='text-foreground text-4xl font-bold leading-[1.1] lg:text-5xl'>
+                    <h1 className='text-foreground text-4xl leading-[1.1] font-bold lg:text-5xl'>
                       {title}
                     </h1>
                   )}
@@ -416,7 +427,7 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                     <Button
                       onClick={() => setShowTrailerModal(true)}
                       variant='outline'
-                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      className='border-foreground/30 text-foreground bg-transparent transition-all hover:border-foreground/50 hover:bg-foreground/10'
                       size='lg'
                     >
                       <Play className='mr-2 h-5 w-5' />
@@ -427,10 +438,14 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                     <Button
                       asChild
                       variant='outline'
-                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      className='border-foreground/30 text-foreground bg-transparent transition-all hover:border-foreground/50 hover:bg-foreground/10'
                       size='lg'
                     >
-                      <a href={downloadUrl} target='_blank' rel='noopener noreferrer'>
+                      <a
+                        href={downloadUrl}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                      >
                         <Download className='mr-2 h-5 w-5' />
                         Download
                       </a>
@@ -440,10 +455,14 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                     <Button
                       asChild
                       variant='outline'
-                      className='border-white/30 text-white transition-all hover:border-white/50 hover:bg-white/10'
+                      className='border-foreground/30 text-foreground bg-transparent transition-all hover:border-foreground/50 hover:bg-foreground/10'
                       size='lg'
                     >
-                      <a href={justWatchUrl} target='_blank' rel='noopener noreferrer'>
+                      <a
+                        href={justWatchUrl}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                      >
                         <ExternalLink className='mr-2 h-5 w-5' />
                         JustWatch
                       </a>
