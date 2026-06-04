@@ -79,7 +79,14 @@ export function MediaSlider({
         )}
       </div>
 
-      <div className='relative overflow-x-clip' data-media-slider=''>
+      {/* clip-path clips ONLY the horizontal axis (off-screen slides at the
+          row edges) while leaving vertical overflow visible, so the hover-
+          expanded MediaCard isn't chopped off — unlike overflow-x-clip, which
+          forces overflow-y to clip in most browsers. */}
+      <div
+        className='relative [clip-path:inset(-100%_0)]'
+        data-media-slider=''
+      >
         <Carousel
           setApi={setApi}
           className='w-full'

@@ -308,22 +308,15 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
             )}
           </AnimatePresence>
 
-          {/* Blur Effect */}
-          <motion.div
-            animate={{ opacity: showVideo ? 0 : 1 }}
-            transition={{ duration: 1 }}
-            className='absolute inset-0 z-5 backdrop-blur-[2px]'
-          />
-
           {/* Gradients */}
           <motion.div
             animate={{ opacity: showVideo ? 0.5 : 1 }}
             transition={{ duration: 1 }}
             className='pointer-events-none absolute inset-0 z-10'
           >
-            <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t via-30% to-transparent to-60%' />
-            <div className='from-background via-background/50 absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t via-20% to-transparent to-50%' />
-            <div className='from-background/90 via-background/40 absolute inset-0 bg-linear-to-r via-35% to-transparent to-70%' />
+            <div className='from-background via-background/90 absolute inset-0 bg-linear-to-t via-40% to-transparent to-75%' />
+            <div className='from-background via-background/70 absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t via-30% to-transparent to-60%' />
+            <div className='from-background via-background/60 absolute inset-0 bg-linear-to-r via-45% to-transparent to-80%' />
           </motion.div>
         </motion.div>
 

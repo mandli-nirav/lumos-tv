@@ -76,7 +76,7 @@ export default function MediaDetails() {
         {/* Volume control for trailer */}
         <AnimatePresence>
           {showTrailerVideo && (
-            <div className='pointer-events-none absolute inset-x-0 top-20 z-50 container mx-auto md:top-24'>
+            <div className='pointer-events-none absolute inset-x-0 top-20 z-40 container mx-auto md:top-24'>
               <div className='flex justify-end'>
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
