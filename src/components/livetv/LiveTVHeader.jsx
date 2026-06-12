@@ -49,6 +49,8 @@ export function LiveTVHeader({
       <div className='relative'>
         <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
         <Input
+          type='search'
+          aria-label='Search live TV channels'
           placeholder='Search channels...'
           className='bg-card/40 border-border/40 focus:border-primary/40 focus:ring-primary/20 pl-10 transition-all'
           value={searchQuery}
@@ -56,6 +58,7 @@ export function LiveTVHeader({
         />
         {searchQuery && (
           <button
+            type='button'
             className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold tracking-wider uppercase'
             onClick={() => setSearchQuery('')}
           >

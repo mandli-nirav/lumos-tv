@@ -56,12 +56,15 @@ export default function Search() {
 
   return (
     <div className='container mx-auto pt-24 pb-8'>
+      <h1 className='sr-only'>Search Movies & TV Shows</h1>
+
       {/* Search Header */}
       <div className='mx-auto mb-12 max-w-2xl'>
         <div className='group relative'>
           <Input
             autoFocus
-            type='text'
+            type='search'
+            aria-label='Search movies and TV shows'
             placeholder='Search movies, TV shows...'
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -72,6 +75,8 @@ export default function Search() {
           </div>
           {query && (
             <button
+              type='button'
+              aria-label='Clear search'
               onClick={() => setQuery('')}
               className='text-muted-foreground hover:text-foreground absolute inset-y-0 right-4 flex items-center transition-colors'
             >
@@ -121,7 +126,7 @@ export default function Search() {
               <div className='bg-primary/5 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full'>
                 <SearchIcon className='text-primary/40 h-10 w-10' />
               </div>
-              <h3 className='text-xl font-bold'>No results found</h3>
+              <h2 className='text-xl font-bold'>No results found</h2>
               <p className='text-muted-foreground mx-auto max-w-xs text-sm'>
                 We couldn't find anything matching "{debouncedQuery}". Try a
                 different keyword.
@@ -138,7 +143,7 @@ export default function Search() {
           <div className='bg-primary/5 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full'>
             <SearchIcon className='text-primary/40 h-10 w-10' />
           </div>
-          <h3 className='text-xl font-bold'>Start Searching</h3>
+          <h2 className='text-xl font-bold'>Start Searching</h2>
           <p className='text-muted-foreground mx-auto max-w-xs text-sm'>
             Enter a movie or TV show title above to discover something new
             today.

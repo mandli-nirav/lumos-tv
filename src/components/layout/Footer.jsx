@@ -29,12 +29,15 @@ const footerLinks = [
   },
   {
     title: 'Legal',
+    // No href yet: these pages don't exist. Rendered as plain text (not
+    // dead '#' anchors, which crawlers treat as broken links) — set `href`
+    // once the pages are created.
     links: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'DMCA Policy', href: '#' },
-      { label: 'Disclaimer', href: '#' },
-      { label: 'Contact Us', href: '#' },
+      { label: 'Privacy Policy' },
+      { label: 'Terms of Service' },
+      { label: 'DMCA Policy' },
+      { label: 'Disclaimer' },
+      { label: 'Contact Us' },
     ],
   },
 ];
@@ -76,12 +79,18 @@ export function Footer() {
               <ul className='space-y-2.5'>
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className='text-muted-foreground hover:text-primary text-sm transition-colors'
-                    >
-                      {link.label}
-                    </Link>
+                    {link.href ? (
+                      <Link
+                        to={link.href}
+                        className='text-muted-foreground hover:text-primary text-sm transition-colors'
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <span className='text-muted-foreground/70 cursor-default text-sm'>
+                        {link.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

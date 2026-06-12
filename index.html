@@ -2,20 +2,127 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>LumosTV</title>
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/icons/icon-192x192.png"
+    />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Performance: warm up connections to critical third-party origins -->
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="preconnect" href="https://api.themoviedb.org" crossorigin />
+    <link rel="dns-prefetch" href="https://img.youtube.com" />
+    <link rel="dns-prefetch" href="https://placehold.co" />
+    <link rel="dns-prefetch" href="https://iptv-org.github.io" />
+
+    <title>Lumos TV — Watch Movies, TV Shows &amp; Live TV Online</title>
+
+    <!--
+      Static SEO fallback tags. Tags marked with data-seo-static are the
+      snapshot served to crawlers that do NOT execute JavaScript (Facebook,
+      Twitter/X, WhatsApp, Telegram scrapers). At app boot (src/main.jsx)
+      they are removed and replaced by per-route tags from the <SEO />
+      component, so JS-executing crawlers (Google, Bing) never see duplicates.
+    -->
+    <meta
+      data-seo-static
+      name="description"
+      content="Stream trending movies, popular TV shows, and free live TV channels on Lumos TV. Discover what to watch with ratings, trailers, and cast info — all in one place."
+    />
+    <meta
+      data-seo-static
+      name="keywords"
+      content="watch movies online, stream tv shows, free live tv, watch series online, movie streaming, lumos tv"
+    />
+    <meta
+      data-seo-static
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- Open Graph (static fallback) -->
+    <meta data-seo-static property="og:site_name" content="Lumos TV" />
+    <meta data-seo-static property="og:locale" content="en_US" />
+    <meta data-seo-static property="og:type" content="website" />
+    <meta
+      data-seo-static
+      property="og:title"
+      content="Lumos TV — Watch Movies, TV Shows &amp; Live TV Online"
+    />
+    <meta
+      data-seo-static
+      property="og:description"
+      content="Stream trending movies, popular TV shows, and free live TV channels on Lumos TV. Discover what to watch with ratings, trailers, and cast info — all in one place."
+    />
+    <meta
+      data-seo-static
+      property="og:url"
+      content="https://lumos-tv.in/"
+    />
+    <meta
+      data-seo-static
+      property="og:image"
+      content="https://lumos-tv.in/icons/icon-512x512.png"
+    />
+    <meta data-seo-static property="og:image:width" content="512" />
+    <meta data-seo-static property="og:image:height" content="512" />
+
+    <!-- Twitter Card (static fallback) -->
+    <meta data-seo-static name="twitter:card" content="summary" />
+    <meta
+      data-seo-static
+      name="twitter:title"
+      content="Lumos TV — Watch Movies, TV Shows &amp; Live TV Online"
+    />
+    <meta
+      data-seo-static
+      name="twitter:description"
+      content="Stream trending movies, popular TV shows, and free live TV channels on Lumos TV. Discover what to watch with ratings, trailers, and cast info — all in one place."
+    />
+    <meta
+      data-seo-static
+      name="twitter:image"
+      content="https://lumos-tv.in/icons/icon-512x512.png"
+    />
+
+    <!-- Structured data: site-level entities, available without JS -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Lumos TV",
+        "url": "https://lumos-tv.in/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://lumos-tv.in/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Lumos TV",
+        "url": "https://lumos-tv.in/",
+        "logo": "https://lumos-tv.in/icons/icon-512x512.png"
+      }
+    </script>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0a0a0a" />
-    <meta
-      name="description"
-      content="Watch unlimited movies, TV shows, and live sports streaming on Lumos TV. Your ultimate entertainment destination."
-    />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -27,10 +134,25 @@
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4190709207959041"
       crossorigin="anonymous"
-    ></script>
+    />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="padding: 2rem; font-family: sans-serif; text-align: center">
+        <h1>Lumos TV — Watch Movies, TV Shows &amp; Live TV Online</h1>
+        <p>
+          Lumos TV is a streaming guide for trending movies, popular TV shows,
+          and free live TV channels. Please enable JavaScript to use the app.
+        </p>
+        <ul style="list-style: none; padding: 0">
+          <li><a href="/">Home</a></li>
+          <li><a href="/movies">Movies</a></li>
+          <li><a href="/tv-shows">TV Shows</a></li>
+          <li><a href="/live-tv">Live TV</a></li>
+        </ul>
+      </div>
+    </noscript>
     <script>
       (function () {
         try {

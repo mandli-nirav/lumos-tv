@@ -111,6 +111,7 @@ export function MediaDetailContent({ media }) {
   );
   const backdrops = media.images?.backdrops || [];
   const posters = media.images?.posters || [];
+  const mediaTitle = media.title || media.name;
 
   return (
     <div className='container mx-auto mt-8 space-y-12 pb-8 font-sans'>
@@ -118,7 +119,7 @@ export function MediaDetailContent({ media }) {
       <section className='grid grid-cols-1 gap-12 md:grid-cols-3'>
         <div className='space-y-6 md:col-span-2'>
           <div className='space-y-4'>
-            <h3 className='text-foreground text-xl font-bold'>Description</h3>
+            <h2 className='text-foreground text-xl font-bold'>Description</h2>
             <p className='text-muted-foreground max-w-3xl text-base leading-relaxed'>
               {media.overview}
             </p>
@@ -126,7 +127,7 @@ export function MediaDetailContent({ media }) {
 
           {/* Cast Section */}
           <div className='space-y-4 pt-4'>
-            <h3 className='text-foreground text-lg font-bold'>Cast</h3>
+            <h2 className='text-foreground text-lg font-bold'>Cast</h2>
             <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4'>
               {cast.map((person) => (
                 <div key={person.id} className='flex items-center gap-3'>
@@ -160,7 +161,7 @@ export function MediaDetailContent({ media }) {
 
           {/* Crew Section */}
           <div className='text-foreground space-y-4 pt-6 text-lg font-bold'>
-            <h3>Crew</h3>
+            <h2>Crew</h2>
             <div className='grid grid-cols-2 gap-4 font-normal sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4'>
               {crew.map((person, index) => (
                 <div
@@ -299,6 +300,8 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={`https://image.tmdb.org/t/p/h30${network.logo_path}`}
                         alt={network.name}
+                        loading='lazy'
+                        decoding='async'
                         className='max-h-5 object-contain dark:invert'
                       />
                     ) : (
@@ -324,6 +327,8 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={`https://image.tmdb.org/t/p/h30${company.logo_path}`}
                         alt={company.name}
+                        loading='lazy'
+                        decoding='async'
                         className='max-h-5 object-contain dark:invert'
                       />
                     ) : (
@@ -398,6 +403,19 @@ export function MediaDetailContent({ media }) {
                             `/watch/tv/${id}/${selectedSeason}/${episode.episode_number}`
                           )
                         }
+                        // Contains a nested download anchor, so the row
+                        // itself can't be an <a>; link semantics + keyboard
+                        // support keep it accessible.
+                        role='link'
+                        tabIndex={0}
+                        aria-label={`Watch S${selectedSeason} E${episode.episode_number} — ${episode.name}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            navigate(
+                              `/watch/tv/${id}/${selectedSeason}/${episode.episode_number}`
+                            );
+                          }
+                        }}
                       >
                         <div className='bg-muted relative aspect-video h-20 shrink-0 overflow-hidden rounded-xl md:h-28'>
                           <img
@@ -406,7 +424,9 @@ export function MediaDetailContent({ media }) {
                               'w300',
                               'backdrop'
                             )}
-                            alt={episode.name}
+                            alt={`${mediaTitle} — ${episode.name} still`}
+                            loading='lazy'
+                            decoding='async'
                             className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
                           />
                           <div className='bg-background/20 absolute inset-0 flex items-center justify-center overflow-hidden rounded-xl opacity-0 backdrop-blur-xs transition-opacity group-hover:opacity-100'>
@@ -502,12 +522,23 @@ export function MediaDetailContent({ media }) {
                 key={video.id}
                 className='space-y-3'
                 onClick={() => setPlayingVideo(video)}
+                role='button'
+                tabIndex={0}
+                aria-label={`Play video: ${video.name}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setPlayingVideo(video);
+                  }
+                }}
               >
                 <div className='bg-muted border-border group relative aspect-video cursor-pointer overflow-hidden rounded-xl border'>
                   <img
                     src={`https://img.youtube.com/vi/${video.key}/maxresdefault.jpg`}
                     className='h-full w-full object-cover opacity-60 transition-opacity group-hover:opacity-100'
                     alt={video.name}
+                    loading='lazy'
+                    decoding='async'
                   />
                   <div className='absolute inset-0 flex items-center justify-center'>
                     <div className='bg-background/20 flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md transition-transform group-hover:scale-110'>
@@ -555,7 +586,9 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={getImageUrl(photo.file_path, 'w780')}
                         className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
-                        alt={`Backdrop ${index + 1}`}
+                        alt={`${mediaTitle} backdrop ${index + 1}`}
+                        loading='lazy'
+                        decoding='async'
                       />
                     </div>
                   ))}
@@ -576,7 +609,9 @@ export function MediaDetailContent({ media }) {
                       <img
                         src={getImageUrl(poster.file_path, 'w500')}
                         className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
-                        alt={`Poster ${index + 1}`}
+                        alt={`${mediaTitle} poster ${index + 1}`}
+                        loading='lazy'
+                        decoding='async'
                       />
                     </div>
                   ))}

@@ -41,6 +41,11 @@ export default function Home() {
 
   return (
     <div className='space-y-12 pb-10'>
+      {/* Single page H1 — the hero shows artwork logos, so the heading is
+          visually hidden but available to crawlers and screen readers. */}
+      <h1 className='sr-only'>
+        Lumos TV — Watch Movies, TV Shows & Live TV Online
+      </h1>
       <HeroSlider data={trending.data} isLoading={trending.isLoading} />
 
       <div className='container mx-auto space-y-12 py-6'>

@@ -18,12 +18,15 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.png', 'vite.svg'],
+      includeAssets: ['icons/*.png', 'favicon.svg', 'assets/logos/*.svg'],
       manifest: {
+        id: '/',
         name: 'Lumos TV - Stream Movies, TV Shows & Sports',
         short_name: 'Lumos TV',
         description:
           'Watch unlimited movies, TV shows, and live sports streaming on Lumos TV. Your ultimate entertainment destination.',
+        lang: 'en',
+        categories: ['entertainment'],
         theme_color: '#0a0a0a',
         background_color: '#0a0a0a',
         display: 'standalone',

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { VideoPlayer } from '@/components/player/VideoPlayer';
+import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { useMediaDetails, useSeasonDetails } from '@/hooks/useMedia';
 
@@ -42,19 +42,10 @@ export default function Watch() {
     return `Season ${season}, Episode ${episode}`;
   };
 
-  const pageTitle = `${getTitle()} | Lumos TV`;
-
-  useEffect(() => {
-    const oldTitle = document.title;
-    document.title = pageTitle;
-    return () => {
-      document.title = oldTitle;
-    };
-  }, [pageTitle]);
-
   if (type !== 'movie' && type !== 'tv') {
     return (
       <div className='flex h-dvh w-full flex-col items-center justify-center gap-4 bg-black text-white'>
+        <SEO title='Not Found' noindex />
         <h1 className='text-4xl font-extrabold'>Not Found</h1>
         <p className='text-white/60'>Invalid content type.</p>
         <Button asChild variant='outline'>
@@ -102,6 +93,20 @@ export default function Watch() {
 
   return (
     <div className='fixed inset-0 z-100 h-dvh w-full overflow-hidden bg-black'>
+      {/* Player pages are thin duplicates of the detail page — canonicalize
+          to /:type/:id so ranking signals consolidate there. */}
+      <SEO
+        title={getTitle()}
+        description={`Watch ${getTitle()} online in HD on Lumos TV.`}
+        url={`/${type}/${id}`}
+        image={
+          media?.backdrop_path
+            ? `https://image.tmdb.org/t/p/w1280${media.backdrop_path}`
+            : undefined
+        }
+        type={type === 'movie' ? 'video.movie' : 'video.episode'}
+      />
+      <h1 className='sr-only'>{`Watch ${getTitle()} Online`}</h1>
       <VideoPlayer
         type={type}
         id={id}

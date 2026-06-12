@@ -10,6 +10,14 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { router } from '@/routes/Router';
 
+// The static SEO fallback tags in index.html exist for crawlers that don't
+// execute JS (social scrapers). Once the app boots, the per-route <SEO />
+// component owns those tags — remove the static set so search engines that
+// render JS never see duplicated/conflicting meta.
+document
+  .querySelectorAll('[data-seo-static]')
+  .forEach((node) => node.remove());
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Play, Star } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { useLocation, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import { getImageUrl } from '@/api/tmdb';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { useMediaImages } from '@/hooks/useMedia';
 
 export function MediaCard({ item, explicitType }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef(null);
   const cardRef = useRef(null);
@@ -42,10 +41,6 @@ export function MediaCard({ item, explicitType }) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
   const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
   const language = item.original_language?.toUpperCase() || 'EN';
-
-  const handleCardClick = () => {
-    navigate(`/${mediaType}/${item.id}`);
-  };
 
   const handleMouseEnter = () => {
     if (cardRef.current) {
@@ -115,7 +110,6 @@ export function MediaCard({ item, explicitType }) {
       <motion.div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onClick={handleCardClick}
         initial={false}
         animate={getAnimateProps()}
         transition={{
@@ -127,6 +121,14 @@ export function MediaCard({ item, explicitType }) {
         }}
         className='group bg-card ring-border/50 absolute cursor-pointer overflow-hidden rounded-xl shadow-2xl ring-1'
       >
+        {/* Full-card overlay link: a real anchor so crawlers can discover
+            the detail page and keyboard users can reach it. Interactive
+            children (Watch Now) sit above it on z-20. */}
+        <Link
+          to={`/${mediaType}/${id}`}
+          aria-label={`${title}${year !== 'N/A' ? ` (${year})` : ''} — details`}
+          className='absolute inset-0 z-10'
+        />
         {/* Media Content */}
         <div className='relative w-full overflow-hidden'>
           {/* Aspect ratio container that changes */}
@@ -180,8 +182,8 @@ export function MediaCard({ item, explicitType }) {
               exit={{ opacity: 0 }}
               className='bg-card p-4'
             >
-              {/* Buttons Row */}
-              <div className='mb-4 flex gap-2'>
+              {/* Buttons Row — above the overlay link */}
+              <div className='relative z-20 mb-4 flex gap-2'>
                 <Button
                   className='flex-1'
                   onClick={(e) => {

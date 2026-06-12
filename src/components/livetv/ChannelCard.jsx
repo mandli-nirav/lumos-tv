@@ -19,6 +19,17 @@ function ChannelCardImpl({ channel, onClick }) {
     <Card
       className='group border-border/40 bg-card/30 hover:border-primary/40 hover:bg-card/50 hover:shadow-primary/10 relative cursor-pointer overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl'
       onClick={() => onClick(channel)}
+      // Playback opens in-page (no URL), so this can't be an anchor;
+      // button semantics keep it keyboard-accessible.
+      role='button'
+      tabIndex={0}
+      aria-label={`Watch ${channel.name} live`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(channel);
+        }
+      }}
     >
       <CardContent className='p-0'>
         <AspectRatio

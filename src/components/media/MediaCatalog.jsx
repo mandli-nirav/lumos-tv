@@ -20,7 +20,16 @@ import { useGenreList, useInfiniteDiscover, useInfinitePopularMedia } from '@/ho
 
 const ALL = '__all__';
 
-export function MediaCatalog({ mediaType, allLabel }) {
+/**
+ * Filterable, infinite-scrolling catalog grid for movies or TV shows.
+ *
+ * @param {Object} props
+ * @param {'movie'|'tv'} props.mediaType
+ * @param {string} props.allLabel - Label of the "all genres" tab.
+ * @param {string} props.heading - Visible page H1.
+ * @param {string} [props.tagline] - One-line intro under the heading.
+ */
+export function MediaCatalog({ mediaType, allLabel, heading, tagline }) {
   const initialData = useLoaderData();
   const { ref, inView } = useInView();
   const { filters, update, reset, activeCount } = useDiscoverFilters();
@@ -64,6 +73,16 @@ export function MediaCatalog({ mediaType, allLabel }) {
 
   return (
     <div className='container mx-auto pt-24 pb-8'>
+      {/* Page heading */}
+      <header className='mb-6'>
+        <h1 className='text-2xl font-extrabold tracking-tight sm:text-3xl'>
+          {heading}
+        </h1>
+        {tagline && (
+          <p className='text-muted-foreground mt-0.5 text-sm'>{tagline}</p>
+        )}
+      </header>
+
       {/* Top filter row */}
       <div className='mb-4 flex flex-wrap items-center gap-2 sm:gap-3'>
         <Select

@@ -29,10 +29,12 @@ function HeroSlideLogo({ type, id, title }) {
     );
   }
 
+  // h2, not h1 — every slide renders this fallback, and the page-level h1
+  // lives in Home.jsx (a page must have exactly one h1).
   return (
-    <h1 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl lg:text-6xl'>
+    <h2 className='text-foreground text-3xl leading-[1.1] font-bold md:text-4xl lg:text-6xl'>
       {title}
-    </h1>
+    </h2>
   );
 }
 
@@ -140,17 +142,30 @@ export default function HeroSlider({ data, isLoading }) {
   return (
     <div className='relative h-[90vh] w-full overflow-hidden font-sans md:h-screen'>
       <Slider {...settingsMain} className='hero-slider h-full w-full'>
-        {trendingItems.map((item) => (
+        {trendingItems.map((item, index) => (
           <div key={item.id} className='relative h-[90vh] w-full md:h-screen'>
             {/* Background Backdrop */}
             <div className='absolute inset-0'>
-              <LazyLoadImage
-                src={getImageUrl(item.backdrop_path, 'original')}
-                alt={item.title || item.name}
-                effect='blur'
-                className='h-full w-full object-cover'
-                wrapperClassName='h-full w-full !block'
-              />
+              {index === 0 ? (
+                // First slide is the LCP element: load eagerly at high
+                // priority instead of lazily, and at w1280 (the `original`
+                // TMDB size can be 4K — wasted bytes for a background).
+                <img
+                  src={getImageUrl(item.backdrop_path, 'w1280', 'backdrop')}
+                  alt={item.title || item.name}
+                  fetchPriority='high'
+                  decoding='async'
+                  className='h-full w-full object-cover'
+                />
+              ) : (
+                <LazyLoadImage
+                  src={getImageUrl(item.backdrop_path, 'w1280', 'backdrop')}
+                  alt={item.title || item.name}
+                  effect='blur'
+                  className='h-full w-full object-cover'
+                  wrapperClassName='h-full w-full !block'
+                />
+              )}
               {/* Overlays */}
               <div className='from-background via-background/60 absolute inset-0 hidden bg-linear-to-r to-transparent md:block' />
               <div className='from-background via-background/80 absolute inset-0 bg-linear-to-t to-transparent' />
@@ -235,6 +250,15 @@ export default function HeroSlider({ data, isLoading }) {
                 <div key={item.id} className='px-1 outline-none'>
                   <div
                     onClick={() => nav1?.slickGoTo(index)}
+                    role='button'
+                    tabIndex={0}
+                    aria-label={`Show slide: ${item.title || item.name}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        nav1?.slickGoTo(index);
+                      }
+                    }}
                     className={cn(
                       'thumbnail-item relative aspect-video cursor-pointer overflow-hidden rounded-md border-2 transition-all duration-300',
                       'border-transparent'

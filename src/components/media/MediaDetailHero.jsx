@@ -152,13 +152,24 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
 
   return (
     <>
+      {/* Single page H1 — both responsive layouts below are present in the
+          DOM (CSS-toggled), and the title is usually an artwork logo, so the
+          real heading is visually hidden. Visible fallbacks are h2. */}
+      <h1 className='sr-only'>
+        {`Watch ${title}${year !== 'N/A' ? ` (${year})` : ''} Online — ${
+          isMovie ? 'Movie' : 'TV Series'
+        }`}
+      </h1>
+
       {/* ===== MOBILE LAYOUT — Stacked: Backdrop → Content ===== */}
       <div className='block font-sans md:hidden'>
         {/* Backdrop — fixed aspect ratio, no overlap */}
         <div className='relative aspect-4/3 w-full overflow-hidden'>
           <img
             src={getImageUrl(media.backdrop_path, 'w780', 'backdrop')}
-            alt={title}
+            alt={`${title} backdrop`}
+            fetchPriority='high'
+            decoding='async'
             className='h-full w-full object-cover'
           />
           {/* Bottom fade into content */}
@@ -176,9 +187,9 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
               style={{ aspectRatio: logo.aspect_ratio }}
             />
           ) : (
-            <h1 className='text-foreground text-2xl leading-tight font-bold'>
+            <h2 className='text-foreground text-2xl leading-tight font-bold'>
               {title}
-            </h1>
+            </h2>
           )}
 
           {/* Meta */}
@@ -301,8 +312,10 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1 }}
-                src={getImageUrl(media.backdrop_path, 'original', 'backdrop')}
-                alt={title}
+                // w1280 instead of `original` (which can be 4K): this image
+                // also downloads on mobile where the layout is CSS-hidden.
+                src={getImageUrl(media.backdrop_path, 'w1280', 'backdrop')}
+                alt={`${title} backdrop`}
                 className='absolute inset-0 h-full w-full object-cover object-top'
               />
             )}
@@ -381,9 +394,9 @@ export function MediaDetailHero({ media, isMuted, setIsMuted, onVideoShow }) {
                       style={{ aspectRatio: logo.aspect_ratio }}
                     />
                   ) : (
-                    <h1 className='text-foreground text-4xl leading-[1.1] font-bold lg:text-5xl'>
+                    <h2 className='text-foreground text-4xl leading-[1.1] font-bold lg:text-5xl'>
                       {title}
-                    </h1>
+                    </h2>
                   )}
                 </div>
 

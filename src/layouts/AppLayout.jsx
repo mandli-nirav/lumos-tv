@@ -5,6 +5,7 @@ import { Outlet, ScrollRestoration, useNavigation } from 'react-router';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { RouteSEO } from '@/components/seo/RouteSEO';
 
 export default function AppLayout() {
   const navigation = useNavigation();
@@ -19,6 +20,9 @@ export default function AppLayout() {
 
   return (
     <div className='relative flex min-h-screen flex-col overflow-x-clip'>
+      {/* Title, description, canonical, OG/Twitter tags for static routes;
+          dynamic pages (/:type/:id, 404) render their own <SEO />. */}
+      <RouteSEO />
       <Header />
       <main className='flex-1 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0'>
         <Outlet />

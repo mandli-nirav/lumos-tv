@@ -14,7 +14,10 @@ export function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className='bg-background/80 border-border/40 fixed bottom-0 z-40 flex w-full items-center justify-around border-t pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-xl lg:hidden'>
+    <nav
+      aria-label='Primary'
+      className='bg-background/80 border-border/40 fixed bottom-0 z-40 flex w-full items-center justify-around border-t pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-xl lg:hidden'
+    >
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;
         const Icon = item.icon;

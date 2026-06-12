@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+# Internal search result pages should not be crawled (Google guideline)
+Disallow: /search
+
+Sitemap: https://lumos-tv.in/sitemap.xml

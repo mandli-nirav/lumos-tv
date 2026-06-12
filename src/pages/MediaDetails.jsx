@@ -3,10 +3,15 @@ import { Volume2, VolumeX } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router';
 
+import { getImageUrl } from '@/api/tmdb';
 import { MediaDetailContent } from '@/components/media/MediaDetailContent';
 import { MediaDetailHero } from '@/components/media/MediaDetailHero';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
+import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { useMediaDetails } from '@/hooks/useMedia';
+import { mediaSchema } from '@/lib/structuredData';
+import { truncate } from '@/lib/utils';
 
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
@@ -24,9 +29,41 @@ export default function MediaDetails() {
     );
   }
 
+  const isMovie = type === 'movie';
+  const canonicalPath = `/${type}/${id}`;
+  const title = media?.title || media?.name;
+  const releaseDate = media?.release_date || media?.first_air_date;
+  const year = releaseDate ? new Date(releaseDate).getFullYear() : null;
+
+  // Title, description, canonical, OG/Twitter and Movie/TVSeries schema for
+  // this detail page; minimal canonical-only tags while data is loading.
+  const seo = media ? (
+    <SEO
+      title={`${title}${year ? ` (${year})` : ''} — Watch Online`}
+      description={
+        truncate(media.overview, 160) ||
+        `Watch ${title} online on Lumos TV — trailers, cast, ratings, and where to stream.`
+      }
+      url={canonicalPath}
+      image={
+        media.backdrop_path
+          ? getImageUrl(media.backdrop_path, 'w1280')
+          : media.poster_path
+            ? getImageUrl(media.poster_path, 'w780')
+            : undefined
+      }
+      type={isMovie ? 'video.movie' : 'video.tv_show'}
+      twitterCard='summary_large_image'
+      jsonLd={mediaSchema(media, type, canonicalPath)}
+    />
+  ) : (
+    <SEO url={canonicalPath} />
+  );
+
   if (isLoading) {
     return (
       <div className='bg-background flex h-screen items-center justify-center'>
+        {seo}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -73,6 +110,7 @@ export default function MediaDetails() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className='bg-background min-h-screen'
       >
+        {seo}
         {/* Volume control for trailer */}
         <AnimatePresence>
           {showTrailerVideo && (
@@ -111,6 +149,18 @@ export default function MediaDetails() {
             setIsMuted={setIsMuted}
             onVideoShow={setShowTrailerVideo}
           />
+
+          <div className='container mx-auto mt-6'>
+            <Breadcrumbs
+              items={[
+                { label: 'Home', href: '/' },
+                isMovie
+                  ? { label: 'Movies', href: '/movies' }
+                  : { label: 'TV Shows', href: '/tv-shows' },
+                { label: title },
+              ]}
+            />
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 40 }}
