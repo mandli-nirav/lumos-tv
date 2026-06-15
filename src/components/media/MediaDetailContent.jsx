@@ -8,10 +8,20 @@ import { getImageUrl } from '@/api/tmdb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { ScrollFade } from '@/components/ui/scroll-fade';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useInfiniteRecommendations, useInfiniteSimilarMedia, useSeasonDetails } from '@/hooks/useMedia';
+import {
+  useInfiniteRecommendations,
+  useInfiniteSimilarMedia,
+  useSeasonDetails,
+} from '@/hooks/useMedia';
 
 import { MediaCard } from './MediaCard';
 
@@ -37,7 +47,8 @@ export function MediaDetailContent({ media }) {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const isTV = !!media?.seasons;
-  const tab = searchParams.get('tab') || (isTV ? 'episodes' : 'recommendations');
+  const tab =
+    searchParams.get('tab') || (isTV ? 'episodes' : 'recommendations');
   const selectedSeason = parseInt(searchParams.get('season') || '1', 10);
   const [playingVideo, setPlayingVideo] = useState(null);
   const { data: seasonData, isLoading: isSeasonLoading } = useSeasonDetails(
@@ -70,6 +81,29 @@ export function MediaDetailContent({ media }) {
   }, [recInView, hasNextRec, isFetchingNextRec, fetchNextRec]);
 
   if (!media) return null;
+
+  const downloadImage = async (filePath) => {
+    if (!filePath) return;
+    const url = getImageUrl(filePath, 'original');
+    const filename = filePath.split('/').pop();
+
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error('Failed to fetch image');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename || 'image.jpg';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      // Fallback: open image in new tab so user can save manually
+      window.open(url, '_blank', 'noopener');
+    }
+  };
 
   const credits = media.aggregate_credits || media.credits;
   const cast = (credits?.cast || []).slice(0, 20);
@@ -200,9 +234,15 @@ export function MediaDetailContent({ media }) {
         <div className='space-y-6'>
           {/* Certification */}
           {(() => {
-            const usRelease = media.release_dates?.results?.find((r) => r.iso_3166_1 === 'US');
-            const movieCert = usRelease?.release_dates?.map((d) => d.certification).find((c) => c);
-            const tvCert = media.content_ratings?.results?.find((r) => r.iso_3166_1 === 'US')?.rating;
+            const usRelease = media.release_dates?.results?.find(
+              (r) => r.iso_3166_1 === 'US'
+            );
+            const movieCert = usRelease?.release_dates
+              ?.map((d) => d.certification)
+              .find((c) => c);
+            const tvCert = media.content_ratings?.results?.find(
+              (r) => r.iso_3166_1 === 'US'
+            )?.rating;
             const cert = movieCert || tvCert;
             return cert ? (
               <div className='space-y-1'>
@@ -271,8 +311,11 @@ export function MediaDetailContent({ media }) {
                 Seasons & Episodes
               </span>
               <p className='text-foreground/90 text-sm font-bold'>
-                {media.number_of_seasons} Season{media.number_of_seasons > 1 ? 's' : ''}
-                {media.number_of_episodes ? ` • ${media.number_of_episodes} Episodes` : ''}
+                {media.number_of_seasons} Season
+                {media.number_of_seasons > 1 ? 's' : ''}
+                {media.number_of_episodes
+                  ? ` • ${media.number_of_episodes} Episodes`
+                  : ''}
               </p>
             </div>
           )}
@@ -474,19 +517,30 @@ export function MediaDetailContent({ media }) {
         <TabsContent value='recommendations' className='pt-8 outline-none'>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
             {recItems.map((item) => (
-              <MediaCard key={item.id} item={item} explicitType={item.media_type || type} />
+              <MediaCard
+                key={item.id}
+                item={item}
+                explicitType={item.media_type || type}
+              />
             ))}
           </div>
           {recItems.length === 0 && (
             <Empty>
               <EmptyHeader>
-                <EmptyMedia variant='icon'><Tv /></EmptyMedia>
+                <EmptyMedia variant='icon'>
+                  <Tv />
+                </EmptyMedia>
                 <EmptyTitle>No Recommendations</EmptyTitle>
-                <EmptyDescription>We don't have any recommendations for this title yet.</EmptyDescription>
+                <EmptyDescription>
+                  We don't have any recommendations for this title yet.
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
-          <div ref={recRef} className='flex h-20 items-center justify-center pt-8'>
+          <div
+            ref={recRef}
+            className='flex h-20 items-center justify-center pt-8'
+          >
             {isFetchingNextRec && (
               <div className='border-primary/20 border-t-primary h-6 w-6 animate-spin rounded-full border-2' />
             )}
@@ -502,13 +556,20 @@ export function MediaDetailContent({ media }) {
           {similarItems.length === 0 && (
             <Empty>
               <EmptyHeader>
-                <EmptyMedia variant='icon'><Film /></EmptyMedia>
+                <EmptyMedia variant='icon'>
+                  <Film />
+                </EmptyMedia>
                 <EmptyTitle>No Similar Titles</EmptyTitle>
-                <EmptyDescription>We couldn't find any similar titles to show here.</EmptyDescription>
+                <EmptyDescription>
+                  We couldn't find any similar titles to show here.
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
-          <div ref={similarRef} className='flex h-20 items-center justify-center pt-8'>
+          <div
+            ref={similarRef}
+            className='flex h-20 items-center justify-center pt-8'
+          >
             {isFetchingNextSimilar && (
               <div className='border-primary/20 border-t-primary h-6 w-6 animate-spin rounded-full border-2' />
             )}
@@ -563,9 +624,13 @@ export function MediaDetailContent({ media }) {
           {videos.length === 0 && (
             <Empty>
               <EmptyHeader>
-                <EmptyMedia variant='icon'><Video /></EmptyMedia>
+                <EmptyMedia variant='icon'>
+                  <Video />
+                </EmptyMedia>
                 <EmptyTitle>No Videos</EmptyTitle>
-                <EmptyDescription>No trailers or clips are available for this title yet.</EmptyDescription>
+                <EmptyDescription>
+                  No trailers or clips are available for this title yet.
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
@@ -590,6 +655,17 @@ export function MediaDetailContent({ media }) {
                         loading='lazy'
                         decoding='async'
                       />
+                      <button
+                        aria-label='Download original image'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadImage(photo.file_path);
+                        }}
+                        className='bg-background/80 text-foreground absolute right-3 bottom-3 z-20 flex h-9 w-9 items-center justify-center rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:scale-105'
+                        title='Download original'
+                      >
+                        <Download className='h-4 w-4' />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -613,6 +689,17 @@ export function MediaDetailContent({ media }) {
                         loading='lazy'
                         decoding='async'
                       />
+                      <button
+                        aria-label='Download original image'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadImage(poster.file_path);
+                        }}
+                        className='bg-background/80 text-foreground absolute right-3 bottom-3 z-20 flex h-9 w-9 items-center justify-center rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:scale-105'
+                        title='Download original'
+                      >
+                        <Download className='h-4 w-4' />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -622,9 +709,13 @@ export function MediaDetailContent({ media }) {
             {backdrops.length === 0 && posters.length === 0 && (
               <Empty>
                 <EmptyHeader>
-                  <EmptyMedia variant='icon'><Image /></EmptyMedia>
+                  <EmptyMedia variant='icon'>
+                    <Image />
+                  </EmptyMedia>
                   <EmptyTitle>No Photos</EmptyTitle>
-                  <EmptyDescription>No backdrops or posters are available for this title yet.</EmptyDescription>
+                  <EmptyDescription>
+                    No backdrops or posters are available for this title yet.
+                  </EmptyDescription>
                 </EmptyHeader>
               </Empty>
             )}

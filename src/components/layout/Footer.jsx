@@ -29,15 +29,12 @@ const footerLinks = [
   },
   {
     title: 'Legal',
-    // No href yet: these pages don't exist. Rendered as plain text (not
-    // dead '#' anchors, which crawlers treat as broken links) — set `href`
-    // once the pages are created.
     links: [
-      { label: 'Privacy Policy' },
-      { label: 'Terms of Service' },
-      { label: 'DMCA Policy' },
-      { label: 'Disclaimer' },
-      { label: 'Contact Us' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'DMCA Policy', href: '/dmca' },
+      { label: 'Disclaimer', href: '/disclaimer' },
+      { label: 'Contact Us', href: '/contact' },
     ],
   },
 ];

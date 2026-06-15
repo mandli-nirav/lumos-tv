@@ -84,6 +84,22 @@ export default defineConfig({
     chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
+        // Emit the legal/info page chunks under a neutral "info-*" filename.
+        // Their default names (e.g. "PrivacyPolicy-*.js") match ad-blocker
+        // filter lists, which block the request (net::ERR_BLOCKED_BY_CLIENT)
+        // and break the page for visitors who run an ad blocker. This only
+        // renames the output file — the chunk graph is unchanged, so each
+        // page stays its own small lazy chunk.
+        chunkFileNames(chunkInfo) {
+          if (
+            /^(PrivacyPolicy|Terms|DMCA|Disclaimer|Contact)$/.test(
+              chunkInfo.name
+            )
+          ) {
+            return 'assets/info-[hash].js';
+          }
+          return 'assets/[name]-[hash].js';
+        },
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
           // Heavy video stack — only pulled in by watch/live routes (lazy).

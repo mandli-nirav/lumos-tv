@@ -2,7 +2,8 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import tmdb from '@/api/tmdb';
 
-const DETAIL_APPEND_TO_RESPONSE = 'videos,images,external_ids,watch/providers,reviews,credits,aggregate_credits,release_dates,content_ratings';
+const DETAIL_APPEND_TO_RESPONSE =
+  'videos,images,external_ids,watch/providers,reviews,credits,aggregate_credits,release_dates,content_ratings';
 const include_image_language = 'en,null';
 /**
  * Fetch trending media.
@@ -144,7 +145,10 @@ export const useMediaDetails = (type, id) => {
     queryKey: ['media', type, id],
     queryFn: async () => {
       const response = await tmdb.get(`/${type}/${id}`, {
-        params: { append_to_response: DETAIL_APPEND_TO_RESPONSE, include_image_language },
+        params: {
+          append_to_response: DETAIL_APPEND_TO_RESPONSE,
+          include_image_language,
+        },
       });
       return response.data;
     },
@@ -206,7 +210,10 @@ export const useSeasonDetails = (tvId, seasonNumber, options = {}) => {
     queryKey: ['tv', tvId, 'season', seasonNumber],
     queryFn: async () => {
       const response = await tmdb.get(`/tv/${tvId}/season/${seasonNumber}`, {
-        params: { append_to_response: DETAIL_APPEND_TO_RESPONSE, include_image_language },
+        params: {
+          append_to_response: DETAIL_APPEND_TO_RESPONSE,
+          include_image_language,
+        },
       });
       return response.data;
     },
@@ -280,8 +287,10 @@ export const useInfiniteDiscover = (type, filters = {}, options = {}) => {
         params['vote_average.lte'] = filters.voteAverageLte;
       if (filters.voteCountGte != null)
         params['vote_count.gte'] = filters.voteCountGte;
-      if (filters.runtimeGte != null) params['with_runtime.gte'] = filters.runtimeGte;
-      if (filters.runtimeLte != null) params['with_runtime.lte'] = filters.runtimeLte;
+      if (filters.runtimeGte != null)
+        params['with_runtime.gte'] = filters.runtimeGte;
+      if (filters.runtimeLte != null)
+        params['with_runtime.lte'] = filters.runtimeLte;
       if (filters.watchProviders?.length)
         params.with_watch_providers = filters.watchProviders.join('|');
       if (filters.watchMonetizationTypes?.length)
@@ -384,6 +393,38 @@ export const useMediaImages = (type, id) => {
     },
     enabled: !!type && !!id,
     staleTime: 24 * 60 * 60 * 1000,
+  });
+};
+
+/**
+ * Search TMDB movie collections by name.
+ */
+export const useSearchCollections = (query, options = {}) => {
+  return useQuery({
+    queryKey: ['collections', 'search', query],
+    queryFn: async () => {
+      const response = await tmdb.get('/search/collection', {
+        params: { query },
+      });
+      return response.data;
+    },
+    enabled: !!query,
+    ...options,
+  });
+};
+
+/**
+ * Fetch a TMDB movie collection by ID.
+ */
+export const useCollectionDetails = (id, options = {}) => {
+  return useQuery({
+    queryKey: ['collections', 'details', id],
+    queryFn: async () => {
+      const response = await tmdb.get(`/collection/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+    ...options,
   });
 };
 

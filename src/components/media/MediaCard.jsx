@@ -93,7 +93,10 @@ export function MediaCard({ item, explicitType }) {
       width: '125%',
       y: '-50%',
       top: '50%',
-      x: origin === 'left' ? '0%' : origin === 'right' ? '-100%' : '-50%',
+      // When hovering a card near the left edge, nudge it slightly to the
+      // right so the expanded card isn't clipped by the carousel/container
+      // edge (matches the behavior on platforms like Hotstar).
+      x: origin === 'left' ? '12px' : origin === 'right' ? '-100%' : '-50%',
       left: origin === 'left' ? '0%' : origin === 'right' ? '100%' : '50%',
     };
   };

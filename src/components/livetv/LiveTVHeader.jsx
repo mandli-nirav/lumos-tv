@@ -26,7 +26,9 @@ export function LiveTVHeader({
             Live TV
           </h1>
           <p className='text-muted-foreground mt-0.5 text-sm'>
-            <span className='text-foreground font-semibold'>{channelCount}</span>{' '}
+            <span className='text-foreground font-semibold'>
+              {channelCount}
+            </span>{' '}
             channels live
           </p>
         </div>

@@ -1,4 +1,4 @@
-import { Film, Home, Tv } from 'lucide-react';
+import { Film, Home, Layers3, Tv } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 
 import { cn } from '@/lib/utils';
@@ -7,6 +7,7 @@ const navItems = [
   { title: 'Home', href: '/', icon: Home },
   { title: 'Live TV', href: '/live-tv', icon: Tv },
   { title: 'Movies', href: '/movies', icon: Film },
+  { title: 'Collections', href: '/collections', icon: Layers3 },
   { title: 'TV Shows', href: '/tv-shows', icon: Tv },
 ];
 
@@ -16,7 +17,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label='Primary'
-      className='bg-background/80 border-border/40 fixed bottom-0 z-40 flex w-full items-center justify-around border-t pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-xl lg:hidden'
+      className='bg-background/80 border-border/40 fixed bottom-0 z-40 flex w-full items-center justify-around border-t pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0))] backdrop-blur-xl lg:hidden'
     >
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;

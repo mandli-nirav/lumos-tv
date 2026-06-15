@@ -31,6 +31,12 @@ const STATIC_ROUTES = [
   ['/movies', 'daily', '0.9'],
   ['/tv-shows', 'daily', '0.9'],
   ['/live-tv', 'daily', '0.8'],
+  // Legal / informational pages — rarely change, low priority.
+  ['/privacy', 'yearly', '0.3'],
+  ['/terms', 'yearly', '0.3'],
+  ['/dmca', 'yearly', '0.3'],
+  ['/disclaimer', 'yearly', '0.3'],
+  ['/contact', 'yearly', '0.3'],
 ];
 
 /** Pages of TMDB "popular" results to include per media type (20 per page). */

@@ -20,9 +20,10 @@ import {
 
 // Matches the Tailwind grid-cols classes below
 const getColumns = (width) => {
-  if (width >= 1280) return 6; // xl
-  if (width >= 1024) return 5; // lg
-  if (width >= 768) return 4; // md
+  // Reduce the number of columns at larger breakpoints so cards appear wider
+  if (width >= 1280) return 5; // xl (was 6)
+  if (width >= 1024) return 4; // lg (was 5)
+  if (width >= 768) return 3; // md (was 4)
   if (width >= 640) return 3; // sm
   return 2; // mobile
 };
@@ -226,7 +227,7 @@ export default function LiveTV() {
                   virtualItem.start - virtualizer.options.scrollMargin
                 }px)`,
               }}
-              className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+              className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
             >
               {rows[virtualItem.index]?.map((channel) => (
                 <ChannelCard

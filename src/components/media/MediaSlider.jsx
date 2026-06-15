@@ -79,13 +79,21 @@ export function MediaSlider({
         )}
       </div>
 
-      {/* clip-path clips ONLY the horizontal axis (off-screen slides at the
-          row edges) while leaving vertical overflow visible, so the hover-
-          expanded MediaCard isn't chopped off — unlike overflow-x-clip, which
-          forces overflow-y to clip in most browsers. */}
+      {/*
+        clip-path clips ONLY the horizontal axis (off-screen slides at the
+        row edges) while leaving vertical overflow visible, so the hover-
+        expanded MediaCard isn't chopped off — unlike overflow-x-clip, which
+        forces overflow-y to clip in most browsers.
+
+        Use an explicit inline style for `clip-path` here instead of a
+        Tailwind arbitrary class. Some build/tooling setups can emit the
+        arbitrary value with underscores (e.g. "inset(-100%_0)") which
+        results in an invalid CSS value and the property being ignored.
+      */}
       <div
-        className='relative [clip-path:inset(-100%_0)]'
+        className='relative'
         data-media-slider=''
+        style={{ clipPath: 'inset(-100% 0)' }}
       >
         <Carousel
           setApi={setApi}

@@ -52,6 +52,31 @@ export const routeSeo = {
     // Internal search result pages should not be indexed (Google guideline).
     noindex: true,
   },
+  '/privacy': {
+    title: 'Privacy Policy',
+    description:
+      'How Lumos TV handles cookies, advertising, local storage, and third-party services. Read our full privacy practices.',
+  },
+  '/terms': {
+    title: 'Terms of Service',
+    description:
+      'The terms governing your use of Lumos TV, including our role as a content-discovery service and acceptable use.',
+  },
+  '/dmca': {
+    title: 'DMCA Policy',
+    description:
+      'Lumos TV respects intellectual property rights. Learn how to submit a copyright infringement notice or counter-notification.',
+  },
+  '/disclaimer': {
+    title: 'Disclaimer',
+    description:
+      'Lumos TV does not host any media. Read our disclaimer covering third-party content, links, accuracy, and advertising.',
+  },
+  '/contact': {
+    title: 'Contact Us',
+    description:
+      'Get in touch with Lumos TV for general enquiries, feedback, or copyright and DMCA concerns.',
+  },
 };
 
 /**
