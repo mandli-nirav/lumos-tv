@@ -28,7 +28,7 @@ Date: 2026-06-13 · Stack: Vite 7 + React 19 + React Router 7 + Tailwind 4 (clie
 | 18 | No breadcrumbs (UI or schema) | Low |
 | 19 | No noscript fallback content | Low |
 
-Already good before the audit: route-level code splitting (`React.lazy` everywhere), manual vendor chunking, lazy images in grids (`react-lazy-load-image-component`), PWA manifest, strong security headers (`vercel.json`), `rel="noopener noreferrer"` on all external links, `header/main/footer/nav` landmarks, HTTPS canonical host.
+Already good before the audit: route-level code splitting (`React.lazy` everywhere), manual vendor chunking, lazy images in grids (`react-lazy-load-image-component`), PWA manifest, strong security headers (`public/_headers`), `rel="noopener noreferrer"` on all external links, `header/main/footer/nav` landmarks, HTTPS canonical host.
 
 ---
 
@@ -78,7 +78,7 @@ The requested component API was kept exactly (`<SEO title description keywords i
 - **LCP**: first hero slide is now an eager `<img fetchpriority="high" decoding="async">` at `w1280` (was: lazy + blur at `original`/4K). Detail-page mobile backdrop gets `fetchpriority="high"`; desktop backdrop downsized `original` → `w1280` (it downloads on mobile too, where it's CSS-hidden).
 - `preconnect` to `image.tmdb.org` + `api.themoviedb.org`, `dns-prefetch` for youtube-img/placehold/iptv-org.
 - `loading="lazy" decoding="async"` added to all below-fold plain `<img>`s (episode stills, trailer thumbs, photo grids, network/production logos).
-- Route code-splitting and manual vendor chunks were already in place (verified intact in the build). Compression/caching are handled by the hosts (Cloudflare/Vercel auto-Brotli + immutable hashed assets) — no plugin needed.
+- Route code-splitting and manual vendor chunks were already in place (verified intact in the build). Compression/caching are handled by the host (Cloudflare auto-Brotli + immutable hashed assets) — no plugin needed.
 
 ### Accessibility
 - Accessible names for both search inputs (`type="search"` + `aria-label`), the clear-search button, slider thumbnails.
