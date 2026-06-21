@@ -41,6 +41,15 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
   useEffect(() => {
     if (!artRef.current || !streamUrl) return;
 
+    // Track teardown state across ArtPlayer's async init. ArtPlayer invokes
+    // customType.m3u8 (where the Hls instance is created) AFTER construction,
+    // so if the effect is cleaned up first — StrictMode's mount→unmount→mount
+    // in dev, or a fast back-navigation in prod — that late callback would
+    // otherwise spin up an orphaned <video>/Hls that keeps playing audio with
+    // nothing left to tear it down.
+    let destroyed = false;
+    let hls = null;
+
     const art = new Artplayer({
       container: artRef.current,
       url: streamUrl,
@@ -66,8 +75,11 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
       theme: '#ff4d00', // Lumos Primary Orange
       customType: {
         m3u8: function (video, url) {
+          // Effect was already cleaned up before this async callback ran —
+          // bail so we never create a leaking, still-playing instance.
+          if (destroyed) return;
           if (Hls.isSupported()) {
-            const hls = new Hls({
+            hls = new Hls({
               enableWorker: true,
               lowLatencyMode: true,
               backBufferLength: 90,
@@ -179,20 +191,29 @@ export function LiveTVPlayer({ streams = [], title, logo, onBack }) {
     });
 
     return () => {
-      if (art && art.destroy) {
-        if (art.hls) {
-          art.hls.stopLoad();
-          art.hls.detachMedia();
-          art.hls.destroy();
-          art.hls = null;
+      destroyed = true;
+      // Tear down HLS via the closure ref (not art.hls) so it works whether or
+      // not the customType callback had assigned it yet when cleanup fires.
+      if (hls) {
+        try {
+          hls.stopLoad();
+          hls.detachMedia();
+          hls.destroy();
+        } catch {
+          // ignore teardown races on a partially-initialized instance
         }
-        // Also clear the video source to stop any native requests
+        hls = null;
+      }
+      if (art) {
+        // Pause + detach the media element. Removing a <video> from the DOM
+        // alone does NOT stop audio on a detached element — only pause() does.
         if (art.video) {
           art.video.pause();
           art.video.removeAttribute('src');
           art.video.load();
         }
-        art.destroy(true);
+        art.hls = null;
+        if (art.destroy) art.destroy(true);
       }
     };
   }, [streamUrl, streams, title, logo, tryNextStream]);
