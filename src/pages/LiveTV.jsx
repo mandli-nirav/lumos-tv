@@ -39,7 +39,25 @@ const estimateRowHeight = (width) => {
 };
 
 export default function LiveTV() {
-  const [selectedLanguage, setSelectedLanguage] = useState(ALL_LANGUAGES);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // URL-backed language filter (mirrors the category filter below) so the
+  // selection survives refresh, deep-links, and back/forward navigation.
+  // Stores the language code (e.g. `hin`); the default `all` is omitted to
+  // keep clean URLs.
+  const selectedLanguage = searchParams.get('language') || ALL_LANGUAGES;
+  const setSelectedLanguage = (val) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (val === ALL_LANGUAGES) next.delete('language');
+        else next.set('language', val);
+        return next;
+      },
+      { replace: true }
+    );
+  };
+
   const {
     data: channels,
     isLoading,
@@ -48,9 +66,7 @@ export default function LiveTV() {
   } = useDetailedLiveTV({ language: selectedLanguage });
   const languages = useLanguages();
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') || 'All';
-
   const setSelectedCategory = (val) => {
     setSearchParams(
       (prev) => {
@@ -63,7 +79,34 @@ export default function LiveTV() {
     );
   };
 
-  const [searchQuery, setSearchQuery] = useState('');
+  // Search: an instant local input value that is debounced into the `q` URL
+  // param, so typing stays responsive while filtering and history follow the
+  // debounced value. `searchQuery` (from the URL) is what the list filters on.
+  const searchQuery = searchParams.get('q') || '';
+  const [searchInput, setSearchInput] = useState(searchQuery);
+
+  // Reflect external URL changes (deep-links, back/forward) back into the input.
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce the input → URL (300ms); drop the param when empty for clean URLs.
+  useEffect(() => {
+    if (searchInput === searchQuery) return;
+    const id = setTimeout(() => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (searchInput.trim() === '') next.delete('q');
+          else next.set('q', searchInput);
+          return next;
+        },
+        { replace: true }
+      );
+    }, 300);
+    return () => clearTimeout(id);
+  }, [searchInput, searchQuery, setSearchParams]);
+
   const [activeChannel, setActiveChannel] = useState(null);
 
   const categories = useLiveTVCategories(channels);
@@ -153,8 +196,8 @@ export default function LiveTV() {
       >
         <LiveTVHeader
           channelCount={channels?.length || 0}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          searchQuery={searchInput}
+          setSearchQuery={setSearchInput}
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
           languages={languages}
@@ -255,7 +298,7 @@ export default function LiveTV() {
             className='text-primary mt-4'
             onClick={() => {
               setSelectedCategory('All');
-              setSearchQuery('');
+              setSearchInput('');
             }}
           >
             Reset filters
