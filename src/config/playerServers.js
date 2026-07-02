@@ -19,7 +19,7 @@ export const PLAYER_SERVERS = [
   {
     id: 'videasy',
     name: 'Server 1 (Videasy)',
-    url: 'https://player.videasy.net',
+    url: 'https://player.videasy.to',
     patterns: {
       movie: `movie/{id}?color=${BRAND_COLOR}&overlay=true`,
       tv: `tv/{id}/{season}/{episode}?color=${BRAND_COLOR}&nextEpisode=true&autoplayNextEpisode=true&episodeSelector=true&overlay=true`,
@@ -43,10 +43,68 @@ export const PLAYER_SERVERS = [
       tv: 'tv/{id}/{season}/{episode}',
     },
   },
+  // VidSrc.me — the original vidsrc.me and its .in/.net/.pm/.xyz/.io/.vc/.bz/.gd/.do/.mn/.tw
+  // domains are dead or deprecated. These are the current live mirror domains, all serving the
+  // same `/embed/movie?tmdb=` API. Listed .su-first (more takedown-resistant) so failover prefers
+  // the sturdier TLD. handleServerError() auto-cycles through them in order.
   {
-    id: 'vidsrc-me',
-    name: 'Server 4 (VidSrc.me)',
-    url: 'https://vidsrc.me/embed',
+    id: 'vidsrcme-su',
+    name: 'Server 4 (VidSrc.me — vidsrcme.su)',
+    url: 'https://vidsrcme.su/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vidsrc-me-su',
+    name: 'Server 5 (VidSrc.me — vidsrc-me.su)',
+    url: 'https://vidsrc-me.su/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vidsrc-embed-su',
+    name: 'Server 6 (VidSrc.me — vidsrc-embed.su)',
+    url: 'https://vidsrc-embed.su/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vsrc-su',
+    name: 'Server 7 (VidSrc.me — vsrc.su)',
+    url: 'https://vsrc.su/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vidsrcme-ru',
+    name: 'Server 8 (VidSrc.me — vidsrcme.ru)',
+    url: 'https://vidsrcme.ru/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vidsrc-me-ru',
+    name: 'Server 9 (VidSrc.me — vidsrc-me.ru)',
+    url: 'https://vidsrc-me.ru/embed',
+    patterns: {
+      movie: 'movie?tmdb={id}',
+      tv: 'tv?tmdb={id}&season={season}&episode={episode}',
+    },
+  },
+  {
+    id: 'vidsrc-embed-ru',
+    name: 'Server 10 (VidSrc.me — vidsrc-embed.ru)',
+    url: 'https://vidsrc-embed.ru/embed',
     patterns: {
       movie: 'movie?tmdb={id}',
       tv: 'tv?tmdb={id}&season={season}&episode={episode}',
@@ -54,7 +112,7 @@ export const PLAYER_SERVERS = [
   },
   {
     id: 'vidsrc-pro',
-    name: 'Server 5 (VidSrc.pro)',
+    name: 'Server 11 (VidSrc.pro)',
     url: 'https://vidsrc.pro/embed',
     patterns: {
       movie: 'movie/{id}',
@@ -63,7 +121,7 @@ export const PLAYER_SERVERS = [
   },
   {
     id: '2embed',
-    name: 'Server 6 (2Embed)',
+    name: 'Server 12 (2Embed)',
     url: 'https://www.2embed.cc',
     patterns: {
       movie: 'embed/{id}',
@@ -72,8 +130,8 @@ export const PLAYER_SERVERS = [
   },
   {
     id: 'autoembed',
-    name: 'Server 7 (AutoEmbed 1)',
-    url: 'https://player.autoembed.cc/embed',
+    name: 'Server 13 (AutoEmbed 1)',
+    url: 'https://player.autoembed.app/embed',
     patterns: {
       movie: 'movie/{id}',
       tv: 'tv/{id}/{season}/{episode}',
@@ -81,8 +139,8 @@ export const PLAYER_SERVERS = [
   },
   {
     id: 'autoembed-2',
-    name: 'Server 8 (AutoEmbed 2)',
-    url: 'https://player.autoembed.cc/embed',
+    name: 'Server 14 (AutoEmbed 2)',
+    url: 'https://player.autoembed.app/embed',
     patterns: {
       movie: 'movie/{id}?server=2',
       tv: 'tv/{id}/{season}/{episode}?server=2',
@@ -90,8 +148,8 @@ export const PLAYER_SERVERS = [
   },
   {
     id: 'autoembed-3',
-    name: 'Server 9 (AutoEmbed 3)',
-    url: 'https://player.autoembed.cc/embed',
+    name: 'Server 15 (AutoEmbed 3)',
+    url: 'https://player.autoembed.app/embed',
     patterns: {
       movie: 'movie/{id}?server=3',
       tv: 'tv/{id}/{season}/{episode}?server=3',
